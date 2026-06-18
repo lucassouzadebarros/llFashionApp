@@ -911,6 +911,18 @@ input:focus {
   color: #047857;
 }
 
+.orderListCard .orderStatusLine strong {
+  color: #0f172a;
+}
+
+.orderListCard .orderStatusLine.success strong {
+  color: #047857;
+}
+
+.orderListCard .orderStatusLine.danger strong {
+  color: #be123c;
+}
+
 .pixBox {
   width: 100%;
   display: grid;

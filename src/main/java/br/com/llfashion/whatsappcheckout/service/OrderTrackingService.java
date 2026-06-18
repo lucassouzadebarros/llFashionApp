@@ -316,8 +316,9 @@ public class OrderTrackingService {
     public String buildWhatsAppStatusMessage(OrderStatusResponse order) {
         return "Encontrei seu pedido\n\n"
                 + "Pedido: " + publicOrderNumber(order) + "\n"
-                + "Pagamento: " + friendlyPayment(order.paymentStatus()) + "\n"
-                + "Envio: " + friendlyShipping(order.shippingStatus()) + "\n\n"
+                + "Status: " + order.statusTitle() + "\n"
+                + "Pagamento: " + order.paymentStatus() + "\n"
+                + "Envio: " + order.shippingStatus() + "\n\n"
                 + "Acompanhe por aqui:\n"
                 + statusUrl(order.statusPublicToken());
     }
@@ -357,6 +358,9 @@ public class OrderTrackingService {
                     .append("Total: ")
                     .append(money(order.total()))
                     .append("\n")
+                    .append("Status: ")
+                    .append(order.statusTitle())
+                    .append("\n")
                     .append("Pagamento: ")
                     .append(order.paymentStatus())
                     .append("\n")
@@ -380,14 +384,14 @@ public class OrderTrackingService {
                 publicStatus,
                 title(publicStatus),
                 message(publicStatus),
-                friendlyPayment(firstText(order.getPaymentStatus(), order.getStatus().name())),
-                friendlyShipping(firstText(order.getShippingStatus(), "pending")),
+                displayPaymentStatus(order, publicStatus),
+                displayShippingStatus(order, publicStatus),
                 canPay(order, publicStatus),
                 order.getCheckoutUrl(),
                 order.getPixCopyPaste(),
                 order.getPixQrCodeUrl(),
-                firstText(order.getShippingMethod(), "Aguardando atualizacao da loja"),
-                shippingEta(order),
+                displayShippingMethod(order, publicStatus),
+                displayShippingEta(order, publicStatus),
                 order.getShippingTrackingNumber(),
                 order.getShippingTrackingUrl(),
                 order.getTotal(),
@@ -407,8 +411,8 @@ public class OrderTrackingService {
                 publicOrderNumber(order),
                 publicStatus,
                 title(publicStatus),
-                friendlyPayment(firstText(order.getPaymentStatus(), order.getStatus().name())),
-                friendlyShipping(firstText(order.getShippingStatus(), "pending")),
+                displayPaymentStatus(order, publicStatus),
+                displayShippingStatus(order, publicStatus),
                 canPay(order, publicStatus),
                 order.getCheckoutUrl(),
                 statusUrl(order.getStatusPublicToken()),
@@ -491,6 +495,40 @@ public class OrderTrackingService {
             return order.getShippingMinDays() + " a " + order.getShippingMaxDays() + " dias uteis";
         }
         return "Aguardando atualizacao da loja";
+    }
+
+    private String displayPaymentStatus(WhatsappOrder order, PublicOrderStatus publicStatus) {
+        if (publicStatus == PublicOrderStatus.CANCELLED) {
+            return "Cancelado";
+        }
+        if (publicStatus == PublicOrderStatus.REFUNDED) {
+            return "Estornado";
+        }
+        return friendlyPayment(firstText(order.getPaymentStatus(), order.getStatus() == null ? null : order.getStatus().name()));
+    }
+
+    private String displayShippingStatus(WhatsappOrder order, PublicOrderStatus publicStatus) {
+        if (publicStatus == PublicOrderStatus.CANCELLED) {
+            return "Pedido cancelado";
+        }
+        if (publicStatus == PublicOrderStatus.REFUNDED) {
+            return "Pedido cancelado";
+        }
+        return friendlyShipping(firstText(order.getShippingStatus(), "pending"));
+    }
+
+    private String displayShippingMethod(WhatsappOrder order, PublicOrderStatus publicStatus) {
+        if (publicStatus == PublicOrderStatus.CANCELLED || publicStatus == PublicOrderStatus.REFUNDED) {
+            return "Pedido cancelado";
+        }
+        return firstText(order.getShippingMethod(), "Aguardando atualizacao da loja");
+    }
+
+    private String displayShippingEta(WhatsappOrder order, PublicOrderStatus publicStatus) {
+        if (publicStatus == PublicOrderStatus.CANCELLED || publicStatus == PublicOrderStatus.REFUNDED) {
+            return "Este pedido nao sera enviado.";
+        }
+        return shippingEta(order);
     }
 
     private String publicOrderNumber(OrderStatusResponse order) {

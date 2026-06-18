@@ -808,6 +808,10 @@ function OrderListScreen({ result }) {
               <small>Total</small>
               <span>{money(order.total)}</span>
             </div>
+            <div className={`orderStatusLine ${statusToneClass(order.publicStatus)}`}>
+              <small>Status</small>
+              <strong>{order.statusTitle}</strong>
+            </div>
             <div>
               <small>Pagamento</small>
               <span>{order.paymentStatus}</span>
@@ -844,6 +848,7 @@ function OrderStatusScreen({ order }) {
   const [pixCopied, setPixCopied] = useState(false);
   const hasPixCode = Boolean(order.pixCopyPaste);
   const canOpenCheckout = order.canPay && order.checkoutUrl && !hasPixCode;
+  const orderStopped = ['CANCELLED', 'REFUNDED'].includes(order.publicStatus);
 
   async function copyPixCode() {
     if (!order.pixCopyPaste) return;
@@ -919,7 +924,10 @@ function OrderStatusScreen({ order }) {
             )}
           </div>
         ) : (
-          <div className="safeNote"><Truck size={18} /> Aguardando atualizacao da loja sobre o rastreio.</div>
+          <div className="safeNote">
+            <Truck size={18} />
+            {orderStopped ? 'Pedido cancelado. Nao ha rastreio para este pedido.' : 'Aguardando atualizacao da loja sobre o rastreio.'}
+          </div>
         )}
       </section>
 
@@ -1115,6 +1123,16 @@ function displayOrderNumber(order) {
     return `#${order.nuvemshopDraftOrderId}`;
   }
   return `#${String(order?.localOrderId || '').slice(0, 8)}`;
+}
+
+function statusToneClass(status) {
+  if (['CANCELLED', 'REFUNDED', 'ERROR'].includes(status)) {
+    return 'danger';
+  }
+  if (['DELIVERED', 'PAYMENT_CONFIRMED', 'SHIPPED'].includes(status)) {
+    return 'success';
+  }
+  return '';
 }
 
 function isClosedCart(cart) {
