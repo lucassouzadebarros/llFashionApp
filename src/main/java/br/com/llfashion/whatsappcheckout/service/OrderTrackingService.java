@@ -85,7 +85,7 @@ public class OrderTrackingService {
         }
         List<WhatsappOrder> orders = orderRepository.findByCustomerPhoneOrderByCreatedAtDesc(normalizedPhone);
         if (orders.isEmpty()) {
-            return new OrderStatusListResponse(false, false, "Ainda nao encontrei pedidos para este WhatsApp.", 0, null, List.of());
+            return new OrderStatusListResponse(false, false, noOrdersMessage(normalizedPhone), 0, null, List.of());
         }
 
         orders.forEach(this::refreshFromNuvemshop);
@@ -93,7 +93,7 @@ public class OrderTrackingService {
                 .filter(this::showInCustomerHistory)
                 .toList();
         if (visibleOrders.isEmpty()) {
-            return new OrderStatusListResponse(false, false, "Ainda nao encontrei pedidos ativos para este WhatsApp.", 0, null, List.of());
+            return new OrderStatusListResponse(false, false, noActiveOrdersMessage(normalizedPhone), 0, null, List.of());
         }
 
         List<OrderStatusSummaryResponse> summaries = visibleOrders.stream()
@@ -328,7 +328,8 @@ public class OrderTrackingService {
 
     public String buildWhatsAppStatusMessage(OrderStatusListResponse result, String phone) {
         if (result == null || !result.found()) {
-            return result == null ? "Ainda nao encontrei pedidos para este WhatsApp." : result.message();
+            String normalizedPhone = onlyDigits(phone);
+            return result == null ? noOrdersMessage(normalizedPhone) : result.message();
         }
         if (!result.multiple() && result.order() != null) {
             return buildWhatsAppStatusMessage(result.order());
@@ -542,6 +543,25 @@ public class OrderTrackingService {
         String status = order.getStatus() == null ? "" : normalize(order.getStatus().name());
         return !containsAny(payment, "PAID", "PAGO", "APPROVED", "CANCEL", "REFUND", "ESTORN")
                 && !containsAny(status, "PAGO", "CANCELADO");
+    }
+
+    private String noOrdersMessage(String normalizedPhone) {
+        return "Nao encontrei nenhum pedido para este numero de WhatsApp"
+                + phoneSuffix(normalizedPhone)
+                + ".";
+    }
+
+    private String noActiveOrdersMessage(String normalizedPhone) {
+        return "Nao encontrei nenhum pedido ativo para este numero de WhatsApp"
+                + phoneSuffix(normalizedPhone)
+                + ".";
+    }
+
+    private String phoneSuffix(String normalizedPhone) {
+        if (!StringUtils.hasText(normalizedPhone)) {
+            return "";
+        }
+        return ": +" + normalizedPhone;
     }
 
     private String money(BigDecimal value) {
