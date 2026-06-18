@@ -5,8 +5,10 @@ import br.com.llfashion.whatsappcheckout.dto.request.CreateDraftOrderItemRequest
 import br.com.llfashion.whatsappcheckout.dto.request.CreateDraftOrderRequest;
 import br.com.llfashion.whatsappcheckout.dto.response.CreateDraftOrderResponse;
 import br.com.llfashion.whatsappcheckout.dto.response.WhatsAppWebhookResponse;
+import br.com.llfashion.whatsappcheckout.entity.WhatsAppInboundMessageLog;
 import br.com.llfashion.whatsappcheckout.entity.WhatsAppFlowSession;
 import br.com.llfashion.whatsappcheckout.exception.BusinessException;
+import br.com.llfashion.whatsappcheckout.repository.WhatsAppInboundMessageLogRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.text.NumberFormat;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -35,6 +38,7 @@ public class WhatsAppWebhookService {
     private final WhatsAppFlowMessageService whatsAppFlowMessageService;
     private final StorefrontCartService storefrontCartService;
     private final OrderTrackingService orderTrackingService;
+    private final WhatsAppInboundMessageLogRepository inboundMessageLogRepository;
     private final ObjectMapper objectMapper;
 
     public WhatsAppWebhookService(
@@ -47,6 +51,7 @@ public class WhatsAppWebhookService {
             WhatsAppFlowMessageService whatsAppFlowMessageService,
             StorefrontCartService storefrontCartService,
             OrderTrackingService orderTrackingService,
+            WhatsAppInboundMessageLogRepository inboundMessageLogRepository,
             ObjectMapper objectMapper
     ) {
         this.properties = properties;
@@ -58,6 +63,7 @@ public class WhatsAppWebhookService {
         this.whatsAppFlowMessageService = whatsAppFlowMessageService;
         this.storefrontCartService = storefrontCartService;
         this.orderTrackingService = orderTrackingService;
+        this.inboundMessageLogRepository = inboundMessageLogRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -96,6 +102,10 @@ public class WhatsAppWebhookService {
                     cartSessionsStarted++;
                     textRepliesSent++;
                 }
+                continue;
+            }
+
+            if (!claimInboundMessage(message)) {
                 continue;
             }
 
@@ -206,6 +216,30 @@ public class WhatsAppWebhookService {
                         + ". Pedido(s) criado(s): " + createdOrders.size()
                         + ". Link(s) de pagamento enviado(s): " + paymentLinksSent
         );
+    }
+
+    private boolean claimInboundMessage(JsonNode message) {
+        String messageId = message.path("id").asText(null);
+        if (!StringUtils.hasText(messageId)) {
+            return true;
+        }
+
+        String customerPhone = message.path("from").asText(null);
+        String messageType = message.path("type").asText(null);
+        try {
+            inboundMessageLogRepository.save(WhatsAppInboundMessageLog.builder()
+                    .whatsappMessageId(messageId.trim())
+                    .customerPhone(customerPhone)
+                    .messageType(messageType)
+                    .build());
+            return true;
+        } catch (DataIntegrityViolationException exception) {
+            log.info("Mensagem WhatsApp duplicada ignorada. whatsappMessageId={}, type={}, phone={}",
+                    messageId,
+                    messageType,
+                    maskPhone(customerPhone));
+            return false;
+        }
     }
 
     private OrderHandlingResult handleOrderMessage(JsonNode payload, JsonNode message, String phoneNumberId) {
