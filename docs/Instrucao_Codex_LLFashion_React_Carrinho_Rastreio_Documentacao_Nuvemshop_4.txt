@@ -1,0 +1,477 @@
+
+
+===== PAGE 1 =====
+LLFashion Moda - Instruções para Codex
+Página 1
+LLFashion Moda - Incremento no React
+Web App
+Carrinho recuperável, idempotência, concorrência e
+acompanhamento de pedido
+Este documento deve ser enviado ao Codex para incrementar a aplicação já criada, sem refazer
+a arquitetura nem alterar funcionalidades existentes sem necessidade.
+Decisão recomendada
+Não usar apenas um link puro para status. O link deve abrir uma tela de acompanhamento do
+pedido, com status claro, rastreio, pagamento, prazo e opção de falar com atendente. O link
+puro continua existindo, mas apenas como URL segura com token para abrir a tela.
+Resumo da estratégia
+- Usar telefone do WhatsApp apenas como vínculo da cliente no backend.
+- Não expor telefone, customer_id, cart_id ou order_id interno na URL.
+- Criar cart_token seguro para recuperar o carrinho pelo link.
+- Criar status_public_token seguro para consultar status do pedido pelo link.
+- Salvar carrinho no backend para permitir que a cliente volte depois pelo mesmo link.
+- Aplicar controle de concorrência e idempotência para evitar estoque incorreto e pedido
+duplicado.
+- Criar uma tela React de acompanhamento do pedido, conforme wireframe parte 3.
+
+
+===== PAGE 2 =====
+LLFashion Moda - Instruções para Codex
+Página 2
+Instrução principal para o Codex
+Contexto:
+A aplicação React Web App mobile-first da LLFashion já existe.
+Ela foi criada para substituir o carrinho nativo do catálogo do WhatsApp.
+O fluxo atual permite montar carrinho atacadista, validar pedido mínimo de R$ 200, coletar dados, calcular/selecionar
+envio e gerar link de pagamento Pix pela Nuvemshop.
+Objetivo desta tarefa:
+Incrementar o que já existe para suportar:
+1. recuperação de carrinho por link seguro;
+2. vínculo do carrinho com o telefone do WhatsApp;
+3. idempotência para evitar operações duplicadas;
+4. controle de concorrência no carrinho e no checkout;
+5. página de acompanhamento do pedido e rastreio;
+6. consulta de status pelo WhatsApp.
+Regra importante:
+Não recriar a aplicação do zero.
+Não refatorar grandes partes sem necessidade.
+Não mudar layout, rotas, contratos de API ou serviços existentes sem justificar.
+Primeiro analisar o projeto atual e listar exatamente quais arquivos serão alterados ou criados.
+O que não deve ser feito
+- Não trocar a estratégia principal do React Web App.
+- Não voltar a usar o carrinho nativo do catálogo do WhatsApp.
+- Não expor telefone ou IDs internos na URL.
+- Não criar um segundo carrinho se já existir carrinho aberto para o mesmo token/cliente.
+- Não criar dois pedidos se a cliente clicar duas vezes em finalizar.
+- Não confiar no frontend para validação de estoque, subtotal mínimo ou status do pedido.
+Fluxo desejado para carrinho recuperável
+1. Cliente chama no WhatsApp.
+2. Backend identifica o telefone do WhatsApp pelo webhook.
+3. Backend cria ou recupera customer pelo telefone normalizado.
+4. Backend cria ou recupera carrinho aberto para a cliente.
+5. Backend gera link com cart_token seguro:
+https://llfashionmoda.com.br/carrinho?token={cart_token}
+6. Cliente abre o React Web App pelo link.
+7. Frontend chama GET /api/carts/{cartToken}.
+8. Backend retorna carrinho aberto, itens, subtotal, mínimo, status e avisos.
+9. Cliente adiciona ou ajusta itens.
+10. Ao voltar pelo mesmo link, o carrinho é carregado novamente.
+11. Se o carrinho expirou, mostrar opção de recalcular ou iniciar novo pedido.
+12. Se o carrinho já virou pedido, redirecionar para status do pedido.
+
+
+===== PAGE 3 =====
+LLFashion Moda - Instruções para Codex
+Página 3
+Modelo de identificação
+- phone_number: usado internamente para vincular a cliente ao WhatsApp.
+- customer_id: identificador interno, nunca exposto no link.
+- cart_token: token público seguro usado para reabrir carrinho.
+- status_public_token: token público seguro usado para consultar pedido.
+Exemplos de links seguros:
+Carrinho:
+https://llfashionmoda.com.br/carrinho?token=cart_01JABC...
+Status do pedido:
+https://llfashionmoda.com.br/pedido/status?token=ord_01JXYZ...
+Não usar:
+https://llfashionmoda.com.br/carrinho?phone=21999999999
+https://llfashionmoda.com.br/pedido/status?id=123
+Tabelas/entidades sugeridas
+customers
+- id
+- phone_number
+- phone_normalized
+- name
+- email
+- document
+- created_at
+- updated_at
+carts
+- id
+- cart_token
+- customer_id
+- phone_number
+- status
+- subtotal
+- minimum_order_value
+- version
+- expires_at
+- created_at
+- updated_at
+cart_items
+- id
+- cart_id
+- product_id
+- variant_id
+- product_name
+- variant_name
+- image_url
+- quantity
+- unit_price
+- total_price
+- stock_at_selection
+- created_at
+- updated_at
+orders_tracking
+
+
+===== PAGE 4 =====
+LLFashion Moda - Instruções para Codex
+Página 4
+- id
+- cart_id
+- customer_id
+- nuvemshop_order_id
+- nuvemshop_order_number
+- checkout_url
+- payment_status
+- shipping_status
+- shipping_tracking_number
+- shipping_tracking_url
+- shipping_method
+- shipping_min_days
+- shipping_max_days
+- status_public_token
+- created_at
+- updated_at
+idempotency_keys
+- id
+- idempotency_key
+- operation
+- cart_id
+- request_hash
+- response_body
+- status
+- created_at
+- expires_at
+Status sugeridos
+Carrinho:
+OPEN
+MINIMUM_REACHED
+CHECKOUT_STARTED
+PAYMENT_LINK_GENERATED
+ORDER_CREATED
+PAID
+CANCELLED
+EXPIRED
+Pedido público:
+ORDER_RECEIVED
+WAITING_PAYMENT
+PAYMENT_CONFIRMED
+SEPARATING_ORDER
+SHIPPED
+DELIVERED
+CANCELLED
+REFUNDED
+ERROR
+
+
+===== PAGE 5 =====
+LLFashion Moda - Instruções para Codex
+Página 5
+Concorrência e idempotência
+A aplicação precisa impedir problemas como dois cliques em finalizar, duas abas abertas
+alterando o carrinho, estoque mudando durante o checkout ou criação duplicada de pedido na
+Nuvemshop.
+Regras de concorrência
+- Adicionar campo version no carrinho para optimistic locking.
+- Ao alterar itens, atualizar somente se a versão atual bater com a versão recebida.
+- No checkout, usar lock transacional no carrinho ou lock distribuído por cart_id.
+- Antes de gerar link Pix, validar estoque de todos os itens novamente.
+- Antes de gerar link Pix, validar pedido mínimo de R$ 200 novamente.
+Regras de idempotência
+- Criar idempotency_key para operações sensíveis.
+- Se a mesma operação for repetida, retornar a mesma resposta anterior.
+- Nunca criar dois pedidos para o mesmo carrinho.
+- Se checkout_url já existe para o carrinho, retornar o checkout_url existente.
+Chaves sugeridas:
+ADD_ITEM:{cart_id}:{product_id}:{variant_id}:{quantity}
+UPDATE_QUANTITY:{cart_id}:{cart_item_id}:{quantity}
+CHECKOUT:{cart_id}
+CREATE_DRAFT_ORDER:{cart_id}
+GENERATE_PAYMENT_LINK:{cart_id}
+Endpoints sugeridos
+Endpoint
+Responsabilidade
+GET /api/carts/{cartToken}
+Carregar carrinho pelo token seguro.
+POST /api/carts/{cartToken}/items
+Adicionar item ao carrinho com validação de estoque.
+PATCH /api/carts/{cartToken}/items/{itemId}
+Alterar quantidade com optimistic locking.
+DELETE /api/carts/{cartToken}/items/{itemId}
+Remover item e recalcular subtotal.
+POST /api/carts/{cartToken}/checkout
+Finalizar carrinho com lock e idempotência.
+GET /api/orders/status/{statusToken}
+Consultar status público do pedido.
+POST /api/webhooks/nuvemshop
+Receber atualizações de pagamento/envio.
+
+
+===== PAGE 6 =====
+LLFashion Moda - Instruções para Codex
+Página 6
+Tela de acompanhamento do pedido
+Criar uma tela React para acompanhamento do pedido. Ela deve abrir pelo link seguro com
+status_public_token. O link puro sozinho não é suficiente para uma boa experiência; a cliente
+precisa ver informações claras do pedido sem depender de atendimento manual.
+Conteúdo da tela
+- Número do pedido da Nuvemshop, se já existir.
+- Status do pagamento: aguardando Pix, pago, cancelado ou estornado.
+- Status operacional: recebido, separando, enviado, entregue.
+- Forma de envio selecionada, prazo estimado e valor do frete.
+- Código de rastreio e link de rastreio, quando disponível.
+- Resumo dos itens ou link para detalhes do pedido.
+- Botão para copiar código de rastreio.
+- Botão para falar com atendente.
+Consulta por WhatsApp
+Se a cliente enviar mensagens como:
+- status
+- meu pedido
+- rastreio
+- acompanhar pedido
+O backend deve buscar pedidos pelo telefone normalizado e responder:
+Encontrei seu último pedido
+Pedido #1024
+Pagamento: Pago
+Envio: Em transporte
+Rastreio: BR123456789BR
+Acompanhe por aqui:
+https://llfashionmoda.com.br/pedido/status?token={status_public_token}
+Se existir mais de um pedido recente, enviar uma lista resumida para ela escolher.
+Webhooks e sincronização
+- Acompanhar eventos da Nuvemshop para atualizar pagamento, pedido e envio.
+- Ao confirmar pagamento, atualizar status local para PAYMENT_CONFIRMED/PAID.
+- Ao pedido entrar em separação, atualizar para SEPARATING_ORDER se a informação existir.
+- Ao envio ser criado, salvar shipping_tracking_number e shipping_tracking_url.
+- Ao entregar, atualizar status para DELIVERED.
+- Se a Nuvemshop não retornar alguma informação, mostrar texto amigável: 'Aguardando
+atualização da loja'.
+
+
+===== PAGE 7 =====
+LLFashion Moda - Instruções para Codex
+Página 7
+Prompt pronto para colar no Codex
+Implemente esta melhoria de forma incremental na aplicação existente.
+Antes de alterar qualquer coisa, analise o projeto atual e me informe:
+1. quais rotas React existem;
+2. quais services do backend existem;
+3. como o carrinho está sendo salvo hoje;
+4. como o checkout/link Pix da Nuvemshop está sendo gerado;
+5. onde a validação de estoque está implementada;
+6. quais arquivos precisam ser alterados;
+7. quais arquivos precisam ser criados.
+Depois implemente:
+- cart_token seguro para recuperar carrinho;
+- status_public_token seguro para consultar pedido;
+- vínculo com telefone do WhatsApp somente no backend;
+- GET /api/carts/{cartToken};
+- operações de carrinho com optimistic locking;
+- checkout com lock e idempotência;
+- tabela idempotency_keys;
+- página React /pedido/status?token={status_public_token};
+- endpoint GET /api/orders/status/{statusToken};
+- atualização de status por webhook da Nuvemshop;
+- resposta automática no WhatsApp para comandos 'status', 'meu pedido' e 'rastreio'.
+Cuidados obrigatórios:
+- não expor telefone na URL;
+- não expor IDs sequenciais;
+- não criar pedido duplicado;
+- não alterar funcionalidades existentes desnecessariamente;
+- manter compatibilidade com o fluxo atual;
+- validar tudo no backend;
+- manter mensagens de erro amigáveis para a cliente.
+Critérios de aceite
+- Cliente volta pelo mesmo link e o carrinho é carregado.
+- Carrinho expirado mostra opção de recalcular ou iniciar novo carrinho.
+- Telefone não aparece na URL.
+- Token público não é sequencial e não revela dados internos.
+- Dois cliques em finalizar não criam dois pedidos.
+- Duas abas alterando carrinho não corrompem subtotal ou itens.
+- Checkout revalida estoque e pedido mínimo antes de gerar link Pix.
+- Pedido criado possui link de status seguro.
+- Cliente consegue consultar pedido pela página de status.
+- Cliente consegue consultar status enviando 'status' no WhatsApp.
+- Se houver código de rastreio, ele aparece na página e no WhatsApp.
+
+
+===== PAGE 8 =====
+Wireframe Parte 1 - descoberta e seleção de produtos
+Anexo visual para orientar a implementação no React Web App.
+
+
+===== PAGE 9 =====
+Wireframe Parte 2 - carrinho, checkout e pagamento
+Anexo visual para orientar a implementação no React Web App.
+
+
+===== PAGE 10 =====
+Wireframe Parte 3 - recuperação de carrinho e acompanhamento do pedido
+Anexo visual para orientar a implementação no React Web App.
+
+
+===== PAGE 11 =====
+Complemento obrigatório para o Codex:
+documentação Nuvemshop
+Ler junto com a instrução principal do React Web App. O objetivo é incrementar a aplicação
+existente com carrinho recuperável, idempotência, concorrência e rastreio, sem alterar partes já
+funcionando sem necessidade.
+Regra principal antes de implementar
+- Antes de codar integrações com Nuvemshop, ler a documentação oficial atual e confirmar endpoints, payloads,
+permissões OAuth, campos obrigatórios e versão da API.
+- Não presumir endpoints de frete, checkout, pedido, draft order, rastreio ou pagamento sem validar na
+documentação oficial e/ou testar via Postman.
+- Não recriar a aplicação do zero. Primeiro mapear controllers, services, DTOs, entidades, rotas React, integrações
+Nuvemshop, webhooks e fluxo atual de checkout.
+- Toda alteração deve ser incremental e de baixo risco. Não mudar nomes de rotas, contratos de API ou modelos
+existentes sem necessidade.
+Documentação oficial que deve ser consultada
+Área
+O que validar
+Link oficial
+Getting Started /
+Auth
+OAuth 2, autenticação, headers, versionamento e
+escopos.
+https://tiendanube.github.io/api-documentation/intro
+Product / Variant /
+Image
+Produtos, variações, preço, estoque e imagens
+principais.
+https://tiendanube.github.io/api-documentation/resources/product
+Draft Order
+Pedido por canal externo e
+checkout_url/abandoned_checkout_url, se
+disponível.
+https://tiendanube.github.io/api-documentation/resources/draft-order
+Order
+Pedido, payment_status, shipping_status, token,
+número e envio.
+https://tiendanube.github.io/api-documentation/resources/order
+Webhook
+Eventos de produto, pedido, pagamento,
+cancelamento e sincronização.
+https://tiendanube.github.io/api-documentation/resources/webhook
+Fulfillment Order
+Múltiplos envios, fulfillment, tracking events e
+rastreio.
+https://tiendanube.github.io/api-documentation/resources/fulfillment-order
+Shipping / Checkout
+/ Cart
+Validar se existe cotação de frete fora do checkout
+e fallback.
+https://tiendanube.github.io/api-documentation/resources
+LLFashion Moda - Complemento: Documentação Nuvemshop, carrinho e rastreio
+Página 1
+
+
+===== PAGE 12 =====
+Checklist e implementação incremental
+Checklist de descoberta técnica
+- [ ] Identificar qual versão da API da Nuvemshop a aplicação atual usa e manter compatibilidade.
+- [ ] Confirmar escopos: leitura de produtos, leitura/criação de pedidos, draft orders, webhooks, fulfillment/tracking
+e clientes, se aplicável.
+- [ ] Validar como buscar imagem principal do produto/variação para alimentar o React Web App.
+- [ ] Validar como obter estoque real por produto/variação e como a aplicação atual já valida estoque.
+- [ ] Confirmar se Draft Order é a melhor opção para carrinho externo + link de pagamento Pix.
+- [ ] Confirmar se o checkout_url retornado permite escolher/confirmar frete e pagar Pix.
+- [ ] Confirmar se existe cotação de frete fora do checkout. Se não existir, documentar fallback: enviar
+checkout_url para frete/pagamento no checkout Nuvemshop.
+- [ ] Validar webhooks corretos para pagamento, envio, fulfillment e rastreio.
+Ordem recomendada
+1. Mapear o projeto atual
+Listar rotas React, chamadas ao backend, controllers, services, DTOs, entidades, integrações Nuvemshop,
+webhooks e pontos de criação de pedido.
+2. Criar carrinho recuperável
+Adicionar cart_token seguro, vínculo com telefone/customer, persistência de itens, expiração e carregamento por
+link. Não expor telefone na URL.
+3. Adicionar concorrência e idempotência
+Usar version no carrinho, lock no checkout e idempotency_key para adicionar item, alterar quantidade, criar draft
+order e gerar link.
+4. Integrar com documentação validada
+Só depois de confirmar endpoints e payloads oficiais, implementar produtos/imagens/estoque, draft order, pedido,
+checkout_url, webhooks e rastreio.
+5. Criar tela de acompanhamento
+Implementar /pedido/status?token={status_public_token} com pagamento, separação, envio, rastreio e link para
+acompanhar entrega.
+6. Fallback pelo WhatsApp
+Se a cliente enviar “status”, “meu pedido” ou “rastreio”, localizar pedidos pelo telefone e enviar o link seguro da
+tela de status.
+Endpoints novos sugeridos
+POST /api/carts/start-from-whatsapp
+GET  /api/carts/{cartToken}
+POST /api/carts/{cartToken}/items
+PATCH /api/carts/{cartToken}/items/{itemId}
+DELETE /api/carts/{cartToken}/items/{itemId}
+POST /api/carts/{cartToken}/checkout
+GET  /api/orders/status/{statusPublicToken}
+POST /api/webhooks/nuvemshop/order
+POST /api/webhooks/nuvemshop/fulfillment
+LLFashion Moda - Complemento: Documentação Nuvemshop, carrinho e rastreio
+Página 2
+
+
+===== PAGE 13 =====
+Cuidados, plano prévio e acompanhamento do
+pedido
+Cuidados para não quebrar o que já existe
+- Não remover o fluxo antigo até que o novo fluxo esteja validado em homologação/produção.
+- Não alterar DTOs usados por outras telas sem criar compatibilidade ou versionamento.
+- Não mudar a autenticação Nuvemshop sem entender impacto.
+- Não criar pedido duplicado se a cliente clicar duas vezes no botão de pagamento.
+- Não confiar em preço, estoque ou subtotal calculado no frontend; o backend deve recalcular tudo.
+- Não usar cart_id, customer_id, telefone ou order_id sequencial em links públicos. Usar tokens seguros.
+- Logar decisões da documentação: endpoint usado, payload esperado, permissões e fallback aplicado.
+Saída esperada do Codex antes de codar
+- [ ] Arquivos existentes que serão alterados.
+- [ ] Arquivos novos que serão criados.
+- [ ] Endpoints Nuvemshop confirmados na documentação.
+- [ ] Escopos OAuth necessários.
+- [ ] Fluxo escolhido para link Pix: Draft Order, Order, Checkout ou outro endpoint oficial.
+- [ ] Estratégia de frete: cotação via API, checkout_url como fallback, ou integração externa.
+- [ ] Estratégia de rastreio: Order, Fulfillment Order e webhooks necessários.
+Tela Parte 3 - Acompanhamento do pedido
+Sim: além do link público seguro, é recomendável criar uma tela visual para acompanhamento. O link puro deve
+abrir esta tela, e não apenas retornar JSON ou redirecionar direto para uma transportadora.
+URL pública segura
+https://llfashionmoda.com.br/pedido/status?token={status_public_token}
+- O token deve ser aleatório, não sequencial, expirar ou poder ser revogado, e não revelar dados internos.
+- Não permitir consulta de pedido apenas por número do pedido ou telefone na URL.
+- Se quiser reforçar segurança, pedir confirmação dos últimos 4 dígitos do telefone antes de exibir detalhes
+completos.
+Wireframe funcional da tela de status
+- Cabeçalho: LLFashion Moda + número público do pedido.
+- Card de status: Aguardando pagamento, Pago, Separando pedido, Enviado, Entregue ou Cancelado.
+- Linha do tempo: Pedido criado -> Pagamento -> Separação -> Envio -> Entrega.
+- Resumo com miniaturas dos produtos, quantidades, variações e total.
+- Pagamento: status Pix e botão para abrir/copiar link quando pendente.
+- Envio: forma de envio, prazo, código de rastreio e botão “Acompanhar entrega”.
+- Suporte: botão “Falar com atendente no WhatsApp”.
+Estados recomendados
+PAYMENT_PENDING  -> mostrar botão/link Pix
+PAYMENT_PAID     -> “Pagamento confirmado”
+ORDER_SEPARATING -> “Estamos separando seu pedido”
+SHIPPED          -> código e link de rastreio
+DELIVERED        -> “Pedido entregue”
+CANCELLED        -> motivo e contato de suporte
+ERROR            -> mensagem amigável e contato de atendente
+Mensagem pelo WhatsApp para consulta de status
+Encontrei seu pedido
+Pedido: #{numero_pedido}
+Pagamento: {payment_status}
+Envio: {shipping_status}
+Acompanhe por aqui:
+{status_url}
+LLFashion Moda - Complemento: Documentação Nuvemshop, carrinho e rastreio
+Página 3

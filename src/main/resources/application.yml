@@ -1,0 +1,61 @@
+server:
+  port: ${PORT:8080}
+
+logging:
+  file:
+    name: logs/application.log
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: whatsapp-checkout-nuvemshop
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/whatsapp_checkout}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+nuvemshop:
+  app-id: ${NUVEMSHOP_APP_ID:32468}
+  client-secret: ${NUVEMSHOP_CLIENT_SECRET}
+  token-url: https://www.nuvemshop.com.br/apps/authorize/token
+  authorize-url: https://www.nuvemshop.com.br/apps/{appId}/authorize
+  api-base-url: https://api.nuvemshop.com.br/2025-03
+  user-agent: WhatsApp Checkout (lucassouzadebarros@gmail.com)
+
+whatsapp:
+  verify-token: ${WHATSAPP_VERIFY_TOKEN:llfashion_whatsapp_webhook_2026}
+  access-token: ${WHATSAPP_ACCESS_TOKEN:}
+  phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID:}
+  catalog-id: ${WHATSAPP_CATALOG_ID:}
+  api-base-url: ${WHATSAPP_API_BASE_URL:https://graph.facebook.com/v25.0}
+  flows:
+    enabled: ${WHATSAPP_FLOWS_ENABLED:true}
+    flow-id: ${WHATSAPP_FLOW_ID:}
+    flow-cta: ${WHATSAPP_FLOW_CTA:Comprar agora}
+    mode: ${WHATSAPP_FLOW_MODE:published}
+    private-key: ${WHATSAPP_FLOW_PRIVATE_KEY:}
+    private-key-path: ${WHATSAPP_FLOW_PRIVATE_KEY_PATH:}
+
+checkout:
+  minimum-order-total: ${CHECKOUT_MINIMUM_ORDER_TOTAL:200.00}
+  frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:8080/storefront/}
+  cart-expiration-minutes: ${CART_EXPIRATION_MINUTES:120}
+
+stock-sync:
+  enabled: ${STOCK_SYNC_ENABLED:true}
+  interval-minutes: ${STOCK_SYNC_INTERVAL_MINUTES:10}
+
+order-status-sync:
+  enabled: ${ORDER_STATUS_SYNC_ENABLED:true}
+  interval-minutes: ${ORDER_STATUS_SYNC_INTERVAL_MINUTES:5}
+  lookback-days: ${ORDER_STATUS_SYNC_LOOKBACK_DAYS:30}

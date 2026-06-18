@@ -1,0 +1,18 @@
+package br.com.llfashion.whatsappcheckout.enums;
+
+public enum StorefrontCartStatus {
+    CART_OPEN,
+    MINIMUM_NOT_REACHED,
+    MINIMUM_REACHED,
+    CUSTOMER_DATA_PENDING,
+    ADDRESS_PENDING,
+    SHIPPING_PENDING,
+    SHIPPING_SELECTED,
+    WAITING_CONFIRMATION,
+    PAYMENT_LINK_GENERATED,
+    PAYMENT_PENDING,
+    ORDER_CREATED,
+    CANCELLED,
+    EXPIRED,
+    ERROR
+}

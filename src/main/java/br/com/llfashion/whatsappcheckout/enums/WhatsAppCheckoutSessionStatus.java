@@ -1,0 +1,18 @@
+package br.com.llfashion.whatsappcheckout.enums;
+
+public enum WhatsAppCheckoutSessionStatus {
+    CART_OPEN,
+    INSUFFICIENT_STOCK,
+    BELOW_MINIMUM,
+    AWAITING_FULL_NAME,
+    AWAITING_CPF,
+    AWAITING_EMAIL,
+    AWAITING_POSTAL_CODE,
+    AWAITING_ADDRESS_NUMBER,
+    AWAITING_ADDRESS_COMPLEMENT,
+    DRAFT_ORDER_CREATED,
+    CANCELLED,
+    EXPIRED,
+    ERROR,
+    WAITING_HUMAN_ATTENDANT
+}

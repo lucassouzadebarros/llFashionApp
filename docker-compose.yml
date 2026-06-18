@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: whatsapp-checkout-postgres
+    environment:
+      POSTGRES_DB: whatsapp_checkout
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - whatsapp_checkout_data:/var/lib/postgresql/data
+
+volumes:
+  whatsapp_checkout_data:

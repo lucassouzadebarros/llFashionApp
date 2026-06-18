@@ -1,0 +1,1761 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "MAIN_MENU": [
+      "CATEGORIES",
+      "PRODUCT_LIST",
+      "CART_REVIEW",
+      "HUMAN_ATTENDANT"
+    ],
+    "CATEGORIES": [
+      "PRODUCT_LIST"
+    ],
+    "PRODUCT_LIST": [
+      "CHOOSE_VARIANT",
+      "OUT_OF_STOCK"
+    ],
+    "CHOOSE_VARIANT": [
+      "CHOOSE_QUANTITY",
+      "OUT_OF_STOCK"
+    ],
+    "CHOOSE_QUANTITY": [
+      "ITEM_ADDED",
+      "OUT_OF_STOCK"
+    ],
+    "ITEM_ADDED": [
+      "CATEGORIES",
+      "CART_REVIEW",
+      "CUSTOMER_DATA",
+      "MINIMUM_NOT_REACHED",
+      "CANCELLED"
+    ],
+    "CART_REVIEW": [
+      "SELECT_CART_ITEM",
+      "CATEGORIES",
+      "CUSTOMER_DATA",
+      "MINIMUM_NOT_REACHED",
+      "CANCELLED",
+      "OUT_OF_STOCK"
+    ],
+    "SELECT_CART_ITEM": [
+      "ADJUST_QUANTITY",
+      "OUT_OF_STOCK"
+    ],
+    "ADJUST_QUANTITY": [
+      "CART_REVIEW_UPDATED",
+      "OUT_OF_STOCK"
+    ],
+    "CART_REVIEW_UPDATED": [
+      "SELECT_CART_ITEM",
+      "CATEGORIES",
+      "CUSTOMER_DATA",
+      "MINIMUM_NOT_REACHED",
+      "CANCELLED",
+      "OUT_OF_STOCK"
+    ],
+    "MINIMUM_NOT_REACHED": [
+      "CATEGORIES",
+      "CANCELLED"
+    ],
+    "CUSTOMER_DATA": [
+      "ADDRESS_DATA"
+    ],
+    "ADDRESS_DATA": [
+      "SHIPPING_OPTIONS"
+    ],
+    "SHIPPING_OPTIONS": [
+      "CONFIRM_ORDER",
+      "HUMAN_ATTENDANT"
+    ],
+    "CONFIRM_ORDER": [
+      "ORDER_CREATED",
+      "CART_REVIEW",
+      "CANCELLED"
+    ],
+    "ORDER_CREATED": [],
+    "OUT_OF_STOCK": [],
+    "HUMAN_ATTENDANT": [],
+    "CANCELLED": []
+  },
+  "screens": [
+    {
+      "id": "MAIN_MENU",
+      "title": "Boas-vindas",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "minimum_order_total": {
+          "type": "string",
+          "__example__": "R$ 200,00"
+        },
+        "intro_text": {
+          "type": "string",
+          "__example__": "Trabalhamos com moda feminina no atacado. Pedido minimo: R$ 200,00."
+        },
+        "main_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "BUY_CATEGORY",
+              "title": "Comprar por categoria",
+              "description": "Montar carrinho no atacado"
+            },
+            {
+              "id": "VIEW_NEW",
+              "title": "Ver novidades",
+              "description": "Pecas disponiveis em estoque"
+            },
+            {
+              "id": "VIEW_PROMOS",
+              "title": "Ver promocoes",
+              "description": "Ofertas e oportunidades"
+            },
+            {
+              "id": "VIEW_CART",
+              "title": "Ver carrinho",
+              "description": "Revisar itens"
+            },
+            {
+              "id": "HUMAN",
+              "title": "Falar com atendente",
+              "description": "Chamar atendimento"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Bem-vinda a LLFashion Moda"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.intro_text}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Escolha como quer continuar. Voce pode montar o carrinho por categoria, ver novidades, promocoes ou revisar o carrinho."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "O que voce deseja fazer?",
+                "name": "main_action",
+                "data-source": "${data.main_actions}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "main_action": "${form.main_action}"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "TextCaption",
+            "text": "Gerenciada por LL Fashion"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CATEGORIES",
+      "title": "Categorias",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "ALL",
+              "title": "Todos os produtos",
+              "description": "Ver pecas disponiveis"
+            },
+            {
+              "id": "SAIAS",
+              "title": "Saias",
+              "description": "Saias femininas"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Comprar por categoria"
+          },
+          {
+            "type": "TextBody",
+            "text": "Escolha uma categoria. Vamos mostrar apenas produtos ativos com estoque disponivel."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Categoria",
+                "name": "category_id",
+                "data-source": "${data.categories}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Ver produtos",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "category_id": "${form.category_id}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "PRODUCT_LIST",
+      "title": "Produtos",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "category_title": {
+          "type": "string",
+          "__example__": "Saias"
+        },
+        "products": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "346039071",
+              "title": "Saia Bomber Suplex",
+              "description": "A partir de R$ 89,90 | Estoque total: 4"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "${data.category_title}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Selecione uma peca para ver detalhes, variacoes, preco e estoque disponivel."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Produtos disponiveis",
+                "name": "product_id",
+                "data-source": "${data.products}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Ver detalhes",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "product_id": "${form.product_id}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHOOSE_VARIANT",
+      "title": "Detalhe do produto",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "product_name": {
+          "type": "string",
+          "__example__": "Saia Bomber Suplex"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "1529914260",
+              "title": "Preto / M",
+              "description": "Disponivel: 3 | R$ 89,90"
+            }
+          ]
+        },
+        "product_image_url": {
+          "type": "string",
+          "__example__": "https://placehold.co/1200x800/f3faf6/047857.png?text=LLFashion+Moda"
+        },
+        "product_price_summary": {
+          "type": "string",
+          "__example__": "A partir de R$ 26,00"
+        },
+        "product_stock_summary": {
+          "type": "string",
+          "__example__": "Estoque total disponivel: 22 unidade(s)"
+        },
+        "product_detail_hint": {
+          "type": "string",
+          "__example__": "Escolha a variacao disponivel. O estoque mostrado e atualizado antes de criar o pedido."
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Image",
+            "src": "${data.product_image_url}",
+            "height": 220,
+            "scale-type": "cover"
+          },
+          {
+            "type": "TextHeading",
+            "text": "${data.product_name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.product_price_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.product_stock_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.product_detail_hint}"
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Variacao",
+                "name": "variant_id",
+                "data-source": "${data.variants}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "variant_id": "${form.variant_id}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHOOSE_QUANTITY",
+      "title": "Quantidade",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "product_name": {
+          "type": "string",
+          "__example__": "Saia Bomber Suplex"
+        },
+        "variant_name": {
+          "type": "string",
+          "__example__": "Preto / M"
+        },
+        "variant_summary": {
+          "type": "string",
+          "__example__": "Variacao: Preto / M"
+        },
+        "unit_price_summary": {
+          "type": "string",
+          "__example__": "Valor unitario: R$ 89,90"
+        },
+        "available_stock": {
+          "type": "number",
+          "__example__": 3
+        },
+        "stock_summary": {
+          "type": "string",
+          "__example__": "Estoque disponivel: 3"
+        },
+        "quantities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "1",
+              "title": "1 unidade"
+            },
+            {
+              "id": "2",
+              "title": "2 unidades"
+            }
+          ]
+        },
+        "product_image_url": {
+          "type": "string",
+          "__example__": "https://placehold.co/1200x800/f3faf6/047857.png?text=LLFashion+Moda"
+        },
+        "unit_price": {
+          "type": "string",
+          "__example__": "R$ 26,00"
+        },
+        "quantity_hint": {
+          "type": "string",
+          "__example__": "Escolha a quantidade. O Flow mostra no maximo o estoque disponivel."
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Image",
+            "src": "${data.product_image_url}",
+            "height": 220,
+            "scale-type": "cover"
+          },
+          {
+            "type": "TextHeading",
+            "text": "${data.product_name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.variant_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.unit_price_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.stock_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.quantity_hint}"
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Quantidade",
+                "name": "quantity",
+                "data-source": "${data.quantities}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Adicionar ao carrinho",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "quantity": "${form.quantity}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ITEM_ADDED",
+      "title": "Adicionado",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "message": {
+          "type": "string",
+          "__example__": "Produto adicionado ao carrinho."
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "2x Saia Bomber Suplex - Preto / M\n\nSubtotal: R$ 179,80\nPedido minimo: R$ 200,00\nFalta: R$ 20,20"
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "ADD_MORE",
+              "title": "Adicionar mais pecas"
+            },
+            {
+              "id": "CANCEL",
+              "title": "Cancelar pedido"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Adicionado ao carrinho"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.message}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Proximo passo",
+                "name": "next_action",
+                "data-source": "${data.next_actions}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "next_action": "${form.next_action}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CART_REVIEW",
+      "title": "Carrinho",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "2x Saia Bomber Suplex - Preto / M\n\nSubtotal: R$ 179,80"
+        },
+        "cart_total": {
+          "type": "string",
+          "__example__": "R$ 179,80"
+        },
+        "minimum_order_total": {
+          "type": "string",
+          "__example__": "R$ 200,00"
+        },
+        "minimum_order_summary": {
+          "type": "string",
+          "__example__": "Pedido minimo: R$ 200,00"
+        },
+        "item_count": {
+          "type": "number",
+          "__example__": 1
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "CHECKOUT",
+              "title": "Finalizar pedido"
+            },
+            {
+              "id": "ADJUST_ITEM",
+              "title": "Ajustar quantidade"
+            },
+            {
+              "id": "ADD_MORE",
+              "title": "Adicionar mais produtos"
+            },
+            {
+              "id": "CANCEL",
+              "title": "Cancelar pedido"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Revise seu carrinho"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.minimum_order_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Quando atingir o pedido minimo, voce pode finalizar e gerar o link de pagamento."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "O que deseja fazer?",
+                "name": "next_action",
+                "data-source": "${data.next_actions}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "next_action": "${form.next_action}"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "TextCaption",
+            "text": "Ambiente seguro. O estoque sera validado novamente antes de criar o pedido."
+          }
+        ]
+      }
+    },
+    {
+      "id": "SELECT_CART_ITEM",
+      "title": "Ajustar item",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "1529914260",
+              "title": "Saia Bomber Suplex - Preto / M",
+              "description": "Qtd atual: 2 | Estoque: 3 | R$ 179,80"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Ajustar quantidade"
+          },
+          {
+            "type": "TextBody",
+            "text": "Escolha o item do carrinho que voce quer ajustar ou remover."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Item",
+                "name": "selected_item",
+                "data-source": "${data.cart_items}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "selected_item": "${form.selected_item}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ADJUST_QUANTITY",
+      "title": "Quantidade",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "selected_item": {
+          "type": "string",
+          "__example__": "1529914260"
+        },
+        "selected_item_name": {
+          "type": "string",
+          "__example__": "Saia Bomber Suplex - Preto / M"
+        },
+        "selected_item_summary": {
+          "type": "string",
+          "__example__": "Quantidade atual: 2 | Estoque: 3 | Valor unitario: R$ 89,90"
+        },
+        "quantities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "0",
+              "title": "Remover item"
+            },
+            {
+              "id": "1",
+              "title": "1 unidade"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "${data.selected_item_name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.selected_item_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Escolha a nova quantidade. Se escolher remover item, ele sai do carrinho."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Nova quantidade",
+                "name": "cart_quantity",
+                "data-source": "${data.quantities}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Atualizar carrinho",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "selected_item": "${data.selected_item}",
+                    "cart_quantity": "${form.cart_quantity}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CART_REVIEW_UPDATED",
+      "title": "Carrinho",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "Carrinho atualizado."
+        },
+        "cart_total": {
+          "type": "string",
+          "__example__": "R$ 200,00"
+        },
+        "minimum_order_total": {
+          "type": "string",
+          "__example__": "R$ 200,00"
+        },
+        "minimum_order_summary": {
+          "type": "string",
+          "__example__": "Pedido minimo: R$ 200,00"
+        },
+        "item_count": {
+          "type": "number",
+          "__example__": 1
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "CHECKOUT",
+              "title": "Finalizar pedido"
+            },
+            {
+              "id": "ADD_MORE",
+              "title": "Adicionar mais produtos"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Carrinho atualizado"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.minimum_order_summary}"
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Proximo passo",
+                "name": "next_action",
+                "data-source": "${data.next_actions}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "next_action": "${form.next_action}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "MINIMUM_NOT_REACHED",
+      "title": "Pedido minimo",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "message": {
+          "type": "string",
+          "__example__": "Seu carrinho ainda nao atingiu o pedido minimo."
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "Subtotal: R$ 120,00\nPedido minimo: R$ 200,00\nFalta: R$ 80,00"
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "ADD_MORE",
+              "title": "Adicionar mais pecas"
+            },
+            {
+              "id": "VIEW_CART",
+              "title": "Ver carrinho"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Pedido minimo ainda nao atingido"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.message}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Proximo passo",
+                "name": "next_action",
+                "data-source": "${data.next_actions}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "next_action": "${form.next_action}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CUSTOMER_DATA",
+      "title": "Dados da cliente",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "Subtotal: R$ 220,00"
+        },
+        "cart_total": {
+          "type": "string",
+          "__example__": "R$ 220,00"
+        },
+        "item_count": {
+          "type": "number",
+          "__example__": 2
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Dados da cliente"
+          },
+          {
+            "type": "TextBody",
+            "text": "Resumo do pedido"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Precisamos desses dados para criar o pedido e enviar o link de pagamento."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "TextInput",
+                "label": "Nome completo",
+                "name": "full_name",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "label": "CPF ou CNPJ",
+                "name": "cpf",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "label": "E-mail",
+                "name": "email",
+                "input-type": "email",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "full_name": "${form.full_name}",
+                    "cpf": "${form.cpf}",
+                    "email": "${form.email}"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "TextCaption",
+            "text": "Usaremos seu numero de WhatsApp para enviar o checkout."
+          }
+        ]
+      }
+    },
+    {
+      "id": "ADDRESS_DATA",
+      "title": "Endereco",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "Subtotal: R$ 220,00"
+        },
+        "full_name": {
+          "type": "string",
+          "__example__": "Maria Cliente"
+        },
+        "cpf": {
+          "type": "string",
+          "__example__": "12345678909"
+        },
+        "email": {
+          "type": "string",
+          "__example__": "maria@email.com"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Endereco de entrega"
+          },
+          {
+            "type": "TextBody",
+            "text": "Informe o endereco completo para seguir para o checkout seguro."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "TextInput",
+                "label": "CEP",
+                "name": "postal_code",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "label": "Rua",
+                "name": "street",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "label": "Numero",
+                "name": "number",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "label": "Complemento",
+                "name": "complement",
+                "input-type": "text",
+                "required": false
+              },
+              {
+                "type": "TextInput",
+                "label": "Bairro",
+                "name": "neighborhood",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "label": "Cidade",
+                "name": "city",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "label": "Estado",
+                "name": "state",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Ver envio",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "full_name": "${data.full_name}",
+                    "cpf": "${data.cpf}",
+                    "email": "${data.email}",
+                    "postal_code": "${form.postal_code}",
+                    "street": "${form.street}",
+                    "number": "${form.number}",
+                    "complement": "${form.complement}",
+                    "neighborhood": "${form.neighborhood}",
+                    "city": "${form.city}",
+                    "state": "${form.state}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "SHIPPING_OPTIONS",
+      "title": "Envio",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "Subtotal: R$ 220,00"
+        },
+        "shipping_message": {
+          "type": "string",
+          "__example__": "O frete e o Pix serao finalizados no checkout seguro da Nuvemshop."
+        },
+        "shipping_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "CHECKOUT_NUVEMSHOP",
+              "title": "Finalizar no checkout",
+              "description": "Calcular frete e pagar Pix na Nuvemshop"
+            },
+            {
+              "id": "HUMAN",
+              "title": "Chamar atendente",
+              "description": "Ajuda para frete ou pedido"
+            }
+          ]
+        },
+        "full_name": {
+          "type": "string",
+          "__example__": "Maria Cliente"
+        },
+        "cpf": {
+          "type": "string",
+          "__example__": "12345678909"
+        },
+        "email": {
+          "type": "string",
+          "__example__": "maria@email.com"
+        },
+        "postal_code": {
+          "type": "string",
+          "__example__": "25055009"
+        },
+        "street": {
+          "type": "string",
+          "__example__": "Rod Washington Luiz"
+        },
+        "number": {
+          "type": "string",
+          "__example__": "1308"
+        },
+        "complement": {
+          "type": "string",
+          "__example__": "Box 185"
+        },
+        "neighborhood": {
+          "type": "string",
+          "__example__": "Jardim Gramacho"
+        },
+        "city": {
+          "type": "string",
+          "__example__": "Duque de Caxias"
+        },
+        "state": {
+          "type": "string",
+          "__example__": "RJ"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Forma de envio"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.shipping_message}"
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "RadioButtonsGroup",
+                "label": "Opcao",
+                "name": "shipping_action",
+                "data-source": "${data.shipping_options}",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "shipping_action": "${form.shipping_action}",
+                    "full_name": "${data.full_name}",
+                    "cpf": "${data.cpf}",
+                    "email": "${data.email}",
+                    "postal_code": "${data.postal_code}",
+                    "street": "${data.street}",
+                    "number": "${data.number}",
+                    "complement": "${data.complement}",
+                    "neighborhood": "${data.neighborhood}",
+                    "city": "${data.city}",
+                    "state": "${data.state}"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "TextCaption",
+            "text": "O prazo de entrega comeca a contar apos a confirmacao do pagamento."
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM_ORDER",
+      "title": "Resumo",
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "Subtotal: R$ 220,00"
+        },
+        "shipping_summary": {
+          "type": "string",
+          "__example__": "Frete e Pix serao finalizados no checkout da Nuvemshop."
+        },
+        "full_name": {
+          "type": "string",
+          "__example__": "Maria Cliente"
+        },
+        "cpf": {
+          "type": "string",
+          "__example__": "12345678909"
+        },
+        "email": {
+          "type": "string",
+          "__example__": "maria@email.com"
+        },
+        "postal_code": {
+          "type": "string",
+          "__example__": "25055009"
+        },
+        "street": {
+          "type": "string",
+          "__example__": "Rod Washington Luiz"
+        },
+        "number": {
+          "type": "string",
+          "__example__": "1308"
+        },
+        "complement": {
+          "type": "string",
+          "__example__": "Box 185"
+        },
+        "neighborhood": {
+          "type": "string",
+          "__example__": "Jardim Gramacho"
+        },
+        "city": {
+          "type": "string",
+          "__example__": "Duque de Caxias"
+        },
+        "state": {
+          "type": "string",
+          "__example__": "RJ"
+        },
+        "confirm_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "__example__": [
+            {
+              "id": "CONFIRM",
+              "title": "Criar pedido"
+            },
+            {
+              "id": "ALTER_CART",
+              "title": "Alterar carrinho"
+            },
+            {
+              "id": "CANCEL",
+              "title": "Cancelar pedido"
+            }
+          ]
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Resumo e pagamento"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.shipping_summary}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Ao criar o pedido, vamos validar o estoque novamente e enviar o link de pagamento no WhatsApp."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "Footer",
+                "label": "Gerar link de pagamento",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "flow_token": "${data.flow_token}",
+                    "confirm_final_action": "CONFIRM",
+                    "full_name": "${data.full_name}",
+                    "cpf": "${data.cpf}",
+                    "email": "${data.email}",
+                    "postal_code": "${data.postal_code}",
+                    "street": "${data.street}",
+                    "number": "${data.number}",
+                    "complement": "${data.complement}",
+                    "neighborhood": "${data.neighborhood}",
+                    "city": "${data.city}",
+                    "state": "${data.state}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ORDER_CREATED",
+      "title": "Pedido criado",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "local_order_id": {
+          "type": "string",
+          "__example__": "372ae476-7c09-438d-be5b-5d50217950b7"
+        },
+        "checkout_url": {
+          "type": "string",
+          "__example__": "https://checkout.nuvemshop.com.br/example"
+        },
+        "checkout_message": {
+          "type": "string",
+          "__example__": "Link de pagamento: https://checkout.nuvemshop.com.br/example"
+        },
+        "message": {
+          "type": "string",
+          "__example__": "Pedido criado com sucesso. Enviamos o link de pagamento no WhatsApp."
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Pedido criado"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.message}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.checkout_message}"
+          },
+          {
+            "type": "Footer",
+            "label": "Concluir",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "status": "ORDER_CREATED",
+                "local_order_id": "${data.local_order_id}",
+                "checkout_url": "${data.checkout_url}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "HUMAN_ATTENDANT",
+      "title": "Atendimento",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "message": {
+          "type": "string",
+          "__example__": "Perfeito! Vou chamar uma atendente para te ajudar."
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Atendimento solicitado"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.message}"
+          },
+          {
+            "type": "Footer",
+            "label": "Concluir",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "status": "HUMAN_ATTENDANT"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CANCELLED",
+      "title": "Cancelado",
+      "terminal": true,
+      "success": false,
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "cart_summary": {
+          "type": "string",
+          "__example__": "Pedido cancelado. Nenhum pedido foi criado."
+        },
+        "message": {
+          "type": "string",
+          "__example__": "Pedido cancelado. Seu carrinho foi encerrado e nenhum pedido foi criado."
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Pedido cancelado"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.message}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.cart_summary}"
+          },
+          {
+            "type": "Footer",
+            "label": "Concluir",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "status": "CANCELLED"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "OUT_OF_STOCK",
+      "title": "Indisponivel",
+      "terminal": true,
+      "success": false,
+      "data": {
+        "flow_token": {
+          "type": "string",
+          "__example__": "token-teste"
+        },
+        "message": {
+          "type": "string",
+          "__example__": "Essa peca ficou indisponivel. Escolha outra opcao para continuar."
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Produto indisponivel"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.message}"
+          },
+          {
+            "type": "Footer",
+            "label": "Concluir",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "status": "OUT_OF_STOCK"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

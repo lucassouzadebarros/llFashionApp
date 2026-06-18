@@ -1,0 +1,37 @@
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "5521999999999",
+  "type": "interactive",
+  "interactive": {
+    "type": "button",
+    "body": {
+      "text": "Bem-vinda a LLFashion Moda!\n\nTrabalhamos com moda feminina no atacado.\n\nPedido minimo: R$ 200,00.\n\nComo deseja continuar?"
+    },
+    "action": {
+      "buttons": [
+        {
+          "type": "reply",
+          "reply": {
+            "id": "LLF_BUY_NOW",
+            "title": "Comprar Agora"
+          }
+        },
+        {
+          "type": "reply",
+          "reply": {
+            "id": "LLF_TRACK_ORDER",
+            "title": "Acompanhar Pedido"
+          }
+        },
+        {
+          "type": "reply",
+          "reply": {
+            "id": "LLF_HUMAN_ATTENDANT",
+            "title": "Falar com Atendente"
+          }
+        }
+      ]
+    }
+  }
+}

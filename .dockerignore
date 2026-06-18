@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.idea
+.vscode
+target
+logs
+frontend/node_modules
+frontend/dist
+src/main/resources/static/storefront
+*.iml
+*.log

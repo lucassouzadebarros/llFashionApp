@@ -1,0 +1,682 @@
+
+
+--- PAGE 1 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 1
+ LLFashion Moda
+ Instrucao para Codex - React Web
+ App Mobile com Wireframes
+ Objetivo: criar uma experiencia visual de compra no atacado, inspirada no
+wireframe, acessada por link enviado no WhatsApp, com carrinho proprio,
+ minimo de R$ 200, frete e Pix via Nuvemshop.
+Decisao principal
+O WhatsApp Flow nao sera usado como fluxo principal para reproduzir o wireframe. O caminho
+correto para chegar ao visual proposto e criar uma aplicacao web/mobile em React. O WhatsApp
+sera usado como canal de entrada, comunicacao e envio do link de compra/pagamento.
+Use este documento como briefing para o Codex. Antes de implementar, o Codex deve analisar a
+aplicacao atual e reaproveitar o que ja existe.
+
+
+--- PAGE 2 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 2
+1. Correcao de estrategia
+A proposta anterior tentou aproximar o WhatsApp Flow do wireframe visual. Porem, o Flow nativo
+renderiza listas, radios, inputs e botoes padrao do WhatsApp. Ele nao permite criar livremente cards
+com imagem, botoes customizados, grid de produtos, layout de ecommerce e carrinho visual como
+no wireframe.
+Como a loja e de roupas femininas no atacado, a cliente precisa visualizar as pecas antes de comprar.
+Por isso, a estrategia correta para reproduzir o wireframe e criar uma aplicacao React mobile-first.
+Resumo da decisao
+●
+Criar uma aplicacao React responsiva/mobile-first baseada no wireframe.
+●
+A cliente acessa essa aplicacao por um link enviado no WhatsApp.
+●
+Nao usar o carrinho nativo do catalogo do WhatsApp.
+●
+Nao usar WhatsApp Flow como fluxo principal de compra.
+●
+WhatsApp Flow pode existir apenas como opcional/fallback, se fizer sentido.
+●
+Backend continua controlando estoque, carrinho, minimo de R$ 200, frete e pagamento via
+Nuvemshop.
+2. Contexto atual da aplicacao
+●
+A aplicacao ja existe e foi criada anteriormente.
+●
+Hoje ha integracao com WhatsApp, Nuvemshop e validacao de estoque no backend.
+●
+O fluxo atual/planejado usava WhatsApp Flow e/ou catalogo do WhatsApp para parte da compra.
+●
+A loja vende moda feminina no atacado, nao venda avulsa comum.
+●
+O pedido minimo e R$ 200,00.
+●
+A cliente precisa montar um carrinho com varias pecas.
+●
+O pagamento deve continuar pela Nuvemshop, preferencialmente por checkout/link Pix.
+3. Problema que queremos resolver
+O problema nao e apenas tecnico. E principalmente de experiencia de compra.
+●
+No WhatsApp Flow nativo, a listagem de produtos fica muito simples e textual.
+●
+A cliente nao visualiza bem as pecas antes de escolher.
+●
+Roupa feminina exige foto, cor, modelo, caimento e detalhes visuais.
+●
+O cliente pode abandonar a compra se tiver que escolher apenas por texto.
+●
+O Flow nao reproduz o wireframe com cards, fotos, botoes e carrinho visual.
+●
+Como a loja e de atacado, o carrinho precisa ser forte, claro e sempre visivel.
+
+
+--- PAGE 3 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 3
+Exemplo do problema atual:
+- Cliente quer comprar saias no atacado.
+- O Flow mostra apenas lista textual de produtos.
+- A cliente nao consegue ver a peca direito.
+- A experiencia fica fria e pouco confiavel.
+Solução desejada:
+- Link enviado pelo WhatsApp abre um Web App React.
+- O Web App mostra fotos, cards, categorias, produtos, carrinho e checkout visual.
+- Backend controla estoque, minimo de R$ 200, frete e pagamento.
+
+
+--- PAGE 4 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 4
+4. Objetivo da nova implementacao
+Criar um frontend web/mobile em React inspirado no wireframe anexado ao final deste PDF. Esse
+frontend deve funcionar como um mini app de compras da LLFashion Moda, com foco em atacado.
+●
+Tela inicial da LLFashion Moda.
+●
+Categorias com cards e navegacao simples.
+●
+Produtos com fotos reais vindas da Nuvemshop.
+●
+Detalhe do produto com imagem grande.
+●
+Selecao de cor, tamanho e modelo.
+●
+Quantidade limitada ao estoque.
+●
+Carrinho visual com progresso do pedido minimo.
+●
+Pedido minimo de R$ 200,00 antes de liberar checkout.
+●
+Formulario de dados da cliente.
+●
+Endereco de entrega.
+●
+Consulta/seleção de frete.
+●
+Resumo do pedido.
+●
+Geracao de link Pix/checkout pela Nuvemshop.
+5. Papel do WhatsApp
+O WhatsApp continua importante, mas nao deve ser usado para renderizar a interface visual
+principal.
+●
+Receber a primeira mensagem da cliente.
+●
+Enviar mensagem de boas-vindas.
+●
+Enviar o link do Web App React para montar o pedido.
+●
+Enviar lembretes ou confirmacoes.
+●
+Enviar link de pagamento, se necessario.
+●
+Permitir falar com atendente humano.
+●
+Manter historico de atendimento.
+Fluxo do WhatsApp:
+Cliente chama no WhatsApp
+-> Backend responde com boas-vindas
+-> Backend envia link "Montar pedido no atacado"
+-> Cliente abre o Web App React
+-> Cliente monta carrinho e finaliza
+-> Backend gera link Pix/checkout da Nuvemshop
+-> Link e confirmacao podem ser enviados tambem pelo WhatsApp.
+6. Mensagem inicial sugerida no WhatsApp
+
+
+--- PAGE 5 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 5
+Bem-vinda a LLFashion Moda!
+Trabalhamos com moda feminina no atacado.
+Pedido minimo no atacado: R$ 200,00.
+Para montar seu pedido com fotos, tamanhos, cores e estoque atualizado, acesse o link 
+abaixo:
+{link_web_app}
+Se preferir, posso chamar uma atendente para te ajudar.
+O link deve abrir uma sessao do carrinho no React, associada ao telefone da cliente ou a um token de
+sessao.
+
+
+--- PAGE 6 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 6
+7. Arquitetura proposta
+WhatsApp
+  -> mensagem inicial / link de compra
+React Web App Mobile
+  -> categorias
+  -> produtos com fotos
+  -> detalhe do produto
+  -> carrinho atacadista
+  -> dados da cliente
+  -> endereco
+  -> frete
+  -> resumo
+  -> gerar link Pix
+Backend existente
+  -> sessao do carrinho
+  -> estoque
+  -> produtos Nuvemshop
+  -> frete
+  -> draft order / order Nuvemshop
+  -> checkout_url / link Pix
+  -> mensagens WhatsApp
+Nuvemshop
+  -> origem dos produtos, imagens, variantes, estoque
+  -> checkout / pagamento Pix
+  -> pedido final
+8. Requisitos do frontend React
+●
+Criar frontend mobile-first, responsivo e inspirado no wireframe anexado.
+●
+Usar React, preferencialmente com Vite ou Next.js, conforme estrutura do projeto.
+●
+Usar Tailwind CSS ou CSS modules para reproduzir os cards, espacamentos e cores do wireframe.
+●
+Usar layout otimizado para celular, pois a cliente vem do WhatsApp.
+●
+Priorizar imagens grandes, cards claros e botoes objetivos.
+●
+Manter a regra do pedido minimo sempre visivel no carrinho.
+●
+Mostrar estoque e variacoes com clareza.
+●
+A pagina deve carregar rapido no celular.
+●
+Imagens devem ter lazy loading, fallback e compressao quando possivel.
+●
+Ter estado de loading, erro, produto sem estoque e carrinho vazio.
+9. Design esperado
+●
+Visual limpo, feminino, profissional e confiavel.
+●
+Fundo branco, texto escuro, botoes verdes e cards arredondados.
+●
+Fotos dos produtos em destaque.
+●
+Categorias em cards com icones ou imagens pequenas.
+●
+Produtos em cards com foto, nome, preco, estoque e botao.
+●
+Detalhe do produto com foto grande e seletores de variacao.
+●
+Carrinho com thumbnails, quantidade, total e progresso do minimo.
+
+
+--- PAGE 7 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 7
+●
+Checkout simples e objetivo.
+●
+Pix e link da Nuvemshop apresentados de forma clara.
+
+
+--- PAGE 8 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 8
+10. Telas do React Web App
+10.1 Tela inicial
+●
+Mostrar marca LLFashion Moda.
+●
+Informar que a loja e de moda feminina no atacado.
+●
+Mostrar pedido minimo de R$ 200,00.
+●
+Botoes: Comprar por categoria, Ver novidades, Ver promocoes, Ver carrinho, Falar com atendente.
+●
+Se a cliente ja tiver carrinho aberto, destacar botao Ver carrinho.
+10.2 Categorias
+●
+Exibir categorias em cards visuais.
+●
+Exemplos: Todos os produtos, Croppeds, Saias, Shorts, Vestidos, Blusas, Conjuntos, Promocoes.
+●
+Cada categoria pode ter icone ou miniatura.
+●
+Ao selecionar uma categoria, carregar produtos disponiveis.
+10.3 Produtos
+●
+Exibir cards de produtos com imagem real da Nuvemshop.
+●
+Mostrar nome do produto, preco inicial, estoque total e botao Ver detalhes.
+●
+Mostrar apenas produtos ativos e com estoque.
+●
+Permitir filtros por categoria, tamanho, cor, preco e promocao se possivel.
+●
+Paginar ou usar scroll infinito com cuidado para nao pesar no celular.
+10.4 Detalhe do produto
+●
+Mostrar imagem grande do produto e, se houver, galeria.
+●
+Mostrar nome, preco, descricao curta, estoque e variacoes.
+●
+Permitir selecionar cor, tamanho e modelo.
+●
+Exibir apenas variacoes com estoque.
+●
+Se uma variacao nao tiver estoque, ocultar ou desabilitar com aviso.
+10.5 Quantidade
+●
+Mostrar estoque disponivel da variacao escolhida.
+●
+Permitir selecionar quantidade apenas ate o estoque disponivel.
+●
+Usar stepper + e - ou chips de quantidade.
+●
+Mostrar valor parcial do item.
+●
+Botao principal: Adicionar ao carrinho.
+
+
+--- PAGE 9 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 9
+10.6 Produto adicionado
+●
+Mostrar confirmacao clara de que o item entrou no carrinho.
+●
+Mostrar subtotal atual.
+●
+Mostrar pedido minimo de R$ 200,00.
+●
+Se ainda faltar valor, mostrar quanto falta.
+●
+Acoes: Adicionar mais pecas, Ver carrinho, Finalizar pedido quando permitido.
+
+
+--- PAGE 10 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 10
+10.7 Carrinho
+●
+Listar itens com thumbnail, nome, variacao, quantidade e total.
+●
+Permitir ajustar quantidade respeitando estoque.
+●
+Permitir remover item.
+●
+Mostrar subtotal dos produtos.
+●
+Mostrar barra de progresso para o minimo de R$ 200,00.
+●
+Se subtotal < R$ 200,00, bloquear finalizacao e mostrar quanto falta.
+●
+Se subtotal >= R$ 200,00, liberar Finalizar pedido.
+10.8 Dados da cliente
+●
+Campos: nome completo, CPF/CNPJ, e-mail e telefone/WhatsApp.
+●
+Mostrar resumo compacto do pedido no topo.
+●
+Validar campos obrigatorios.
+●
+Exibir mensagens de erro simples e claras.
+10.9 Endereco de entrega
+●
+Campos: CEP, rua, numero, complemento, bairro, cidade e estado.
+●
+Implementar busca por CEP quando possivel.
+●
+Explicar que o frete sera exibido apos preencher o endereco.
+●
+Validar CEP e estado.
+10.10 Formas de envio
+●
+Consultar opcoes de envio disponiveis apos endereco preenchido.
+●
+Mostrar nome da forma de envio, prazo e preco.
+●
+Permitir escolher PAC, Sedex, Transportadora, Retirada ou o que a Nuvemshop retornar.
+●
+Se nao encontrar frete, orientar atendimento humano.
+10.11 Resumo e pagamento
+●
+Mostrar produtos, subtotal, frete, descontos e total final.
+●
+Mostrar forma de envio selecionada.
+●
+Mostrar que pagamento sera via Pix pela Nuvemshop.
+●
+Botao principal: Gerar link de pagamento.
+●
+Depois de gerar o link, mostrar botao para abrir checkout da Nuvemshop.
+
+
+--- PAGE 11 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 11
+11. Requisitos do backend
+●
+Reaproveitar backend existente sempre que possivel.
+●
+Criar API para o React consultar categorias, produtos, variacoes, estoque, carrinho, frete e
+pagamento.
+●
+Controlar carrinho no backend, nao no frontend apenas.
+●
+Associar carrinho a um token de sessao e/ou telefone da cliente.
+●
+Validar estoque ao adicionar item, ao alterar quantidade e antes de criar pedido.
+●
+Validar pedido minimo de R$ 200,00 antes de permitir checkout.
+●
+Integrar com a Nuvemshop para obter produtos, imagens, variantes e estoque.
+●
+Criar draft order/order na Nuvemshop e obter checkout_url/link de pagamento.
+●
+Enviar mensagem de confirmacao pelo WhatsApp se necessario.
+12. Endpoints sugeridos
+GET  /api/storefront/session/start?phone={phone}
+GET  /api/storefront/categories
+GET  /api/storefront/products?categoryId={id}&page={page}
+GET  /api/storefront/products/{productId}
+GET  /api/storefront/products/{productId}/variants
+GET  /api/storefront/cart/{cartToken}
+POST /api/storefront/cart/{cartToken}/items
+PUT  /api/storefront/cart/{cartToken}/items/{itemId}
+DELETE /api/storefront/cart/{cartToken}/items/{itemId}
+POST /api/storefront/checkout/customer
+POST /api/storefront/checkout/address
+POST /api/storefront/checkout/shipping-options
+POST /api/storefront/checkout/select-shipping
+POST /api/storefront/checkout/create-payment-link
+POST /api/whatsapp/send-start-link
+POST /api/whatsapp/send-payment-link
+13. Servicos/classes sugeridos
+●
+StorefrontController - endpoints para o React.
+●
+StorefrontSessionService - cria/recupera sessao de compra.
+●
+ProductCatalogService - categorias, produtos e imagens.
+●
+ProductStockService - estoque e variacoes disponiveis.
+●
+WholesaleCartService - carrinho atacadista e minimo de R$ 200.
+●
+CheckoutService - orquestra dados, endereco, frete e pagamento.
+●
+ShippingOptionsService - consulta opcoes de envio.
+●
+NuvemshopProductService - produtos/variantes/imagens na Nuvemshop.
+●
+NuvemshopDraftOrderService - criacao de draft order e checkout_url.
+●
+NuvemshopOrderService - se o projeto usar Order direto.
+●
+PaymentLinkService - gera/recupera link Pix/checkout.
+
+
+--- PAGE 12 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 12
+●
+WhatsAppMessageService - envio de mensagens e links pelo WhatsApp.
+
+
+--- PAGE 13 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 13
+14. Regras de negocio obrigatorias
+●
+Pedido minimo no atacado: R$ 200,00.
+●
+Carrinho deve permitir varios produtos.
+●
+Nao permitir finalizar abaixo de R$ 200,00.
+●
+Mostrar quanto falta para atingir R$ 200,00.
+●
+Produto sem estoque nao deve aparecer como compravel.
+●
+Variacao sem estoque nao deve aparecer como compravel.
+●
+Quantidade nao pode passar do estoque disponivel.
+●
+Validar estoque novamente antes de criar pedido/draft order.
+●
+Se estoque mudar durante o processo, avisar cliente e pedir ajuste do carrinho.
+●
+Carrinho deve expirar apos tempo configuravel, por exemplo 120 minutos.
+●
+Pagamento deve ser feito pela Nuvemshop via Pix/checkout_url sempre que possivel.
+15. Frete e pagamento
+A forma de envio depende dos dados da cliente e do endereco. Por isso, o frontend deve coletar
+dados e endereco antes de consultar frete.
+Ponto de investigacao obrigatorio para o Codex
+●
+Verificar na API/documentacao da Nuvemshop qual e a forma correta de obter formas de
+envio para um carrinho/endereco.
+●
+Verificar se a Nuvemshop permite criar draft order ja com o frete selecionado.
+●
+Verificar se o draft order retorna checkout_url ou abandoned_checkout_url.
+●
+Confirmar se o checkout_url permite pagamento Pix pela Nuvemshop.
+●
+Se nao houver cotacao de frete via API, usar fallback com checkout_url da Nuvemshop para
+a cliente finalizar frete e Pix.
+Fluxo de frete/pagamento:
+Carrinho >= R$ 200
+-> cliente preenche dados
+-> cliente preenche endereco
+-> backend consulta formas de envio
+-> cliente escolhe frete
+-> backend valida estoque e minimo novamente
+-> backend cria draft order/order na Nuvemshop
+-> backend recebe checkout_url
+-> frontend mostra link para pagamento Pix
+-> opcionalmente backend envia link tambem no WhatsApp.
+16. Imagens dos produtos
+●
+As imagens devem vir da Nuvemshop.
+●
+Usar imagem principal do produto na listagem.
+●
+Usar galeria no detalhe do produto quando existir.
+●
+Mostrar fallback caso produto nao tenha imagem.
+
+
+--- PAGE 14 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 14
+●
+O ideal e nao exibir produto sem imagem na vitrine principal, ou sinalizar para cadastro revisar.
+●
+Otimizar imagem para mobile.
+●
+Aplicar lazy loading nos cards.
+●
+Evitar carregar imagens gigantes no celular.
+
+
+--- PAGE 15 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 15
+17. Banco de dados sugerido
+Se a aplicacao atual ainda nao possui essas estruturas, criar ou adaptar tabelas equivalentes.
+Tabela: storefront_cart
+- id
+- cart_token
+- phone_number
+- customer_name
+- customer_document
+- customer_email
+- customer_phone
+- status
+- subtotal
+- shipping_price
+- total
+- minimum_order_value
+- selected_shipping_code
+- selected_shipping_name
+- checkout_url
+- nuvemshop_draft_order_id
+- nuvemshop_order_id
+- created_at
+- updated_at
+- expires_at
+Tabela: storefront_cart_item
+- id
+- cart_id
+- product_id
+- variant_id
+- product_name
+- variant_name
+- size
+- color
+- model
+- image_url
+- quantity
+- unit_price
+- total_price
+- stock_at_selection
+- created_at
+- updated_at
+18. Status sugeridos
+CART_OPEN
+MINIMUM_NOT_REACHED
+MINIMUM_REACHED
+CUSTOMER_DATA_PENDING
+ADDRESS_PENDING
+SHIPPING_PENDING
+SHIPPING_SELECTED
+WAITING_CONFIRMATION
+PAYMENT_LINK_GENERATED
+PAYMENT_PENDING
+ORDER_CREATED
+PAID
+CANCELLED
+EXPIRED
+ERROR
+19. Variaveis de ambiente sugeridas
+
+
+--- PAGE 16 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 16
+FRONTEND_BASE_URL=https://sua-url-da-loja.com.br
+MINIMUM_ORDER_VALUE=200.00
+CART_EXPIRATION_MINUTES=120
+DEFAULT_CURRENCY=BRL
+NUVEMSHOP_STORE_ID=...
+NUVEMSHOP_ACCESS_TOKEN=...
+WHATSAPP_ACCESS_TOKEN=...
+WHATSAPP_PHONE_NUMBER_ID=...
+WHATSAPP_BUSINESS_ACCOUNT_ID=...
+WHATSAPP_VERIFY_TOKEN=...
+
+
+--- PAGE 17 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 17
+20. Criterios de aceite
+1
+Cliente recebe link pelo WhatsApp para montar pedido.
+2
+Link abre Web App React responsivo no celular.
+3
+Tela inicial informa atacado e pedido minimo de R$ 200,00.
+4
+Categorias aparecem de forma visual e facil de navegar.
+5
+Produtos aparecem com fotos reais, nome, preco e estoque.
+6
+Detalhe do produto mostra imagem grande e variacoes.
+7
+Cliente consegue selecionar apenas variacoes com estoque.
+8
+Quantidade fica limitada ao estoque disponivel.
+9
+Carrinho mostra itens com imagem, quantidade e total.
+10
+Carrinho mostra progresso do minimo de R$ 200,00.
+11
+Checkout nao e liberado abaixo de R$ 200,00.
+12
+Cliente preenche dados e endereco.
+13
+Sistema consulta ou trata formas de envio.
+14
+Sistema gera checkout_url/link Pix pela Nuvemshop.
+15
+Backend valida estoque novamente antes de criar pedido.
+16
+Se o estoque mudar, carrinho e cliente sao atualizados.
+17
+WhatsApp Flow nao e fluxo principal desta versao.
+18
+Carrinho nativo do catalogo do WhatsApp nao e usado.
+19
+Codigo reaproveita o que ja existe, sem recriar tudo do zero.
+20
+Wireframes anexados devem guiar o visual do React.
+21. Pedido final para o Codex
+Antes de implementar, analise o projeto atual e informe:
+1. Quais controllers ja existem.
+2. Quais services ja existem.
+3. Como esta a integracao com WhatsApp.
+4. Como esta a integracao com Nuvemshop.
+5. Como esta a validacao de estoque.
+6. Como esta a criacao de pedido/draft order.
+7. Se ja existe frontend ou se sera necessario criar um novo frontend React.
+8. Quais arquivos serao criados.
+9. Quais arquivos serao alterados.
+10. Como o link enviado no WhatsApp abrira a sessao do carrinho.
+Depois implemente em etapas:
+Etapa 1 - Criar Web App React mobile-first com layout do wireframe.
+Etapa 2 - Integrar categorias, produtos, imagens e variacoes.
+Etapa 3 - Implementar carrinho atacadista com minimo de R$ 200.
+Etapa 4 - Implementar dados da cliente e endereco.
+Etapa 5 - Implementar frete e link Pix/checkout da Nuvemshop.
+Etapa 6 - Integrar WhatsApp para envio do link de compra e link de pagamento.
+Nao recriar a aplicacao do zero. Reaproveitar o backend e as regras ja existentes sempre que
+ possivel.
+
+
+--- PAGE 18 ---
+LLFashion Moda - Instrucao para Codex - React Web App Mobile
+Pagina 18
+22. Anexos - wireframes de referencia
+Os wireframes nas proximas paginas mostram o visual esperado para o React Web App. Eles nao
+devem ser implementados dentro do WhatsApp Flow nativo, pois o Flow nao permite esse nivel de
+customizacao visual.
+Use os anexos como referencia de layout, hierarquia visual, linguagem de botao, cards de produto,
+carrinho, checkout, frete e Pix.
+
+
+--- PAGE 19 ---
+Anexo 1 - Wireframe UX Proposto LLFashion Moda
+Referencia visual para o React Web App mobile-first
+
+
+--- PAGE 20 ---
+Anexo 2 - Wireframe UX Proposto LLFashion Moda
+Referencia visual para o React Web App mobile-first
