@@ -66,3 +66,9 @@ services:
         value: "5"
       - key: ORDER_STATUS_SYNC_LOOKBACK_DAYS
         value: "30"
+      - key: NUVEMSHOP_SITE_ORDERS_SYNC_ENABLED
+        value: "true"
+      - key: NUVEMSHOP_SITE_ORDERS_SYNC_INTERVAL_MINUTES
+        value: "10"
+      - key: NUVEMSHOP_SITE_ORDERS_SYNC_LOOKBACK_DAYS
+        value: "7"
