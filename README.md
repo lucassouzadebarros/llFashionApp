@@ -25,6 +25,8 @@ Para o checkout visual mobile em React, veja também [docs/REACT_WEBAPP_CHECKOUT
 
 Para publicar no Render e trocar as URLs do ngrok pela URL fixa do deploy, veja [docs/RENDER_DEPLOY.md](docs/RENDER_DEPLOY.md).
 
+Para repetir a configuracao em outra loja Nuvemshop/WhatsApp, veja [docs/GUIA_INTEGRAR_NOVA_LOJA.md](docs/GUIA_INTEGRAR_NOVA_LOJA.md).
+
 ## Subir o banco
 
 ```bash
