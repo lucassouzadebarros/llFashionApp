@@ -8,11 +8,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record CheckoutProperties(
         BigDecimal minimumOrderTotal,
         String frontendBaseUrl,
-        Integer cartExpirationMinutes
+        Integer cartExpirationMinutes,
+        Integer orderStatusAccessExpirationMinutes
 ) {
 
     private static final BigDecimal DEFAULT_MINIMUM_ORDER_TOTAL = new BigDecimal("200.00");
     private static final int DEFAULT_CART_EXPIRATION_MINUTES = 120;
+    private static final int DEFAULT_ORDER_STATUS_ACCESS_EXPIRATION_MINUTES = 30;
 
     public BigDecimal resolvedMinimumOrderTotal() {
         return minimumOrderTotal == null ? DEFAULT_MINIMUM_ORDER_TOTAL : minimumOrderTotal;
@@ -29,6 +31,13 @@ public record CheckoutProperties(
         int minutes = cartExpirationMinutes == null || cartExpirationMinutes <= 0
                 ? DEFAULT_CART_EXPIRATION_MINUTES
                 : cartExpirationMinutes;
+        return Duration.ofMinutes(minutes);
+    }
+
+    public Duration resolvedOrderStatusAccessExpiration() {
+        int minutes = orderStatusAccessExpirationMinutes == null || orderStatusAccessExpirationMinutes <= 0
+                ? DEFAULT_ORDER_STATUS_ACCESS_EXPIRATION_MINUTES
+                : orderStatusAccessExpirationMinutes;
         return Duration.ofMinutes(minutes);
     }
 }

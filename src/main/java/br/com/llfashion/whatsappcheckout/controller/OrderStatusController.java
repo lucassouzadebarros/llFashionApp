@@ -25,6 +25,11 @@ public class OrderStatusController {
         return orderTrackingService.getStatus(statusPublicToken);
     }
 
+    @GetMapping("/access/{accessToken}")
+    public OrderStatusListResponse getStatusByAccessToken(@PathVariable String accessToken) {
+        return orderTrackingService.findOrdersByTemporaryAccessToken(accessToken);
+    }
+
     @GetMapping("/latest")
     public LatestOrderStatusResponse latestByPhone(@RequestParam String phone) {
         return orderTrackingService.findLatestByPhone(phone);

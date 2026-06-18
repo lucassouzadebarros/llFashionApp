@@ -50,6 +50,7 @@ checkout:
   minimum-order-total: ${CHECKOUT_MINIMUM_ORDER_TOTAL:200.00}
   frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:8080/storefront/}
   cart-expiration-minutes: ${CART_EXPIRATION_MINUTES:120}
+  order-status-access-expiration-minutes: ${ORDER_STATUS_ACCESS_EXPIRATION_MINUTES:30}
 
 stock-sync:
   enabled: ${STOCK_SYNC_ENABLED:true}

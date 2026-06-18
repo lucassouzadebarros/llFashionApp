@@ -79,8 +79,18 @@ export default function App() {
     try {
       setLoading(true);
       if (isStatusPage) {
+        const statusAccess = searchParams.get('access');
         const statusToken = searchParams.get('token');
         const statusPhone = searchParams.get('phone');
+        if (statusAccess) {
+          const result = await api.getOrderStatusByAccess(statusAccess);
+          if (result.order && !result.multiple) {
+            setOrderStatus(result.order);
+          } else {
+            setOrderStatusList(result);
+          }
+          return;
+        }
         if (statusToken) {
           setOrderStatus(await api.getOrderStatus(statusToken));
           return;
@@ -94,7 +104,7 @@ export default function App() {
           }
           return;
         }
-        if (!statusToken && !statusPhone) {
+        if (!statusAccess && !statusToken && !statusPhone) {
           throw new Error('Token de acompanhamento nao informado.');
         }
         return;

@@ -104,6 +104,9 @@ export const api = {
   getOrderStatus(statusToken) {
     return request(`/api/orders/status/${encodeURIComponent(statusToken)}`);
   },
+  getOrderStatusByAccess(accessToken) {
+    return request(`/api/orders/status/access/${encodeURIComponent(accessToken)}`);
+  },
   getOrdersByPhone(phone) {
     return request(`/api/orders/status/customer?phone=${encodeURIComponent(phone)}`);
   }

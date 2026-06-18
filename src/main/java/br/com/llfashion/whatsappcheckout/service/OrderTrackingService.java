@@ -9,24 +9,32 @@ import br.com.llfashion.whatsappcheckout.dto.response.OrderStatusListResponse;
 import br.com.llfashion.whatsappcheckout.dto.response.OrderStatusResponse;
 import br.com.llfashion.whatsappcheckout.dto.response.OrderStatusSummaryResponse;
 import br.com.llfashion.whatsappcheckout.entity.NuvemshopInstallation;
+import br.com.llfashion.whatsappcheckout.entity.OrderStatusAccessToken;
 import br.com.llfashion.whatsappcheckout.entity.WhatsappOrder;
 import br.com.llfashion.whatsappcheckout.entity.WhatsappOrderItem;
 import br.com.llfashion.whatsappcheckout.enums.OrderStatus;
 import br.com.llfashion.whatsappcheckout.enums.PublicOrderStatus;
+import br.com.llfashion.whatsappcheckout.exception.BusinessException;
 import br.com.llfashion.whatsappcheckout.exception.EntityNotFoundException;
 import br.com.llfashion.whatsappcheckout.exception.NuvemshopApiException;
+import br.com.llfashion.whatsappcheckout.repository.OrderStatusAccessTokenRepository;
 import br.com.llfashion.whatsappcheckout.repository.WhatsappOrderRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -36,19 +44,23 @@ public class OrderTrackingService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderTrackingService.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final WhatsappOrderRepository orderRepository;
+    private final OrderStatusAccessTokenRepository accessTokenRepository;
     private final CheckoutProperties checkoutProperties;
     private final NuvemshopInstallationService installationService;
     private final NuvemshopApiClient nuvemshopApiClient;
 
     public OrderTrackingService(
             WhatsappOrderRepository orderRepository,
+            OrderStatusAccessTokenRepository accessTokenRepository,
             CheckoutProperties checkoutProperties,
             NuvemshopInstallationService installationService,
             NuvemshopApiClient nuvemshopApiClient
     ) {
         this.orderRepository = orderRepository;
+        this.accessTokenRepository = accessTokenRepository;
         this.checkoutProperties = checkoutProperties;
         this.installationService = installationService;
         this.nuvemshopApiClient = nuvemshopApiClient;
@@ -105,6 +117,30 @@ public class OrderTrackingService {
                 : "Encontrei " + visibleOrders.size() + " pedidos para este WhatsApp.";
 
         return new OrderStatusListResponse(true, visibleOrders.size() > 1, message, visibleOrders.size(), singleOrder, summaries);
+    }
+
+    @Transactional
+    public OrderStatusListResponse findOrdersByTemporaryAccessToken(String accessToken) {
+        if (!StringUtils.hasText(accessToken)) {
+            throw new EntityNotFoundException("Token temporario de acompanhamento nao informado.");
+        }
+        OrderStatusAccessToken savedToken = accessTokenRepository
+                .findByAccessTokenHashAndExpiresAtAfter(hash(accessToken.trim()), LocalDateTime.now())
+                .orElseThrow(() -> new BusinessException("Link de acompanhamento expirado ou invalido. Solicite um novo link pelo WhatsApp.", HttpStatus.GONE));
+
+        if (savedToken.getOrderId() != null) {
+            WhatsappOrder order = orderRepository.findById(savedToken.getOrderId())
+                    .orElseThrow(() -> new EntityNotFoundException("Pedido nao encontrado para o token temporario informado."));
+            refreshFromNuvemshop(order);
+            OrderStatusResponse response = toResponse(order);
+            return new OrderStatusListResponse(true, false, "Encontrei seu pedido.", 1, response, List.of(toSummaryResponse(order)));
+        }
+
+        if (StringUtils.hasText(savedToken.getCustomerPhone())) {
+            return findOrdersByPhone(savedToken.getCustomerPhone());
+        }
+
+        throw new EntityNotFoundException("Token temporario de acompanhamento sem pedido ou telefone vinculado.");
     }
 
     @Transactional(readOnly = true)
@@ -294,6 +330,19 @@ public class OrderTrackingService {
         if (!StringUtils.hasText(statusPublicToken)) {
             return null;
         }
+        return orderRepository.findByStatusPublicToken(statusPublicToken.trim())
+                .map(order -> temporaryOrderStatusUrl(order.getId()))
+                .orElseGet(() -> permanentStatusUrl(statusPublicToken));
+    }
+
+    public String temporaryOrderStatusUrl(UUID orderId) {
+        if (orderId == null) {
+            return null;
+        }
+        return accessUrl(createTemporaryAccessToken(orderId, null));
+    }
+
+    private String permanentStatusUrl(String statusPublicToken) {
         String baseUrl = checkoutProperties.resolvedFrontendBaseUrl();
         if (!baseUrl.endsWith("/")) {
             baseUrl += "/";
@@ -306,11 +355,7 @@ public class OrderTrackingService {
         if (!StringUtils.hasText(normalizedPhone)) {
             return null;
         }
-        String baseUrl = checkoutProperties.resolvedFrontendBaseUrl();
-        if (!baseUrl.endsWith("/")) {
-            baseUrl += "/";
-        }
-        return baseUrl + "pedido/status?phone=" + URLEncoder.encode(normalizedPhone, StandardCharsets.UTF_8);
+        return accessUrl(createTemporaryAccessToken(null, normalizedPhone));
     }
 
     public String buildWhatsAppStatusMessage(OrderStatusResponse order) {
@@ -320,7 +365,7 @@ public class OrderTrackingService {
                 + "Pagamento: " + order.paymentStatus() + "\n"
                 + "Envio: " + order.shippingStatus() + "\n\n"
                 + "Acompanhe por aqui:\n"
-                + statusUrl(order.statusPublicToken());
+                + statusUrl(order);
     }
 
     public String buildWhatsAppStatusMessage(OrderStatusListResponse result) {
@@ -415,7 +460,7 @@ public class OrderTrackingService {
                 displayShippingStatus(order, publicStatus),
                 canPay(order, publicStatus),
                 order.getCheckoutUrl(),
-                statusUrl(order.getStatusPublicToken()),
+                temporaryOrderStatusUrl(order.getId()),
                 order.getTotal(),
                 order.getCreatedAt(),
                 order.getUpdatedAt()
@@ -529,6 +574,16 @@ public class OrderTrackingService {
             return "Este pedido nao sera enviado.";
         }
         return shippingEta(order);
+    }
+
+    private String statusUrl(OrderStatusResponse order) {
+        if (order == null) {
+            return null;
+        }
+        if (order.localOrderId() != null) {
+            return temporaryOrderStatusUrl(order.localOrderId());
+        }
+        return statusUrl(order.statusPublicToken());
     }
 
     private String publicOrderNumber(OrderStatusResponse order) {
@@ -654,6 +709,50 @@ public class OrderTrackingService {
 
     private String firstText(String first, String second) {
         return StringUtils.hasText(first) ? first.trim() : second;
+    }
+
+    private String accessUrl(String rawAccessToken) {
+        String baseUrl = checkoutProperties.resolvedFrontendBaseUrl();
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/";
+        }
+        return baseUrl + "pedido/status?access=" + URLEncoder.encode(rawAccessToken, StandardCharsets.UTF_8);
+    }
+
+    private String createTemporaryAccessToken(UUID orderId, String customerPhone) {
+        accessTokenRepository.deleteExpired(LocalDateTime.now());
+        String rawToken = generateRawAccessToken();
+        accessTokenRepository.save(OrderStatusAccessToken.builder()
+                .accessTokenHash(hash(rawToken))
+                .orderId(orderId)
+                .customerPhone(trimToNull(customerPhone))
+                .expiresAt(LocalDateTime.now().plus(checkoutProperties.resolvedOrderStatusAccessExpiration()))
+                .build());
+        return rawToken;
+    }
+
+    private String generateRawAccessToken() {
+        byte[] bytes = new byte[32];
+        SECURE_RANDOM.nextBytes(bytes);
+        return "osa_" + Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    private String hash(String value) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashed = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+            StringBuilder builder = new StringBuilder(hashed.length * 2);
+            for (byte item : hashed) {
+                builder.append(String.format("%02x", item));
+            }
+            return builder.toString();
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 nao disponivel para tokens temporarios.", exception);
+        }
+    }
+
+    private String trimToNull(String value) {
+        return StringUtils.hasText(value) ? value.trim() : null;
     }
 
     private String firstText(JsonNode payload, String... fieldNames) {

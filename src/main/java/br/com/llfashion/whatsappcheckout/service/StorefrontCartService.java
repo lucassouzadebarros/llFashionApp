@@ -114,7 +114,7 @@ public class StorefrontCartService {
         return new StorefrontSessionResponse(cart.getCartToken(), toResponse(cart));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public StorefrontCartResponse getCart(String cartToken) {
         return toResponse(findActiveCart(cartToken));
     }
