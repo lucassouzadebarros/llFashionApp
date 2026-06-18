@@ -3,6 +3,7 @@ package br.com.llfashion.whatsappcheckout.client;
 import br.com.llfashion.whatsappcheckout.config.NuvemshopProperties;
 import br.com.llfashion.whatsappcheckout.dto.nuvemshop.NuvemshopDraftOrderRequest;
 import br.com.llfashion.whatsappcheckout.dto.nuvemshop.NuvemshopDraftOrderResponse;
+import br.com.llfashion.whatsappcheckout.dto.nuvemshop.NuvemshopOrderResponse;
 import br.com.llfashion.whatsappcheckout.dto.nuvemshop.NuvemshopProductResponse;
 import br.com.llfashion.whatsappcheckout.exception.NuvemshopApiException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -26,6 +28,8 @@ public class NuvemshopApiClient {
 
     private static final Logger log = LoggerFactory.getLogger(NuvemshopApiClient.class);
     private static final TypeReference<List<NuvemshopProductResponse>> PRODUCT_LIST_TYPE = new TypeReference<>() {
+    };
+    private static final TypeReference<List<NuvemshopOrderResponse>> ORDER_LIST_TYPE = new TypeReference<>() {
     };
 
     private final WebClient webClient;
@@ -147,6 +151,60 @@ public class NuvemshopApiClient {
             throw new NuvemshopApiException(
                     503,
                     "Falha de conexao ao buscar venda na Nuvemshop.",
+                    null,
+                    preview(exception.getMessage()),
+                    exception
+            );
+        }
+    }
+
+    public NuvemshopOrderResponse buscarOrderDetalhado(Long storeId, String accessToken, Long orderId) {
+        String finalUrl = buildOrderUrl(storeId, orderId);
+        log.info("Buscando venda detalhada na Nuvemshop. url={}, authentication={}", finalUrl, maskedBearer(accessToken));
+
+        try {
+            ResponseEntity<String> entity = webClient.get()
+                    .uri(finalUrl)
+                    .headers(headers -> addDefaultHeaders(headers, accessToken))
+                    .exchangeToMono(response -> response.toEntity(String.class))
+                    .block();
+
+            return handleOrderResponse(finalUrl, entity, "buscar venda detalhada na Nuvemshop");
+        } catch (WebClientRequestException exception) {
+            throw new NuvemshopApiException(
+                    503,
+                    "Falha de conexao ao buscar venda detalhada na Nuvemshop.",
+                    null,
+                    preview(exception.getMessage()),
+                    exception
+            );
+        }
+    }
+
+    public List<NuvemshopOrderResponse> listarOrders(
+            Long storeId,
+            String accessToken,
+            Integer page,
+            Integer perPage,
+            String createdAtMin,
+            String updatedAtMin,
+            String channels
+    ) {
+        String finalUrl = buildOrdersUrl(storeId, page, perPage, createdAtMin, updatedAtMin, channels);
+        log.info("Listando vendas na Nuvemshop. url={}, authentication={}", finalUrl, maskedBearer(accessToken));
+
+        try {
+            ResponseEntity<String> entity = webClient.get()
+                    .uri(finalUrl)
+                    .headers(headers -> addDefaultHeaders(headers, accessToken))
+                    .exchangeToMono(response -> response.toEntity(String.class))
+                    .block();
+
+            return handleOrdersResponse(finalUrl, entity);
+        } catch (WebClientRequestException exception) {
+            throw new NuvemshopApiException(
+                    503,
+                    "Falha de conexao ao listar vendas na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -355,6 +413,116 @@ public class NuvemshopApiClient {
         }
     }
 
+    private List<NuvemshopOrderResponse> handleOrdersResponse(String finalUrl, ResponseEntity<String> entity) {
+        if (entity == null) {
+            throw new NuvemshopApiException(
+                    502,
+                    "Resposta vazia ao listar vendas na Nuvemshop",
+                    ""
+            );
+        }
+
+        HttpStatusCode statusCode = entity.getStatusCode();
+        MediaType contentType = entity.getHeaders().getContentType();
+        String body = entity.getBody();
+        String bodyPreview = preview(body);
+        String contentTypeValue = contentType == null ? null : contentType.toString();
+
+        log.info("Nuvemshop orders request url: {}", finalUrl);
+        log.info("Nuvemshop orders response status: {}", statusCode);
+        log.info("Nuvemshop orders response content-type: {}", contentType);
+        log.info("Nuvemshop orders response body preview: {}", bodyPreview);
+
+        if (statusCode.isError()) {
+            throw new NuvemshopApiException(
+                    statusCode.value(),
+                    "Erro ao listar vendas na Nuvemshop",
+                    contentTypeValue,
+                    bodyPreview
+            );
+        }
+
+        if (!hasText(body) || "[]".equals(body.trim())) {
+            return List.of();
+        }
+
+        if (!isJsonResponse(contentType, body)) {
+            throw new NuvemshopApiException(
+                    statusCode.value(),
+                    "A Nuvemshop retornou uma resposta nao JSON ao listar vendas. Content-Type: " + contentTypeValue,
+                    contentTypeValue,
+                    bodyPreview
+            );
+        }
+
+        try {
+            return Optional.ofNullable(objectMapper.readValue(body, ORDER_LIST_TYPE)).orElse(List.of());
+        } catch (Exception exception) {
+            throw new NuvemshopApiException(
+                    statusCode.value(),
+                    "Erro ao converter resposta de vendas da Nuvemshop",
+                    contentTypeValue,
+                    bodyPreview,
+                    exception
+            );
+        }
+    }
+
+    private NuvemshopOrderResponse handleOrderResponse(String finalUrl, ResponseEntity<String> entity, String operation) {
+        if (entity == null) {
+            throw new NuvemshopApiException(
+                    502,
+                    "Resposta vazia ao " + operation,
+                    ""
+            );
+        }
+
+        HttpStatusCode statusCode = entity.getStatusCode();
+        MediaType contentType = entity.getHeaders().getContentType();
+        String body = entity.getBody();
+        String bodyPreview = preview(body);
+        String contentTypeValue = contentType == null ? null : contentType.toString();
+
+        log.info("Nuvemshop order request url: {}", finalUrl);
+        log.info("Nuvemshop order response status: {}", statusCode);
+        log.info("Nuvemshop order response content-type: {}", contentType);
+        log.info("Nuvemshop order response body preview: {}", bodyPreview);
+
+        if (statusCode.isError()) {
+            throw new NuvemshopApiException(
+                    statusCode.value(),
+                    "Erro ao " + operation,
+                    contentTypeValue,
+                    bodyPreview
+            );
+        }
+
+        if (!hasText(body) || "[]".equals(body.trim()) || "null".equalsIgnoreCase(body.trim())) {
+            return null;
+        }
+
+        if (!isJsonResponse(contentType, body)) {
+            throw new NuvemshopApiException(
+                    statusCode.value(),
+                    "A Nuvemshop retornou uma resposta nao JSON ao " + operation + ". Content-Type: " + contentTypeValue,
+                    contentTypeValue,
+                    bodyPreview
+            );
+        }
+
+        try {
+            return objectMapper.readValue(body, NuvemshopOrderResponse.class);
+        } catch (Exception exception) {
+            throw new NuvemshopApiException(
+                    statusCode.value(),
+                    "Erro ao converter resposta de venda da Nuvemshop",
+                    contentTypeValue,
+                    bodyPreview,
+                    exception
+            );
+        }
+    }
+
     private String buildProductsUrl(Long storeId, Integer page, Integer perPage) {
         return trimTrailingSlash(properties.apiBaseUrl())
                 + "/" + storeId
@@ -383,6 +551,31 @@ public class NuvemshopApiClient {
                 + "/" + storeId
                 + "/orders/"
                 + orderId;
+    }
+
+    private String buildOrdersUrl(
+            Long storeId,
+            Integer page,
+            Integer perPage,
+            String createdAtMin,
+            String updatedAtMin,
+            String channels
+    ) {
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(trimTrailingSlash(properties.apiBaseUrl()) + "/" + storeId + "/orders")
+                .queryParam("page", page == null ? 1 : page)
+                .queryParam("per_page", perPage == null ? 100 : perPage);
+
+        if (hasText(createdAtMin)) {
+            builder.queryParam("created_at_min", createdAtMin);
+        }
+        if (hasText(updatedAtMin)) {
+            builder.queryParam("updated_at_min", updatedAtMin);
+        }
+        if (hasText(channels)) {
+            builder.queryParam("channels", channels);
+        }
+        return builder.toUriString();
     }
 
     private String trimTrailingSlash(String value) {

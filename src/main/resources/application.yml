@@ -59,3 +59,8 @@ order-status-sync:
   enabled: ${ORDER_STATUS_SYNC_ENABLED:true}
   interval-minutes: ${ORDER_STATUS_SYNC_INTERVAL_MINUTES:5}
   lookback-days: ${ORDER_STATUS_SYNC_LOOKBACK_DAYS:30}
+
+nuvemshop-site-orders-sync:
+  enabled: ${NUVEMSHOP_SITE_ORDERS_SYNC_ENABLED:true}
+  interval-minutes: ${NUVEMSHOP_SITE_ORDERS_SYNC_INTERVAL_MINUTES:10}
+  lookback-days: ${NUVEMSHOP_SITE_ORDERS_SYNC_LOOKBACK_DAYS:7}

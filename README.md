@@ -25,8 +25,6 @@ Para o checkout visual mobile em React, veja também [docs/REACT_WEBAPP_CHECKOUT
 
 Para publicar no Render e trocar as URLs do ngrok pela URL fixa do deploy, veja [docs/RENDER_DEPLOY.md](docs/RENDER_DEPLOY.md).
 
-Para repetir a configuracao em outra loja Nuvemshop/WhatsApp, veja [docs/GUIA_INTEGRAR_NOVA_LOJA.md](docs/GUIA_INTEGRAR_NOVA_LOJA.md).
-
 ## Subir o banco
 
 ```bash
@@ -60,6 +58,9 @@ FRONTEND_BASE_URL=http://localhost:8080/storefront/
 CART_EXPIRATION_MINUTES=120
 STOCK_SYNC_ENABLED=true
 STOCK_SYNC_INTERVAL_MINUTES=10
+NUVEMSHOP_SITE_ORDERS_SYNC_ENABLED=true
+NUVEMSHOP_SITE_ORDERS_SYNC_INTERVAL_MINUTES=10
+NUVEMSHOP_SITE_ORDERS_SYNC_LOOKBACK_DAYS=7
 ```
 
 O `NUVEMSHOP_CLIENT_SECRET` nunca deve ser versionado nem colocado fixo no código.
@@ -335,6 +336,7 @@ POST   /api/storefront/checkout/{cartToken}/select-shipping
 POST   /api/storefront/checkout/{cartToken}/create-payment-link
 GET    /api/orders/status/{statusPublicToken}
 GET    /api/orders/status/customer?phone={phone}
+POST   /api/admin/nuvemshop/orders/import?days=180
 POST   /api/whatsapp/send-start-link
 ```
 
@@ -354,6 +356,28 @@ Fluxo esperado:
 No acompanhamento por telefone, se existir apenas um pedido, o Web App abre direto o detalhe. Se houver mais de um pedido, ele mostra uma lista com numero, data, total, pagamento, envio e botao `Ver detalhes`.
 
 O botao de pagamento so aparece para pedidos ainda pagaveis. Pedidos pagos, cancelados, estornados, enviados ou entregues exibem apenas acompanhamento. Se a API/Nuvemshop retornar `pix_copy_paste`, a tela prioriza o Pix copia e cola; se nao vier Pix direto, usa `checkoutUrl` como fallback.
+
+### Pedidos feitos direto no site da Nuvemshop
+
+Pedidos criados diretamente no site da Nuvemshop tambem podem aparecer no fluxo `Acompanhar Pedido`.
+
+Para trazer historico ja existente, rode uma importacao manual:
+
+```http
+POST http://localhost:8080/api/admin/nuvemshop/orders/import?days=180
+```
+
+A importacao busca vendas recentes na Nuvemshop, normaliza o telefone do cliente e salva/atualiza esses pedidos na tabela `whatsapp_order` com origem `NUVEMSHOP_SITE`. Assim, a mesma tela de acompanhamento por telefone passa a listar pedidos do Web App e pedidos feitos diretamente no site.
+
+Depois da importacao inicial, o scheduler mantem os pedidos do site atualizados:
+
+```env
+NUVEMSHOP_SITE_ORDERS_SYNC_ENABLED=true
+NUVEMSHOP_SITE_ORDERS_SYNC_INTERVAL_MINUTES=10
+NUVEMSHOP_SITE_ORDERS_SYNC_LOOKBACK_DAYS=7
+```
+
+O webhook de pedidos da Nuvemshop tambem tenta buscar o pedido completo por `id` e atualizar o rastreio local. Nesta primeira versao, o pedido do site aparece automaticamente quando o telefone salvo na Nuvemshop bate com o WhatsApp da cliente.
 
 Para atualizar o frontend depois de editar `frontend/src`, rode:
 

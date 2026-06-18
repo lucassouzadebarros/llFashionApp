@@ -14,6 +14,8 @@ public interface WhatsappOrderRepository extends JpaRepository<WhatsappOrder, UU
 
     Optional<WhatsappOrder> findByNuvemshopDraftOrderId(Long nuvemshopDraftOrderId);
 
+    boolean existsByNuvemshopDraftOrderId(Long nuvemshopDraftOrderId);
+
     Optional<WhatsappOrder> findByWhatsappMessageId(String whatsappMessageId);
 
     Optional<WhatsappOrder> findByStatusPublicToken(String statusPublicToken);

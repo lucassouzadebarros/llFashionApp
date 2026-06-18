@@ -2,6 +2,7 @@ package br.com.llfashion.whatsappcheckout.controller;
 
 import br.com.llfashion.whatsappcheckout.service.OrderTrackingService;
 import br.com.llfashion.whatsappcheckout.service.ProductSyncService;
+import br.com.llfashion.whatsappcheckout.service.NuvemshopSiteOrderSyncService;
 import br.com.llfashion.whatsappcheckout.service.WebhookEventLogService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
@@ -21,21 +22,25 @@ public class NuvemshopWebhookController {
     private final WebhookEventLogService webhookEventLogService;
     private final OrderTrackingService orderTrackingService;
     private final ProductSyncService productSyncService;
+    private final NuvemshopSiteOrderSyncService siteOrderSyncService;
 
     public NuvemshopWebhookController(
             WebhookEventLogService webhookEventLogService,
             OrderTrackingService orderTrackingService,
-            ProductSyncService productSyncService
+            ProductSyncService productSyncService,
+            NuvemshopSiteOrderSyncService siteOrderSyncService
     ) {
         this.webhookEventLogService = webhookEventLogService;
         this.orderTrackingService = orderTrackingService;
         this.productSyncService = productSyncService;
+        this.siteOrderSyncService = siteOrderSyncService;
     }
 
     @PostMapping("/orders")
     public ResponseEntity<Void> receiveOrderWebhook(@RequestBody JsonNode payload) {
         webhookEventLogService.saveNuvemshopOrderWebhook(payload);
         orderTrackingService.updateFromNuvemshopWebhook(payload);
+        syncSiteOrderFromWebhook(payload);
         return ResponseEntity.ok().build();
     }
 
@@ -43,6 +48,7 @@ public class NuvemshopWebhookController {
     public ResponseEntity<Void> receiveOrderWebhookAlias(@RequestBody JsonNode payload) {
         webhookEventLogService.saveNuvemshopOrderWebhook(payload);
         orderTrackingService.updateFromNuvemshopWebhook(payload);
+        syncSiteOrderFromWebhook(payload);
         return ResponseEntity.ok().build();
     }
 
@@ -50,6 +56,7 @@ public class NuvemshopWebhookController {
     public ResponseEntity<Void> receiveFulfillmentWebhook(@RequestBody JsonNode payload) {
         webhookEventLogService.saveNuvemshopOrderWebhook(payload);
         orderTrackingService.updateFromNuvemshopWebhook(payload);
+        syncSiteOrderFromWebhook(payload);
         return ResponseEntity.ok().build();
     }
 
@@ -103,6 +110,17 @@ public class NuvemshopWebhookController {
             log.warn("Nao foi possivel sincronizar produto por webhook Nuvemshop. productId={}, erro={}",
                     productId,
                     exception.getMessage());
+        }
+    }
+
+    private void syncSiteOrderFromWebhook(JsonNode payload) {
+        try {
+            boolean synced = siteOrderSyncService.syncOrderFromWebhook(payload);
+            if (synced) {
+                log.info("Pedido da loja sincronizado por webhook Nuvemshop.");
+            }
+        } catch (Exception exception) {
+            log.warn("Nao foi possivel sincronizar pedido da loja por webhook Nuvemshop. erro={}", exception.getMessage());
         }
     }
 
