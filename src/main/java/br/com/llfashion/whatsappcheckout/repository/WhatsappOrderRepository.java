@@ -24,6 +24,8 @@ public interface WhatsappOrderRepository extends JpaRepository<WhatsappOrder, UU
 
     List<WhatsappOrder> findByCustomerPhoneOrderByCreatedAtDesc(String customerPhone);
 
+    List<WhatsappOrder> findByCustomerPhoneInOrderByCreatedAtDesc(List<String> customerPhones);
+
     @Query("""
             select o
             from WhatsappOrder o

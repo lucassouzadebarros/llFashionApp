@@ -33,7 +33,6 @@ public class NuvemshopSiteOrderSyncService {
 
     private static final Logger log = LoggerFactory.getLogger(NuvemshopSiteOrderSyncService.class);
     private static final int PER_PAGE = 100;
-    private static final String SITE_CHANNEL = "store";
 
     private final NuvemshopInstallationService installationService;
     private final NuvemshopApiClient apiClient;
@@ -86,6 +85,20 @@ public class NuvemshopSiteOrderSyncService {
         return upsertOrder(order);
     }
 
+    @Transactional
+    public boolean syncOrderById(Long orderId) {
+        if (orderId == null) {
+            return false;
+        }
+        NuvemshopInstallation installation = installationService.getActiveInstallation();
+        NuvemshopOrderResponse order = apiClient.buscarOrderDetalhado(
+                installation.getStoreId(),
+                installation.getAccessToken(),
+                orderId
+        );
+        return upsertOrder(order);
+    }
+
     private NuvemshopOrderImportResponse importOrders(String createdAtMin, String updatedAtMin, String successMessage) {
         NuvemshopInstallation installation = installationService.getActiveInstallation();
         int page = 1;
@@ -101,7 +114,7 @@ public class NuvemshopSiteOrderSyncService {
                     PER_PAGE,
                     createdAtMin,
                     updatedAtMin,
-                    SITE_CHANNEL
+                    null
             );
 
             if (orders.isEmpty()) {

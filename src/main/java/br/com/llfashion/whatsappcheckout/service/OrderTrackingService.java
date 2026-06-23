@@ -28,9 +28,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +98,8 @@ public class OrderTrackingService {
         if (!StringUtils.hasText(normalizedPhone)) {
             return new OrderStatusListResponse(false, false, "Nao encontrei um telefone valido para consultar seu pedido.", 0, null, List.of());
         }
-        List<WhatsappOrder> orders = orderRepository.findByCustomerPhoneOrderByCreatedAtDesc(normalizedPhone);
+        List<String> phoneCandidates = phoneCandidates(normalizedPhone);
+        List<WhatsappOrder> orders = orderRepository.findByCustomerPhoneInOrderByCreatedAtDesc(phoneCandidates);
         if (orders.isEmpty()) {
             return new OrderStatusListResponse(false, false, noOrdersMessage(normalizedPhone), 0, null, List.of());
         }
@@ -753,6 +757,62 @@ public class OrderTrackingService {
 
     private String trimToNull(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private List<String> phoneCandidates(String normalizedPhone) {
+        if (!StringUtils.hasText(normalizedPhone)) {
+            return List.of();
+        }
+
+        Set<String> candidates = new LinkedHashSet<>();
+        candidates.add(normalizedPhone);
+
+        String withoutCountryCode = normalizedPhone.startsWith("55") && normalizedPhone.length() > 11
+                ? normalizedPhone.substring(2)
+                : normalizedPhone;
+        candidates.add(withoutCountryCode);
+
+        if (!normalizedPhone.startsWith("55")) {
+            candidates.add("55" + normalizedPhone);
+        }
+
+        for (String candidate : new ArrayList<>(candidates)) {
+            addNinthDigitVariants(candidates, candidate);
+            if (candidate.startsWith("55")) {
+                addNinthDigitVariants(candidates, candidate.substring(2));
+            } else {
+                addNinthDigitVariants(candidates, "55" + candidate);
+            }
+        }
+
+        return candidates.stream()
+                .filter(StringUtils::hasText)
+                .toList();
+    }
+
+    private void addNinthDigitVariants(Set<String> candidates, String phone) {
+        if (!StringUtils.hasText(phone)) {
+            return;
+        }
+        String digits = onlyDigits(phone);
+        if (digits.length() == 10) {
+            candidates.add(digits.substring(0, 2) + "9" + digits.substring(2));
+            candidates.add("55" + digits.substring(0, 2) + "9" + digits.substring(2));
+        }
+        if (digits.length() == 11 && digits.charAt(2) == '9') {
+            candidates.add(digits.substring(0, 2) + digits.substring(3));
+            candidates.add("55" + digits.substring(0, 2) + digits.substring(3));
+        }
+        if (digits.length() == 12 && digits.startsWith("55")) {
+            String national = digits.substring(2);
+            candidates.add(national);
+            addNinthDigitVariants(candidates, national);
+        }
+        if (digits.length() == 13 && digits.startsWith("55") && digits.charAt(4) == '9') {
+            String nationalWithoutNinth = digits.substring(2, 4) + digits.substring(5);
+            candidates.add(nationalWithoutNinth);
+            candidates.add("55" + nationalWithoutNinth);
+        }
     }
 
     private String firstText(JsonNode payload, String... fieldNames) {
