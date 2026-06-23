@@ -580,7 +580,7 @@ public class OrderTrackingService {
         return shippingEta(order);
     }
 
-    private String statusUrl(OrderStatusResponse order) {
+    public String statusUrl(OrderStatusResponse order) {
         if (order == null) {
             return null;
         }

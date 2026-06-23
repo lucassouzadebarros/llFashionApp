@@ -129,8 +129,7 @@ public class WhatsAppWebhookService {
                 if (isStatusRequest(textBody)) {
                     String customerPhone = message.path("from").asText();
                     var result = orderTrackingService.findOrdersByPhone(customerPhone);
-                    String reply = orderTrackingService.buildWhatsAppStatusMessage(result, customerPhone);
-                    if (whatsAppPaymentMessageService.sendText(customerPhone, reply, phoneNumberId)) {
+                    if (whatsAppPaymentMessageService.sendOrderTrackingCta(customerPhone, result, phoneNumberId)) {
                         textRepliesSent++;
                     }
                     continue;
@@ -459,10 +458,7 @@ public class WhatsAppWebhookService {
             );
             case WhatsAppPaymentMessageService.MENU_TRACK_ORDER -> {
                 var result = orderTrackingService.findOrdersByPhone(customerPhone);
-                String reply = result.found()
-                        ? orderTrackingService.buildWhatsAppStatusMessage(result, customerPhone)
-                        : result.message() + "\n\nSe o pedido foi feito por outro telefone, fale com uma atendente para localizar.";
-                yield whatsAppPaymentMessageService.sendText(customerPhone, reply, phoneNumberId);
+                yield whatsAppPaymentMessageService.sendOrderTrackingCta(customerPhone, result, phoneNumberId);
             }
             case WhatsAppPaymentMessageService.MENU_HUMAN_ATTENDANT -> {
                 checkoutSessionService.markWaitingHumanAttendant(

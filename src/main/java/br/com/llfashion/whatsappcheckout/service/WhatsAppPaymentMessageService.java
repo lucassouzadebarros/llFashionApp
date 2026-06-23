@@ -4,6 +4,8 @@ import br.com.llfashion.whatsappcheckout.client.WhatsAppCloudApiClient;
 import br.com.llfashion.whatsappcheckout.config.WhatsAppProperties;
 import br.com.llfashion.whatsappcheckout.dto.request.WhatsAppButtonMessageRequest;
 import br.com.llfashion.whatsappcheckout.dto.response.CreateDraftOrderResponse;
+import br.com.llfashion.whatsappcheckout.dto.response.OrderStatusListResponse;
+import br.com.llfashion.whatsappcheckout.dto.response.OrderStatusResponse;
 import br.com.llfashion.whatsappcheckout.exception.WhatsAppApiException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -26,15 +28,18 @@ public class WhatsAppPaymentMessageService {
     private final WhatsAppProperties properties;
     private final WhatsAppCloudApiClient whatsAppCloudApiClient;
     private final StorefrontCartService storefrontCartService;
+    private final OrderTrackingService orderTrackingService;
 
     public WhatsAppPaymentMessageService(
             WhatsAppProperties properties,
             WhatsAppCloudApiClient whatsAppCloudApiClient,
-            StorefrontCartService storefrontCartService
+            StorefrontCartService storefrontCartService,
+            OrderTrackingService orderTrackingService
     ) {
         this.properties = properties;
         this.whatsAppCloudApiClient = whatsAppCloudApiClient;
         this.storefrontCartService = storefrontCartService;
+        this.orderTrackingService = orderTrackingService;
     }
 
     public boolean sendPaymentLink(String to, String customerName, CreateDraftOrderResponse order, String webhookPhoneNumberId) {
@@ -127,6 +132,67 @@ public class WhatsAppPaymentMessageService {
         }
     }
 
+    public boolean sendOrderTrackingCta(String to, OrderStatusListResponse result, String webhookPhoneNumberId) {
+        if (result == null || !result.found()) {
+            String message = result == null
+                    ? "N\u00E3o encontrei pedidos para este WhatsApp."
+                    : result.message();
+            return sendText(to, message + "\n\nSe o pedido foi feito por outro telefone, fale com uma atendente para localizar.", webhookPhoneNumberId);
+        }
+
+        String url = trackingUrl(result, to);
+        String fallbackMessage = orderTrackingService.buildWhatsAppStatusMessage(result, to);
+        if (!StringUtils.hasText(url)) {
+            return sendText(to, fallbackMessage, webhookPhoneNumberId);
+        }
+
+        String phoneNumberId = resolvePhoneNumberIdForInteractive(webhookPhoneNumberId, "Botao de acompanhamento WhatsApp");
+        if (!StringUtils.hasText(phoneNumberId)) {
+            return sendText(to, fallbackMessage, webhookPhoneNumberId);
+        }
+
+        String body = trackingBody(result);
+        String buttonText = result.multiple()
+                ? "Ver meus pedidos"
+                : "Acompanhar pedido";
+        try {
+            whatsAppCloudApiClient.sendCtaUrlMessage(
+                    phoneNumberId,
+                    properties.accessToken(),
+                    onlyDigits(to),
+                    body,
+                    buttonText,
+                    url
+            );
+            return true;
+        } catch (WhatsAppApiException exception) {
+            if (isTransientFailure(exception)) {
+                log.warn("Falha temporaria ao enviar botao de acompanhamento. Tentando novamente. status={}, bodyPreview={}",
+                        exception.getStatusCode(),
+                        exception.getResponseBody());
+                sleepBeforeRetry();
+                try {
+                    whatsAppCloudApiClient.sendCtaUrlMessage(
+                            phoneNumberId,
+                            properties.accessToken(),
+                            onlyDigits(to),
+                            body,
+                            buttonText,
+                            url
+                    );
+                    return true;
+                } catch (WhatsAppApiException retryException) {
+                    exception = retryException;
+                }
+            }
+            log.warn("Falha ao enviar botao de acompanhamento pelo WhatsApp. status={}, contentType={}, bodyPreview={}",
+                    exception.getStatusCode(),
+                    exception.getContentType(),
+                    exception.getResponseBody());
+            return sendText(to, fallbackMessage, webhookPhoneNumberId);
+        }
+    }
+
     private void sendShoppingCtaRequest(String phoneNumberId, String to, String body, String storefrontUrl) {
         whatsAppCloudApiClient.sendCtaUrlMessage(
                 phoneNumberId,
@@ -149,6 +215,34 @@ public class WhatsAppPaymentMessageService {
                         new WhatsAppButtonMessageRequest.ButtonOption(MENU_HUMAN_ATTENDANT, "💬 Falar Atendente")
                 )
         );
+    }
+
+    private String trackingUrl(OrderStatusListResponse result, String to) {
+        if (result.multiple()) {
+            return orderTrackingService.statusListUrl(to);
+        }
+        OrderStatusResponse order = result.order();
+        if (order == null) {
+            return orderTrackingService.statusListUrl(to);
+        }
+        return orderTrackingService.statusUrl(order);
+    }
+
+    private String trackingBody(OrderStatusListResponse result) {
+        if (result.multiple()) {
+            return result.message()
+                    + "\n\nToque no bot\u00E3o abaixo para escolher qual pedido acompanhar.";
+        }
+
+        OrderStatusResponse order = result.order();
+        String status = order == null ? "Pedido encontrado" : order.statusTitle();
+        String payment = order == null ? "" : "\nPagamento: " + order.paymentStatus();
+        String shipping = order == null ? "" : "\nEnvio: " + order.shippingStatus();
+        return "Encontrei seu pedido.\n\n"
+                + "Status: " + status
+                + payment
+                + shipping
+                + "\n\nToque no bot\u00E3o abaixo para acompanhar.";
     }
 
     public boolean sendText(String to, String message, String webhookPhoneNumberId) {
