@@ -146,31 +146,6 @@ public class WhatsAppWebhookService {
                     continue;
                 }
 
-                WhatsAppCheckoutSessionService.TextSessionResult result = checkoutSessionService.handleCustomerText(
-                        message.path("from").asText(),
-                        textBody
-                );
-
-                if (result.handled()) {
-                    if (StringUtils.hasText(result.replyMessage())
-                            && whatsAppPaymentMessageService.sendText(result.customerPhone(), result.replyMessage(), phoneNumberId)) {
-                        textRepliesSent++;
-                    }
-
-                    if (result.createdOrder() != null) {
-                        createdOrders.add(result.createdOrder());
-                        if (whatsAppPaymentMessageService.sendPaymentLink(
-                                result.customerPhone(),
-                                result.customerName(),
-                                result.createdOrder(),
-                                phoneNumberId
-                        )) {
-                            paymentLinksSent++;
-                        }
-                    }
-                    continue;
-                }
-
                 if (isHumanRequest(textBody)) {
                     checkoutSessionService.markWaitingHumanAttendant(
                             message.path("from").asText(),
@@ -203,6 +178,32 @@ public class WhatsAppWebhookService {
                     if (sent) {
                         textRepliesSent++;
                     }
+                    continue;
+                }
+
+                WhatsAppCheckoutSessionService.TextSessionResult result = checkoutSessionService.handleCustomerText(
+                        message.path("from").asText(),
+                        textBody
+                );
+
+                if (result.handled()) {
+                    if (StringUtils.hasText(result.replyMessage())
+                            && whatsAppPaymentMessageService.sendText(result.customerPhone(), result.replyMessage(), phoneNumberId)) {
+                        textRepliesSent++;
+                    }
+
+                    if (result.createdOrder() != null) {
+                        createdOrders.add(result.createdOrder());
+                        if (whatsAppPaymentMessageService.sendPaymentLink(
+                                result.customerPhone(),
+                                result.customerName(),
+                                result.createdOrder(),
+                                phoneNumberId
+                        )) {
+                            paymentLinksSent++;
+                        }
+                    }
+                    continue;
                 }
             }
         }
@@ -328,6 +329,11 @@ public class WhatsAppWebhookService {
         return containsAny(normalized,
                 "OI",
                 "OLA",
+                "MENU",
+                "INICIO",
+                "INICIAR",
+                "COMECAR",
+                "START",
                 "QUERO COMPRAR",
                 "COMPRAR",
                 "CATALOGO",
