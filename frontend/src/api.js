@@ -83,18 +83,6 @@ export const api = {
       body: JSON.stringify(payload)
     });
   },
-  shippingOptions(cartToken) {
-    return request(`/api/storefront/checkout/${cartToken}/shipping-options`, {
-      method: 'POST',
-      body: '{}'
-    });
-  },
-  selectShipping(cartToken, shippingCode) {
-    return request(`/api/storefront/checkout/${cartToken}/select-shipping`, {
-      method: 'POST',
-      body: JSON.stringify({ shippingCode })
-    });
-  },
   createPaymentLink(cartToken) {
     return request(`/api/storefront/checkout/${cartToken}/create-payment-link`, {
       method: 'POST',

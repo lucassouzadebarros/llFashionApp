@@ -216,8 +216,9 @@ public class StorefrontCartService {
         cart.setAddressNeighborhood(request.neighborhood().trim());
         cart.setAddressCity(request.city().trim());
         cart.setAddressState(request.state().trim().toUpperCase());
-        cart.setStatus(StorefrontCartStatus.SHIPPING_PENDING);
-        cartRepository.save(cart);
+        clearSelectedShipping(cart);
+        cart.setStatus(StorefrontCartStatus.WAITING_CONFIRMATION);
+        recalculateAndSave(cart);
         return toResponse(cart);
     }
 
@@ -270,6 +271,11 @@ public class StorefrontCartService {
                     cart.getTotal(),
                     "Link de pagamento já gerado para este carrinho."
             );
+        }
+        clearSelectedShipping(cart);
+        if (cart.getStatus() == StorefrontCartStatus.SHIPPING_PENDING
+                || cart.getStatus() == StorefrontCartStatus.SHIPPING_SELECTED) {
+            cart.setStatus(StorefrontCartStatus.WAITING_CONFIRMATION);
         }
         validateReadyForCheckout(cart);
         validateCurrentStock(cart);
@@ -363,9 +369,13 @@ public class StorefrontCartService {
                 || !StringUtils.hasText(cart.getAddressNumber())) {
             throw new BusinessException("Preencha o endereço de entrega antes de gerar o pagamento.");
         }
-        if (!StringUtils.hasText(cart.getSelectedShippingCode())) {
-            throw new BusinessException("Selecione uma forma de envio antes de gerar o pagamento.");
-        }
+    }
+
+    private void clearSelectedShipping(StorefrontCart cart) {
+        cart.setSelectedShippingCode(null);
+        cart.setSelectedShippingName(null);
+        cart.setSelectedShippingEta(null);
+        cart.setShippingPrice(BigDecimal.ZERO);
     }
 
     private void validateCurrentStock(StorefrontCart cart) {

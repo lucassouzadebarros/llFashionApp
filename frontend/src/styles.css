@@ -194,16 +194,14 @@ button {
 .actionList,
 .categoryList,
 .productList,
-.cartList,
-.shippingList {
+.cartList {
   display: grid;
   gap: 10px;
 }
 
 .actionCard,
 .categoryCard,
-.productCard,
-.shippingCard {
+.productCard {
   border: 1px solid #e4ece8;
   background: #ffffff;
   border-radius: 16px;
@@ -214,8 +212,7 @@ button {
 
 .actionCard:hover,
 .categoryCard:hover,
-.productCard:hover,
-.shippingCard:hover {
+.productCard:hover {
   transform: translateY(-1px);
   border-color: #86efac;
   box-shadow: 0 12px 30px rgba(4, 120, 87, 0.10);
@@ -253,15 +250,13 @@ button {
 
 .actionCard b,
 .categoryCard b,
-.productCard b,
-.shippingCard b {
+.productCard b {
   font-size: 14px;
 }
 
 .actionCard small,
 .categoryCard small,
 .productCard small,
-.shippingCard small,
 .summaryItem small {
   color: #64748b;
   font-size: 12px;
@@ -729,6 +724,10 @@ button {
   gap: 12px;
 }
 
+.deferredTotal {
+  color: #64748b;
+}
+
 .formCard {
   padding: 14px;
   display: grid;
@@ -817,7 +816,6 @@ input:focus {
 
 .summaryHeader,
 .summaryItem,
-.shippingCard,
 .infoCard {
   display: flex;
   justify-content: space-between;
@@ -840,32 +838,6 @@ input:focus {
   flex: 1;
   font-size: 12px;
   text-align: left;
-}
-
-.shippingCard {
-  padding: 14px;
-}
-
-.shippingCard span {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.shippingCard div {
-  flex: 1;
-}
-
-.shippingCard em {
-  display: block;
-  color: #64748b;
-  font-style: normal;
-  font-size: 12px;
-  margin-top: 3px;
 }
 
 .infoCard {

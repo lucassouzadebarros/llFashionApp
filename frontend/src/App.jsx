@@ -58,7 +58,6 @@ const viewTitle = {
   cart: 'Carrinho',
   customer: 'Dados da cliente',
   address: 'Endereço de entrega',
-  shipping: 'Formas de envio',
   summary: 'Resumo e pagamento',
   payment: 'Pagamento'
 };
@@ -75,7 +74,6 @@ export default function App() {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [variantImageSelected, setVariantImageSelected] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [shippingOptions, setShippingOptions] = useState([]);
   const [checkout, setCheckout] = useState(null);
   const [orderStatus, setOrderStatus] = useState(null);
   const [orderStatusList, setOrderStatusList] = useState(null);
@@ -314,16 +312,6 @@ export default function App() {
   async function saveAddress(addressForm) {
     await withBusy(async () => {
       const updatedCart = await api.saveAddress(cartToken, addressForm);
-      const options = await api.shippingOptions(cartToken);
-      setCart(updatedCart);
-      setShippingOptions(options);
-      navigate('shipping');
-    });
-  }
-
-  async function selectShipping(option) {
-    await withBusy(async () => {
-      const updatedCart = await api.selectShipping(cartToken, option.code);
       setCart(updatedCart);
       navigate('summary');
     });
@@ -431,7 +419,6 @@ export default function App() {
         )}
         {view === 'customer' && <CustomerScreen cart={cart} onSubmit={saveCustomer} />}
         {view === 'address' && <AddressScreen cart={cart} onLookupCep={lookupCep} onSubmit={saveAddress} />}
-        {view === 'shipping' && <ShippingScreen options={shippingOptions} onChoose={selectShipping} />}
         {view === 'summary' && <SummaryScreen cart={cart} onPayment={createPaymentLink} onCart={() => navigate('cart')} />}
         {view === 'payment' && <PaymentScreen checkout={checkout} cart={cart} />}
       </div>
@@ -822,33 +809,9 @@ function AddressScreen({ cart, onLookupCep, onSubmit }) {
           <label><span>Cidade</span><input value={addressForm.city} onChange={(event) => update('city', event.target.value)} required /></label>
           <label><span>Estado</span><input value={addressForm.state} onChange={(event) => update('state', event.target.value)} required /></label>
         </div>
-        <div className="safeNote"><Truck size={18} /> Depois do endereço, mostramos as opções de frete.</div>
+        <div className="safeNote"><Truck size={18} /> O frete será escolhido no checkout seguro da Nuvemshop.</div>
         <button className="primaryButton" type="submit">Continuar</button>
       </form>
-    </section>
-  );
-}
-
-function ShippingScreen({ options, onChoose }) {
-  return (
-    <section className="screen">
-      <div className="sectionTitle">
-        <h2>Escolha a forma de envio</h2>
-        <p>Opções disponíveis para o endereço informado.</p>
-      </div>
-      <div className="shippingList">
-        {options.map((option) => (
-          <button className="shippingCard" key={option.code} onClick={() => onChoose(option)}>
-            <span><Truck size={20} /></span>
-            <div>
-              <b>{option.name}</b>
-              <small>{option.description}</small>
-              <em>{option.eta}</em>
-            </div>
-            <strong>{money(option.price)}</strong>
-          </button>
-        ))}
-      </div>
     </section>
   );
 }
@@ -858,7 +821,7 @@ function SummaryScreen({ cart, onPayment, onCart }) {
   return (
     <section className="screen">
       <OrderSummaryCompact cart={cart} expanded />
-      <InfoCard icon={<Truck />} title={cart?.selectedShippingName || 'Envio'} text={`${cart?.selectedShippingEta || ''} ${money(cart?.shippingPrice)}`} />
+      <InfoCard icon={<Truck />} title="Envio" text="Escolha o frete no checkout seguro da Nuvemshop" />
       <InfoCard icon={<CircleDollarSign />} title="Pagamento" text="Pix ou checkout seguro pela Nuvemshop" />
       <CartTotals cart={cart} />
       <button className="secondaryButton" onClick={onCart}>Alterar carrinho</button>
@@ -885,7 +848,7 @@ function PaymentScreen({ checkout, cart }) {
     <section className="screen centerScreen">
       <BadgeCheck size={58} className="successIcon" />
       <h2>Link de pagamento gerado</h2>
-      <p>Total do pedido: <strong>{money(checkout?.total || cart?.total)}</strong></p>
+      <p>Total dos produtos: <strong>{money(checkout?.total || cart?.total)}</strong></p>
       {pixCode ? (
         <div className="pixBox">
           {pixQrCodeUrl && <SafeImage src={pixQrCodeUrl} alt="QR Code Pix" className="pixQr" />}
@@ -1214,8 +1177,8 @@ function CartTotals({ cart }) {
   return (
     <div className="totalsCard">
       <span><small>Subtotal dos produtos</small><b>{money(cart?.subtotal)}</b></span>
-      <span><small>Frete</small><b>{money(cart?.shippingPrice)}</b></span>
-      <span><small>Total</small><strong>{money(cart?.total)}</strong></span>
+      <span><small>Frete</small><b className="deferredTotal">Na Nuvemshop</b></span>
+      <span><small>Total dos produtos</small><strong>{money(cart?.subtotal)}</strong></span>
     </div>
   );
 }
