@@ -335,6 +335,16 @@ public class StorefrontCartService {
         return baseUrl + separator + "token=" + session.cartToken();
     }
 
+    public String storefrontEntryUrlForPhone(String phone) {
+        String baseUrl = checkoutProperties.resolvedFrontendBaseUrl();
+        String normalizedPhone = onlyDigits(phone);
+        if (!StringUtils.hasText(normalizedPhone)) {
+            return baseUrl;
+        }
+        String separator = baseUrl.contains("?") ? "&" : "?";
+        return baseUrl + separator + "phone=" + normalizedPhone;
+    }
+
     private StorefrontCart findActiveCart(String cartToken) {
         if (!StringUtils.hasText(cartToken)) {
             throw new BusinessException("cartToken é obrigatório.");

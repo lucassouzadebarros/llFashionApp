@@ -63,24 +63,7 @@ public class WhatsAppPaymentMessageService {
         }
 
         String body = buildShoppingCtaBody(customerName);
-        try {
-            sendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl);
-        } catch (WhatsAppApiException exception) {
-            if (isTransientFailure(exception)) {
-                log.warn("Falha temporaria ao enviar botao principal do menu. Tentando novamente. status={}, bodyPreview={}",
-                        exception.getStatusCode(),
-                        exception.getResponseBody());
-                sleepBeforeRetry();
-                try {
-                    sendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl);
-                } catch (WhatsAppApiException retryException) {
-                    exception = retryException;
-                }
-            }
-            log.warn("Falha ao enviar botao principal do menu pelo WhatsApp. status={}, contentType={}, bodyPreview={}",
-                    exception.getStatusCode(),
-                    exception.getContentType(),
-                    exception.getResponseBody());
+        if (!sendShoppingCtaRequestWithFallback(phoneNumberId, to, body, storefrontUrl, "botao principal do menu")) {
             return false;
         }
 
@@ -112,28 +95,7 @@ public class WhatsAppPaymentMessageService {
         }
 
         String body = buildShoppingCtaBody(customerName);
-        try {
-            sendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl);
-            return true;
-        } catch (WhatsAppApiException exception) {
-            if (isTransientFailure(exception)) {
-                log.warn("Falha temporaria ao enviar botao de compra. Tentando novamente. status={}, bodyPreview={}",
-                        exception.getStatusCode(),
-                        exception.getResponseBody());
-                sleepBeforeRetry();
-                try {
-                    sendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl);
-                    return true;
-                } catch (WhatsAppApiException retryException) {
-                    exception = retryException;
-                }
-            }
-            log.warn("Falha ao enviar botao de compra pelo WhatsApp. status={}, contentType={}, bodyPreview={}",
-                    exception.getStatusCode(),
-                    exception.getContentType(),
-                    exception.getResponseBody());
-            return false;
-        }
+        return sendShoppingCtaRequestWithFallback(phoneNumberId, to, body, storefrontUrl, "botao de compra");
     }
 
     public boolean sendOrderTrackingCta(String to, OrderStatusListResponse result, String webhookPhoneNumberId) {
@@ -208,6 +170,55 @@ public class WhatsAppPaymentMessageService {
         );
     }
 
+    private boolean sendShoppingCtaRequestWithFallback(
+            String phoneNumberId,
+            String to,
+            String body,
+            String storefrontUrl,
+            String label
+    ) {
+        if (trySendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl, label)) {
+            return true;
+        }
+
+        String entryUrl = storefrontEntryUrlForPhone(to);
+        if (!StringUtils.hasText(entryUrl) || entryUrl.equals(storefrontUrl)) {
+            return false;
+        }
+
+        log.warn("Tentando enviar {} com URL direta do app para manter o menu com botoes. phone={}",
+                label,
+                maskPhone(to));
+        return trySendShoppingCtaRequest(phoneNumberId, to, body, entryUrl, label + " com entrada direta");
+    }
+
+    private boolean trySendShoppingCtaRequest(String phoneNumberId, String to, String body, String storefrontUrl, String label) {
+        try {
+            sendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl);
+            return true;
+        } catch (WhatsAppApiException exception) {
+            if (isTransientFailure(exception)) {
+                log.warn("Falha temporaria ao enviar {}. Tentando novamente. status={}, bodyPreview={}",
+                        label,
+                        exception.getStatusCode(),
+                        exception.getResponseBody());
+                sleepBeforeRetry();
+                try {
+                    sendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl);
+                    return true;
+                } catch (WhatsAppApiException retryException) {
+                    exception = retryException;
+                }
+            }
+            log.warn("Falha ao enviar {} pelo WhatsApp. status={}, contentType={}, bodyPreview={}",
+                    label,
+                    exception.getStatusCode(),
+                    exception.getContentType(),
+                    exception.getResponseBody());
+            return false;
+        }
+    }
+
     private void sendSupportOptionsRequest(String phoneNumberId, String to) {
         whatsAppCloudApiClient.sendButtonMessage(
                 phoneNumberId,
@@ -223,9 +234,23 @@ public class WhatsAppPaymentMessageService {
 
     private String storefrontUrlForPhone(String to) {
         try {
-            return storefrontCartService.storefrontUrlForPhone(to);
+            String storefrontUrl = storefrontCartService.storefrontUrlForPhone(to);
+            if (StringUtils.hasText(storefrontUrl)) {
+                return storefrontUrl;
+            }
         } catch (RuntimeException exception) {
-            log.warn("Nao foi possivel gerar link do storefront para menu WhatsApp. phone={}, erro={}",
+            log.warn("Nao foi possivel gerar link com token para menu WhatsApp. Usando entrada direta do app. phone={}, erro={}",
+                    maskPhone(to),
+                    exception.getMessage());
+        }
+        return storefrontCartService.storefrontEntryUrlForPhone(to);
+    }
+
+    private String storefrontEntryUrlForPhone(String to) {
+        try {
+            return storefrontCartService.storefrontEntryUrlForPhone(to);
+        } catch (RuntimeException exception) {
+            log.warn("Nao foi possivel gerar URL direta do app para menu WhatsApp. phone={}, erro={}",
                     maskPhone(to),
                     exception.getMessage());
             return null;
