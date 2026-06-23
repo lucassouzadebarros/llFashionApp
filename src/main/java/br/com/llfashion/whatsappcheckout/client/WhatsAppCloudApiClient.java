@@ -2,6 +2,7 @@ package br.com.llfashion.whatsappcheckout.client;
 
 import br.com.llfashion.whatsappcheckout.config.WhatsAppProperties;
 import br.com.llfashion.whatsappcheckout.dto.request.WhatsAppButtonMessageRequest;
+import br.com.llfashion.whatsappcheckout.dto.request.WhatsAppCtaUrlMessageRequest;
 import br.com.llfashion.whatsappcheckout.dto.request.WhatsAppFlowMessageRequest;
 import br.com.llfashion.whatsappcheckout.dto.request.WhatsAppTextMessageRequest;
 import br.com.llfashion.whatsappcheckout.dto.response.WhatsAppMessageResponse;
@@ -53,6 +54,23 @@ public class WhatsAppCloudApiClient {
                 to,
                 WhatsAppButtonMessageRequest.of(to, body, buttons),
                 "menu interativo WhatsApp"
+        );
+    }
+
+    public WhatsAppMessageResponse sendCtaUrlMessage(
+            String phoneNumberId,
+            String accessToken,
+            String to,
+            String body,
+            String buttonText,
+            String url
+    ) {
+        return sendMessage(
+                phoneNumberId,
+                accessToken,
+                to,
+                WhatsAppCtaUrlMessageRequest.of(to, body, buttonText, url),
+                "botao de link WhatsApp"
         );
     }
 

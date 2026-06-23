@@ -25,26 +25,17 @@ public class WhatsAppStartLinkController {
     @PostMapping("/send-start-link")
     public WhatsAppStartLinkResponse sendStartLink(@Valid @RequestBody WhatsAppStartLinkRequest request) {
         String storefrontUrl = storefrontCartService.storefrontUrlForPhone(request.phone());
-        boolean sent = whatsAppPaymentMessageService.sendText(
+        boolean sent = whatsAppPaymentMessageService.sendShoppingCta(
                 request.phone(),
-                buildMessage(request.customerName(), storefrontUrl),
+                request.customerName(),
+                storefrontUrl,
                 null
         );
         return new WhatsAppStartLinkResponse(
                 request.phone(),
                 storefrontUrl,
                 sent,
-                sent ? "Link de compra enviado pelo WhatsApp." : "Link gerado, mas a mensagem não foi enviada pelo WhatsApp."
+                sent ? "Botao de compra enviado pelo WhatsApp." : "Link gerado, mas a mensagem nao foi enviada pelo WhatsApp."
         );
-    }
-
-    private String buildMessage(String customerName, String storefrontUrl) {
-        String name = customerName == null || customerName.isBlank() ? "" : ", " + customerName.trim();
-        return "Bem-vinda a L&LFashion" + name + "!\n\n"
-                + "Trabalhamos com moda feminina no atacado.\n"
-                + "Pedido mínimo no atacado: R$ 200,00.\n\n"
-                + "Para montar seu pedido com fotos, tamanhos e estoque atualizado, acesse:\n"
-                + storefrontUrl + "\n\n"
-                + "Se preferir, responda atendente para falar com uma pessoa.";
     }
 }

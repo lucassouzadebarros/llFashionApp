@@ -137,9 +137,9 @@ public class WhatsAppWebhookService {
                 }
 
                 if (isBuyNowRequest(textBody)) {
-                    if (whatsAppPaymentMessageService.sendText(
+                    if (whatsAppPaymentMessageService.sendShoppingCta(
                             message.path("from").asText(),
-                            buildBuyNowMessage(message.path("from").asText()),
+                            resolveCustomerName(payload),
                             phoneNumberId
                     )) {
                         textRepliesSent++;
@@ -397,12 +397,6 @@ public class WhatsAppWebhookService {
                 + storefrontCartService.storefrontUrlForPhone(customerPhone);
     }
 
-    private String buildBuyNowMessage(String customerPhone) {
-        return "Perfeito! Para comprar com fotos, estoque atualizado e checkout seguro, acesse:\n\n"
-                + storefrontCartService.storefrontUrlForPhone(customerPhone)
-                + "\n\nPedido mínimo no atacado: R$ 200,00.";
-    }
-
     private List<WhatsAppFlowCartService.CartItemInput> toFlowCartItems(JsonNode message) {
         List<WhatsAppFlowCartService.CartItemInput> items = new ArrayList<>();
         JsonNode productItems = message.path("order").path("product_items");
@@ -458,9 +452,9 @@ public class WhatsAppWebhookService {
         }
 
         boolean sent = switch (buttonId) {
-            case WhatsAppPaymentMessageService.MENU_BUY_NOW -> whatsAppPaymentMessageService.sendText(
+            case WhatsAppPaymentMessageService.MENU_BUY_NOW -> whatsAppPaymentMessageService.sendShoppingCta(
                     customerPhone,
-                    buildBuyNowMessage(customerPhone),
+                    resolveCustomerName(payload),
                     phoneNumberId
             );
             case WhatsAppPaymentMessageService.MENU_TRACK_ORDER -> {
