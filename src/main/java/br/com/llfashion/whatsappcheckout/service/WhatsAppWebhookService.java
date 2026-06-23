@@ -12,6 +12,7 @@ import br.com.llfashion.whatsappcheckout.repository.WhatsAppInboundMessageLogRep
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.text.NumberFormat;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -69,7 +70,7 @@ public class WhatsAppWebhookService {
 
     public String verifyWebhook(String mode, String verifyToken, String challenge) {
         if (!StringUtils.hasText(properties.verifyToken())) {
-            throw new BusinessException("WHATSAPP_VERIFY_TOKEN nao configurado nas variaveis de ambiente.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BusinessException("WHATSAPP_VERIFY_TOKEN não configurado nas variáveis de ambiente.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (SUBSCRIBE_MODE.equals(mode) && properties.verifyToken().equals(verifyToken)) {
@@ -77,7 +78,7 @@ public class WhatsAppWebhookService {
             return challenge;
         }
 
-        throw new BusinessException("Token de verificacao do webhook WhatsApp invalido.", HttpStatus.FORBIDDEN);
+        throw new BusinessException("Token de verificação do webhook WhatsApp inválido.", HttpStatus.FORBIDDEN);
     }
 
     public WhatsAppWebhookResponse receiveWebhook(JsonNode payload) {
@@ -210,7 +211,7 @@ public class WhatsAppWebhookService {
         return new WhatsAppWebhookResponse(
                 createdOrders.size(),
                 createdOrders,
-                "Webhook recebido. Sessoes de carrinho iniciadas: " + cartSessionsStarted
+                "Webhook recebido. Sessões de carrinho iniciadas: " + cartSessionsStarted
                         + ". Flow(s) enviado(s): " + flowsSent
                         + ". Resposta(s) enviada(s): " + textRepliesSent
                         + ". Pedido(s) criado(s): " + createdOrders.size()
@@ -245,7 +246,7 @@ public class WhatsAppWebhookService {
     private OrderHandlingResult handleOrderMessage(JsonNode payload, JsonNode message, String phoneNumberId) {
         String whatsappMessageId = message.path("id").asText(null);
         if (draftOrderService.hasOrderForWhatsAppMessage(whatsappMessageId)) {
-            log.info("Carrinho WhatsApp ja possui pedido local criado. whatsappMessageId={}", whatsappMessageId);
+            log.info("Carrinho WhatsApp já possui pedido local criado. whatsappMessageId={}", whatsappMessageId);
             return OrderHandlingResult.none();
         }
 
@@ -278,9 +279,9 @@ public class WhatsAppWebhookService {
                 if (sent) {
                     return new OrderHandlingResult(true, false);
                 }
-                log.warn("WhatsApp Flow nao enviado. Usando fluxo conversacional legado. whatsappMessageId={}", whatsappMessageId);
-                String messageToCustomer = "Recebi seu carrinho, mas nao consegui abrir o checkout interativo agora.\n\n"
-                        + "Vou seguir pelo atendimento automatico por mensagens.";
+                log.warn("WhatsApp Flow não enviado. Usando fluxo conversacional legado. whatsappMessageId={}", whatsappMessageId);
+                String messageToCustomer = "Recebi seu carrinho, mas não consegui abrir o checkout interativo agora.\n\n"
+                        + "Vou seguir pelo atendimento automático por mensagens.";
                 boolean textSent = whatsAppPaymentMessageService.sendText(customerPhone, messageToCustomer, phoneNumberId);
                 if (textSent) {
                     return new OrderHandlingResult(false, true);
@@ -293,10 +294,10 @@ public class WhatsAppWebhookService {
             CreateDraftOrderRequest request = toDraftOrderRequest(payload, message);
             session = checkoutSessionService.startCartSession(request, whatsappMessageId);
         } catch (BusinessException exception) {
-            log.warn("Nao foi possivel iniciar pedido do WhatsApp. whatsappMessageId={}, erro={}",
+            log.warn("Não foi possível iniciar pedido do WhatsApp. whatsappMessageId={}, erro={}",
                     whatsappMessageId,
                     exception.getMessage());
-            String messageToCustomer = "Nao consegui iniciar seu pedido porque um item do carrinho nao esta sincronizado com a loja.\n\n"
+            String messageToCustomer = "Não consegui iniciar seu pedido porque um item do carrinho não está sincronizado com a loja.\n\n"
                     + exception.getMessage()
                     + "\n\nAtualize os produtos da loja ou remova esse item do carrinho e tente novamente.";
             boolean sent = whatsAppPaymentMessageService.sendText(customerPhone, messageToCustomer, phoneNumberId);
@@ -304,7 +305,7 @@ public class WhatsAppWebhookService {
         }
 
         if (session.existing()) {
-            log.info("Carrinho WhatsApp ja possui sessao registrada. status={}, phone={}", session.status(), maskPhone(session.customerPhone()));
+            log.info("Carrinho WhatsApp já possui sessão registrada. status={}, phone={}", session.status(), maskPhone(session.customerPhone()));
             return OrderHandlingResult.none();
         }
 
@@ -328,17 +329,13 @@ public class WhatsAppWebhookService {
         return containsAny(normalized,
                 "OI",
                 "OLA",
-                "OLÁ",
                 "QUERO COMPRAR",
                 "COMPRAR",
                 "CATALOGO",
-                "CATÁLOGO",
                 "PRECO",
-                "PREÇO",
                 "NOVIDADE",
                 "PROMO",
                 "PROMOCAO",
-                "PROMOÇÃO",
                 "CARRINHO");
     }
 
@@ -358,9 +355,7 @@ public class WhatsAppWebhookService {
                 "COMPRAR AGORA",
                 "COMPRAR POR CATEGORIA",
                 "VER CATALOGO",
-                "VER CATÃLOGO",
                 "CATALOGO",
-                "CATÃLOGO",
                 "VER CARRINHO");
     }
 
@@ -369,13 +364,13 @@ public class WhatsAppWebhookService {
         if (containsAny(normalized, "NOVIDADE")) {
             return "VIEW_NEW";
         }
-        if (containsAny(normalized, "PROMO", "PROMOCAO", "PROMOÇÃO")) {
+        if (containsAny(normalized, "PROMO", "PROMOCAO")) {
             return "VIEW_PROMOS";
         }
         if (containsAny(normalized, "CARRINHO")) {
             return "VIEW_CART";
         }
-        if (containsAny(normalized, "COMPRAR", "CATALOGO", "CATÁLOGO", "PRECO", "PREÇO")) {
+        if (containsAny(normalized, "COMPRAR", "CATALOGO", "PRECO")) {
             return "BUY_CATEGORY";
         }
         return "MENU";
@@ -385,19 +380,19 @@ public class WhatsAppWebhookService {
         String name = StringUtils.hasText(customerName) && !"Cliente WhatsApp".equals(customerName)
                 ? ", " + customerName.trim()
                 : "";
-        return "Bem-vinda a LLFashion Moda" + name + "!\n\n"
+        return "Bem-vinda a L&LFashion" + name + "!\n\n"
                 + "Trabalhamos com moda feminina no atacado.\n"
-                + "Pedido minimo no atacado: R$ 200,00.\n\n"
+                + "Pedido mínimo no atacado: R$ 200,00.\n\n"
                 + "Como deseja continuar?\n\n"
-                + "Responda uma das opcoes abaixo:\n"
-                + "1. Comprar Agora\n"
-                + "2. Acompanhar Pedido\n"
-                + "3. Falar com Atendente";
+                + "Responda uma das opções abaixo:\n"
+                + "1. Comprar agora\n"
+                + "2. Acompanhar pedido\n"
+                + "3. Falar com atendente";
     }
 
     private String buildCatalogRedirectMessage(String customerPhone) {
-        return "Recebi seu carrinho pelo catalogo do WhatsApp.\n\n"
-                + "Agora estamos finalizando pedidos pelo checkout visual da LLFashion, com fotos, estoque atualizado e pedido minimo de R$ 200,00.\n\n"
+        return "Recebi seu carrinho pelo catálogo do WhatsApp.\n\n"
+                + "Agora estamos finalizando pedidos pelo checkout visual da L&LFashion, com fotos, estoque atualizado e pedido mínimo de R$ 200,00.\n\n"
                 + "Abra o link abaixo para montar ou revisar seu pedido:\n"
                 + storefrontCartService.storefrontUrlForPhone(customerPhone);
     }
@@ -405,7 +400,7 @@ public class WhatsAppWebhookService {
     private String buildBuyNowMessage(String customerPhone) {
         return "Perfeito! Para comprar com fotos, estoque atualizado e checkout seguro, acesse:\n\n"
                 + storefrontCartService.storefrontUrlForPhone(customerPhone)
-                + "\n\nPedido minimo no atacado: R$ 200,00.";
+                + "\n\nPedido mínimo no atacado: R$ 200,00.";
     }
 
     private List<WhatsAppFlowCartService.CartItemInput> toFlowCartItems(JsonNode message) {
@@ -451,7 +446,7 @@ public class WhatsAppWebhookService {
             );
             return new InteractiveHandlingResult(order, paymentSent, paymentSent);
         } catch (Exception exception) {
-            log.warn("Nao foi possivel processar retorno final do WhatsApp Flow. erro={}", exception.getMessage());
+            log.warn("Não foi possível processar retorno final do WhatsApp Flow. erro={}", exception.getMessage());
             return InteractiveHandlingResult.none();
         }
     }
@@ -514,7 +509,7 @@ public class WhatsAppWebhookService {
 
         JsonNode productItems = message.path("order").path("product_items");
         if (!productItems.isArray() || productItems.isEmpty()) {
-            throw new BusinessException("Webhook WhatsApp de pedido nao possui product_items.");
+            throw new BusinessException("Webhook WhatsApp de pedido não possui product_items.");
         }
 
         for (JsonNode productItem : productItems) {
@@ -588,7 +583,7 @@ public class WhatsAppWebhookService {
     }
 
     private String buildMinimumOrderMessage(WhatsAppCheckoutSessionService.CartSessionResult session) {
-        return "Recebi seu carrinho, mas o pedido minimo da L&L Fashion e de "
+        return "Recebi seu carrinho, mas o pedido mínimo da L&LFashion é de "
                 + money(session.minimumOrderTotal()) + ".\n\n"
                 + "Subtotal do carrinho: " + money(session.subtotal()) + "\n"
                 + "Faltam: " + money(session.missingAmount()) + "\n\n"
@@ -598,16 +593,16 @@ public class WhatsAppWebhookService {
     private String buildInsufficientStockMessage(WhatsAppCheckoutSessionService.CartSessionResult session) {
         String itemMessage = StringUtils.hasText(session.stockIssueMessage())
                 ? session.stockIssueMessage()
-                : "um dos itens do carrinho nao tem estoque suficiente";
+                : "um dos itens do carrinho não tem estoque suficiente";
 
-        return "Recebi seu carrinho, mas nao consigo gerar o pedido porque a quantidade solicitada nao esta disponivel.\n\n"
+        return "Recebi seu carrinho, mas não consigo gerar o pedido porque a quantidade solicitada não está disponível.\n\n"
                 + itemMessage + ".\n\n"
                 + "Ajuste a quantidade no carrinho e envie novamente para eu continuar.";
     }
 
     private String buildFullNameRequestMessage(WhatsAppCheckoutSessionService.CartSessionResult session) {
         String name = StringUtils.hasText(session.customerName()) ? session.customerName().trim() : "Cliente";
-        return "Ola, " + name + "! Recebi seu carrinho no valor de " + money(session.subtotal()) + ".\n\n"
+        return "Olá, " + name + "! Recebi seu carrinho no valor de " + money(session.subtotal()) + ".\n\n"
                 + "Para gerar seu link de pagamento, me envie o nome completo do cliente.";
     }
 
@@ -625,7 +620,12 @@ public class WhatsAppWebhookService {
     }
 
     private String normalize(String text) {
-        return text == null ? "" : text.trim().toUpperCase(Locale.ROOT);
+        if (text == null) {
+            return "";
+        }
+        String normalized = Normalizer.normalize(text.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return normalized.toUpperCase(Locale.ROOT);
     }
 
     private String maskPhone(String phone) {

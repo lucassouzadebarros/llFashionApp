@@ -34,12 +34,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadableMessage(HttpMessageNotReadableException exception, HttpServletRequest request) {
-        return build(HttpStatus.BAD_REQUEST, "JSON da requisicao invalido ou mal formatado", request.getRequestURI());
+        return build(HttpStatus.BAD_REQUEST, "JSON da requisição inválido ou mal formatado", request.getRequestURI());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException exception, HttpServletRequest request) {
-        String message = "Metodo HTTP nao suportado para este endpoint: " + exception.getMethod();
+        String message = "Método HTTP não suportado para este endpoint: " + exception.getMethod();
         return build(HttpStatus.METHOD_NOT_ALLOWED, message, request.getRequestURI());
     }
 

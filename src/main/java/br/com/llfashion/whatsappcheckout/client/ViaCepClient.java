@@ -35,7 +35,7 @@ public class ViaCepClient {
             }
             return Optional.of(response);
         } catch (WebClientRequestException exception) {
-            log.warn("Falha de conexao ao consultar CEP no ViaCEP. cep={}, erro={}", postalCode, exception.getMessage());
+            log.warn("Falha de conexão ao consultar CEP no ViaCEP. cep={}, erro={}", postalCode, exception.getMessage());
             return Optional.empty();
         } catch (Exception exception) {
             log.warn("Erro ao consultar CEP no ViaCEP. cep={}, erro={}", postalCode, exception.getMessage());

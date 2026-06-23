@@ -107,7 +107,7 @@ public class NuvemshopWebhookController {
             int variants = productSyncService.syncProductById(productId);
             log.info("Produto sincronizado por webhook Nuvemshop. productId={}, variants={}", productId, variants);
         } catch (Exception exception) {
-            log.warn("Nao foi possivel sincronizar produto por webhook Nuvemshop. productId={}, erro={}",
+            log.warn("Não foi possível sincronizar produto por webhook Nuvemshop. productId={}, erro={}",
                     productId,
                     exception.getMessage());
         }
@@ -120,7 +120,7 @@ public class NuvemshopWebhookController {
                 log.info("Pedido da loja sincronizado por webhook Nuvemshop.");
             }
         } catch (Exception exception) {
-            log.warn("Nao foi possivel sincronizar pedido da loja por webhook Nuvemshop. erro={}", exception.getMessage());
+            log.warn("Não foi possível sincronizar pedido da loja por webhook Nuvemshop. erro={}", exception.getMessage());
         }
     }
 

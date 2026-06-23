@@ -72,10 +72,10 @@ public class OrderTrackingService {
     @Transactional
     public OrderStatusResponse getStatus(String statusPublicToken) {
         if (!StringUtils.hasText(statusPublicToken)) {
-            throw new EntityNotFoundException("Token de status do pedido nao informado.");
+            throw new EntityNotFoundException("Token de status do pedido não informado.");
         }
         WhatsappOrder order = orderRepository.findByStatusPublicToken(statusPublicToken.trim())
-                .orElseThrow(() -> new EntityNotFoundException("Pedido nao encontrado para o token informado."));
+                .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado para o token informado."));
         refreshFromNuvemshop(order);
         return toResponse(order);
     }
@@ -96,7 +96,7 @@ public class OrderTrackingService {
     public OrderStatusListResponse findOrdersByPhone(String phone) {
         String normalizedPhone = onlyDigits(phone);
         if (!StringUtils.hasText(normalizedPhone)) {
-            return new OrderStatusListResponse(false, false, "Nao encontrei um telefone valido para consultar seu pedido.", 0, null, List.of());
+            return new OrderStatusListResponse(false, false, "Não encontrei um telefone válido para consultar seu pedido.", 0, null, List.of());
         }
         List<String> phoneCandidates = phoneCandidates(normalizedPhone);
         List<WhatsappOrder> orders = orderRepository.findByCustomerPhoneInOrderByCreatedAtDesc(phoneCandidates);
@@ -126,15 +126,15 @@ public class OrderTrackingService {
     @Transactional
     public OrderStatusListResponse findOrdersByTemporaryAccessToken(String accessToken) {
         if (!StringUtils.hasText(accessToken)) {
-            throw new EntityNotFoundException("Token temporario de acompanhamento nao informado.");
+            throw new EntityNotFoundException("Token temporário de acompanhamento não informado.");
         }
         OrderStatusAccessToken savedToken = accessTokenRepository
                 .findByAccessTokenHashAndExpiresAtAfter(hash(accessToken.trim()), LocalDateTime.now())
-                .orElseThrow(() -> new BusinessException("Link de acompanhamento expirado ou invalido. Solicite um novo link pelo WhatsApp.", HttpStatus.GONE));
+                .orElseThrow(() -> new BusinessException("Link de acompanhamento expirado ou inválido. Solicite um novo link pelo WhatsApp.", HttpStatus.GONE));
 
         if (savedToken.getOrderId() != null) {
             WhatsappOrder order = orderRepository.findById(savedToken.getOrderId())
-                    .orElseThrow(() -> new EntityNotFoundException("Pedido nao encontrado para o token temporario informado."));
+                    .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado para o token temporário informado."));
             refreshFromNuvemshop(order);
             OrderStatusResponse response = toResponse(order);
             return new OrderStatusListResponse(true, false, "Encontrei seu pedido.", 1, response, List.of(toSummaryResponse(order)));
@@ -144,7 +144,7 @@ public class OrderTrackingService {
             return findOrdersByPhone(savedToken.getCustomerPhone());
         }
 
-        throw new EntityNotFoundException("Token temporario de acompanhamento sem pedido ou telefone vinculado.");
+        throw new EntityNotFoundException("Token temporário de acompanhamento sem pedido ou telefone vinculado.");
     }
 
     @Transactional(readOnly = true)
@@ -194,7 +194,7 @@ public class OrderTrackingService {
             NuvemshopInstallation installation = installationService.getActiveInstallation();
             NuvemshopDraftOrderResponse nuvemshopOrder = findCurrentNuvemshopOrder(installation, order.getNuvemshopDraftOrderId());
             if (nuvemshopOrder == null || nuvemshopOrder.id() == null) {
-                log.warn("Pedido nao encontrado na Nuvemshop. Marcando pedido local como cancelado. localOrderId={}, draftOrderId={}",
+                log.warn("Pedido não encontrado na Nuvemshop. Marcando pedido local como cancelado. localOrderId={}, draftOrderId={}",
                         order.getId(),
                         order.getNuvemshopDraftOrderId());
                 order.setStatus(OrderStatus.CANCELADO);
@@ -209,13 +209,13 @@ public class OrderTrackingService {
                 markOrderAsNotFound(order);
                 return;
             }
-            log.warn("Nao foi possivel atualizar status do pedido na Nuvemshop. localOrderId={}, draftOrderId={}, status={}, erro={}",
+            log.warn("Não foi possível atualizar status do pedido na Nuvemshop. localOrderId={}, draftOrderId={}, status={}, erro={}",
                     order.getId(),
                     order.getNuvemshopDraftOrderId(),
                     exception.getStatusCode(),
                     exception.getMessage());
         } catch (RuntimeException exception) {
-            log.warn("Nao foi possivel atualizar status do pedido na Nuvemshop. localOrderId={}, draftOrderId={}, erro={}",
+            log.warn("Não foi possível atualizar status do pedido na Nuvemshop. localOrderId={}, draftOrderId={}, erro={}",
                     order.getId(),
                     order.getNuvemshopDraftOrderId(),
                     exception.getMessage());
@@ -236,7 +236,7 @@ public class OrderTrackingService {
             if (!isNuvemshopOrderNotFound(exception)) {
                 throw exception;
             }
-            log.info("Draft Order nao encontrada. Tentando buscar como venda. draftOrderId={}", nuvemshopId);
+            log.info("Draft Order não encontrada. Tentando buscar como venda. draftOrderId={}", nuvemshopId);
         }
 
         try {
@@ -264,7 +264,7 @@ public class OrderTrackingService {
     }
 
     private void markOrderAsNotFound(WhatsappOrder order) {
-        log.warn("Pedido nao encontrado na Nuvemshop. Marcando pedido local como cancelado. localOrderId={}, draftOrderId={}",
+        log.warn("Pedido não encontrado na Nuvemshop. Marcando pedido local como cancelado. localOrderId={}, draftOrderId={}",
                 order.getId(),
                 order.getNuvemshopDraftOrderId());
         order.setStatus(OrderStatus.CANCELADO);
@@ -402,7 +402,7 @@ public class OrderTrackingService {
                     .append(order.publicOrderNumber())
                     .append("\n")
                     .append("Data: ")
-                    .append(order.createdAt() == null ? "nao informada" : DATE_FORMATTER.format(order.createdAt()))
+                    .append(order.createdAt() == null ? "não informada" : DATE_FORMATTER.format(order.createdAt()))
                     .append("\n")
                     .append("Total: ")
                     .append(money(order.total()))
@@ -527,12 +527,12 @@ public class OrderTrackingService {
 
     private String message(PublicOrderStatus status) {
         return switch (status) {
-            case ORDER_RECEIVED -> "Recebemos seu pedido e estamos preparando as proximas etapas.";
+            case ORDER_RECEIVED -> "Recebemos seu pedido e estamos preparando as próximas etapas.";
             case WAITING_PAYMENT -> "Use o link de pagamento para concluir seu Pix no checkout seguro.";
             case PAYMENT_CONFIRMED -> "Seu pagamento foi confirmado. Agora vamos preparar seu pedido.";
-            case SEPARATING_ORDER -> "Seu pedido esta em separacao pela equipe da loja.";
+            case SEPARATING_ORDER -> "Seu pedido está em separação pela equipe da loja.";
             case SHIPPED -> "Seu pedido saiu para entrega. Use o rastreio para acompanhar.";
-            case DELIVERED -> "Entrega confirmada. Obrigado por comprar com a LLFashion Moda.";
+            case DELIVERED -> "Entrega confirmada. Obrigado por comprar com a L&LFashion.";
             case CANCELLED -> "O pedido foi cancelado. Fale com a equipe se precisar de ajuda.";
             case REFUNDED -> "Identificamos estorno do pagamento deste pedido.";
             case ERROR -> "Encontramos um problema e uma atendente pode ajudar.";
@@ -541,9 +541,9 @@ public class OrderTrackingService {
 
     private String shippingEta(WhatsappOrder order) {
         if (order.getShippingMinDays() != null && order.getShippingMaxDays() != null) {
-            return order.getShippingMinDays() + " a " + order.getShippingMaxDays() + " dias uteis";
+            return order.getShippingMinDays() + " a " + order.getShippingMaxDays() + " dias úteis";
         }
-        return "Aguardando atualizacao da loja";
+        return "Aguardando atualização da loja";
     }
 
     private String displayPaymentStatus(WhatsappOrder order, PublicOrderStatus publicStatus) {
@@ -570,12 +570,12 @@ public class OrderTrackingService {
         if (publicStatus == PublicOrderStatus.CANCELLED || publicStatus == PublicOrderStatus.REFUNDED) {
             return "Pedido cancelado";
         }
-        return firstText(order.getShippingMethod(), "Aguardando atualizacao da loja");
+        return firstText(order.getShippingMethod(), "Aguardando atualização da loja");
     }
 
     private String displayShippingEta(WhatsappOrder order, PublicOrderStatus publicStatus) {
         if (publicStatus == PublicOrderStatus.CANCELLED || publicStatus == PublicOrderStatus.REFUNDED) {
-            return "Este pedido nao sera enviado.";
+            return "Este pedido não será enviado.";
         }
         return shippingEta(order);
     }
@@ -643,13 +643,13 @@ public class OrderTrackingService {
     }
 
     private String noOrdersMessage(String normalizedPhone) {
-        return "Nao encontrei nenhum pedido para este numero de WhatsApp"
+        return "Não encontrei nenhum pedido para este número de WhatsApp"
                 + phoneSuffix(normalizedPhone)
                 + ".";
     }
 
     private String noActiveOrdersMessage(String normalizedPhone) {
-        return "Nao encontrei nenhum pedido ativo para este numero de WhatsApp"
+        return "Não encontrei nenhum pedido ativo para este número de WhatsApp"
                 + phoneSuffix(normalizedPhone)
                 + ".";
     }
@@ -691,7 +691,7 @@ public class OrderTrackingService {
         if (containsAny(normalized, "SEPARATING", "PACKED", "SEPARANDO")) {
             return "Separando pedido";
         }
-        return "Aguardando atualizacao da loja";
+        return "Aguardando atualização da loja";
     }
 
     private boolean containsAny(String text, String... values) {
@@ -751,7 +751,7 @@ public class OrderTrackingService {
             }
             return builder.toString();
         } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 nao disponivel para tokens temporarios.", exception);
+            throw new IllegalStateException("SHA-256 não disponível para tokens temporários.", exception);
         }
     }
 

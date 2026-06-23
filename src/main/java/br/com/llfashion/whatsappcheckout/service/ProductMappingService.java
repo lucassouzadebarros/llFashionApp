@@ -98,7 +98,7 @@ public class ProductMappingService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ProductMapping updateStockAndPrice(Long nuvemshopVariantId, Integer stock, BigDecimal price) {
         ProductMapping mapping = repository.findByNuvemshopVariantIdAndActiveTrue(nuvemshopVariantId)
-                .orElseThrow(() -> new BusinessException("Produto nÃ£o encontrado para o nuvemshopVariantId: " + nuvemshopVariantId));
+                .orElseThrow(() -> new BusinessException("Produto não encontrado para o nuvemshopVariantId: " + nuvemshopVariantId));
         mapping.setStock(stock == null ? 0 : stock);
         if (price != null) {
             mapping.setPrice(price);

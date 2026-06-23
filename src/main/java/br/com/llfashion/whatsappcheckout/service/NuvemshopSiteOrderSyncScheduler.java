@@ -39,7 +39,7 @@ public class NuvemshopSiteOrderSyncScheduler {
                     response.totalOrdersImportedOrUpdated(),
                     response.totalOrdersSkipped());
         } catch (Exception exception) {
-            log.warn("Nao foi possivel sincronizar pedidos feitos no site: {}", exception.getMessage());
+            log.warn("Não foi possível sincronizar pedidos feitos no site: {}", exception.getMessage());
         }
     }
 }

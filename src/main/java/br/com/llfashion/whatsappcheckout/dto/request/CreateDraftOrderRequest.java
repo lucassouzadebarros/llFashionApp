@@ -6,13 +6,13 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record CreateDraftOrderRequest(
-        @NotBlank(message = "customerName e obrigatorio")
+        @NotBlank(message = "customerName é obrigatório")
         String customerName,
         String customerLastname,
         String customerEmail,
-        @NotBlank(message = "customerPhone e obrigatorio")
+        @NotBlank(message = "customerPhone é obrigatório")
         String customerPhone,
-        @NotEmpty(message = "items e obrigatorio e nao pode ser vazio")
+        @NotEmpty(message = "items é obrigatório e não pode ser vazio")
         List<@Valid CreateDraftOrderItemRequest> items,
         String cpfCnpj,
         String shippingPostalCode,

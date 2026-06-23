@@ -32,7 +32,7 @@ public class StockSyncScheduler {
                     response.totalProductsRead(),
                     response.totalVariantsSynced());
         } catch (Exception exception) {
-            log.warn("Nao foi possivel sincronizar estoque automaticamente: {}", exception.getMessage());
+            log.warn("Não foi possível sincronizar estoque automaticamente: {}", exception.getMessage());
         }
     }
 }

@@ -70,14 +70,14 @@ public class NuvemshopOAuthClient {
         if (!jsonContentType && !jsonBody) {
             throw new NuvemshopApiException(
                     statusCode.value(),
-                    "A Nuvemshop retornou uma resposta nao JSON ao trocar o code pelo access_token. Content-Type: " + contentTypeValue + ". Verifique token-url, client_secret, code expirado/usado e URL de callback.",
+                    "A Nuvemshop retornou uma resposta não JSON ao trocar o code pelo access_token. Content-Type: " + contentTypeValue + ". Verifique token-url, client_secret, code expirado/usado e URL de callback.",
                     contentTypeValue,
                     bodyPreview
             );
         }
 
         if (!jsonContentType) {
-            log.warn("Nuvemshop retornou Content-Type {} no token OAuth, mas o body parece JSON. A resposta sera convertida mesmo assim.", contentType);
+            log.warn("Nuvemshop retornou Content-Type {} no token OAuth, mas o body parece JSON. A resposta será convertida mesmo assim.", contentType);
         }
 
         try {

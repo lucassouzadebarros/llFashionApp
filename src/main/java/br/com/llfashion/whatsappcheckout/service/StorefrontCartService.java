@@ -225,13 +225,13 @@ public class StorefrontCartService {
     public List<StorefrontShippingOptionResponse> shippingOptions(String cartToken) {
         StorefrontCart cart = findActiveCart(cartToken);
         if (!StringUtils.hasText(cart.getPostalCode())) {
-            throw new BusinessException("Informe o endereco antes de consultar o frete.");
+            throw new BusinessException("Informe o endereço antes de consultar o frete.");
         }
 
         return List.of(
-                new StorefrontShippingOptionResponse("PAC", "PAC", "Entrega economica", "7 a 10 dias uteis", new BigDecimal("18.90"), false),
-                new StorefrontShippingOptionResponse("SEDEX", "Sedex", "Entrega mais rapida", "2 a 4 dias uteis", new BigDecimal("27.90"), false),
-                new StorefrontShippingOptionResponse("TRANSPORTADORA", "Transportadora", "Prazo confirmado no atendimento", "3 a 6 dias uteis", new BigDecimal("39.90"), false),
+                new StorefrontShippingOptionResponse("PAC", "PAC", "Entrega econômica", "7 a 10 dias úteis", new BigDecimal("18.90"), false),
+                new StorefrontShippingOptionResponse("SEDEX", "Sedex", "Entrega mais rápida", "2 a 4 dias úteis", new BigDecimal("27.90"), false),
+                new StorefrontShippingOptionResponse("TRANSPORTADORA", "Transportadora", "Prazo confirmado no atendimento", "3 a 6 dias úteis", new BigDecimal("39.90"), false),
                 new StorefrontShippingOptionResponse("RETIRADA", "Retirada na loja", "Retire sem custo de frete", "Combinar retirada", BigDecimal.ZERO, false)
         );
     }
@@ -242,7 +242,7 @@ public class StorefrontCartService {
         StorefrontShippingOptionResponse option = shippingOptions(cartToken).stream()
                 .filter(candidate -> candidate.code().equalsIgnoreCase(shippingCode))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException("Forma de envio nao encontrada: " + shippingCode));
+                .orElseThrow(() -> new BusinessException("Forma de envio não encontrada: " + shippingCode));
 
         cart.setSelectedShippingCode(option.code());
         cart.setSelectedShippingName(option.name());
@@ -268,7 +268,7 @@ public class StorefrontCartService {
                     statusToken,
                     orderTrackingService.statusUrl(statusToken),
                     cart.getTotal(),
-                    "Link de pagamento ja gerado para este carrinho."
+                    "Link de pagamento já gerado para este carrinho."
             );
         }
         validateReadyForCheckout(cart);
@@ -279,7 +279,7 @@ public class StorefrontCartService {
             order = draftOrderService.createDraftOrder(toDraftOrderRequest(cart));
         } catch (NuvemshopApiException exception) {
             if (isStockError(exception)) {
-                throw new BusinessException("O estoque mudou na Nuvemshop antes de finalizar o pedido. Atualize o carrinho e ajuste a quantidade dos itens indisponiveis.", HttpStatus.UNPROCESSABLE_ENTITY);
+                throw new BusinessException("O estoque mudou na Nuvemshop antes de finalizar o pedido. Atualize o carrinho e ajuste a quantidade dos itens indisponíveis.", HttpStatus.UNPROCESSABLE_ENTITY);
             }
             throw exception;
         }
@@ -312,10 +312,10 @@ public class StorefrontCartService {
 
     private StorefrontCart findActiveCart(String cartToken) {
         if (!StringUtils.hasText(cartToken)) {
-            throw new BusinessException("cartToken e obrigatorio.");
+            throw new BusinessException("cartToken é obrigatório.");
         }
         StorefrontCart cart = cartRepository.findByCartToken(cartToken.trim())
-                .orElseThrow(() -> new EntityNotFoundException("Carrinho nao encontrado: " + cartToken));
+                .orElseThrow(() -> new EntityNotFoundException("Carrinho não encontrado: " + cartToken));
         if (cart.getExpiresAt().isBefore(LocalDateTime.now())) {
             cart.setStatus(StorefrontCartStatus.EXPIRED);
             cartRepository.save(cart);
@@ -326,10 +326,10 @@ public class StorefrontCartService {
 
     private StorefrontCart findActiveCartForCheckout(String cartToken) {
         if (!StringUtils.hasText(cartToken)) {
-            throw new BusinessException("cartToken e obrigatorio.");
+            throw new BusinessException("cartToken é obrigatório.");
         }
         StorefrontCart cart = cartRepository.findByCartTokenForUpdate(cartToken.trim())
-                .orElseThrow(() -> new EntityNotFoundException("Carrinho nao encontrado: " + cartToken));
+                .orElseThrow(() -> new EntityNotFoundException("Carrinho não encontrado: " + cartToken));
         if (cart.getExpiresAt().isBefore(LocalDateTime.now())) {
             cart.setStatus(StorefrontCartStatus.EXPIRED);
             cartRepository.save(cart);
@@ -342,7 +342,7 @@ public class StorefrontCartService {
         return cart.getItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Item do carrinho nao encontrado: " + itemId));
+                .orElseThrow(() -> new EntityNotFoundException("Item do carrinho não encontrado: " + itemId));
     }
 
     private void validateReadyForCheckout(StorefrontCart cart) {
@@ -350,7 +350,7 @@ public class StorefrontCartService {
             throw new BusinessException("Carrinho vazio.");
         }
         if (cart.getSubtotal().compareTo(cart.getMinimumOrderValue()) < 0) {
-            throw new BusinessException("Pedido minimo de " + cart.getMinimumOrderValue() + " ainda nao foi atingido.");
+            throw new BusinessException("Pedido mínimo de " + cart.getMinimumOrderValue() + " ainda não foi atingido.");
         }
         if (!StringUtils.hasText(cart.getCustomerName())
                 || !StringUtils.hasText(cart.getCustomerDocument())
@@ -361,7 +361,7 @@ public class StorefrontCartService {
         if (!StringUtils.hasText(cart.getPostalCode())
                 || !StringUtils.hasText(cart.getAddressStreet())
                 || !StringUtils.hasText(cart.getAddressNumber())) {
-            throw new BusinessException("Preencha o endereco de entrega antes de gerar o pagamento.");
+            throw new BusinessException("Preencha o endereço de entrega antes de gerar o pagamento.");
         }
         if (!StringUtils.hasText(cart.getSelectedShippingCode())) {
             throw new BusinessException("Selecione uma forma de envio antes de gerar o pagamento.");
@@ -455,7 +455,7 @@ public class StorefrontCartService {
         }
         if (quantity > stock) {
             throw new BusinessException("Estoque insuficiente para " + mapping.getProductName()
-                    + variantSuffix(mapping) + ". Disponivel: " + stock + ", solicitado: " + quantity + ".");
+                    + variantSuffix(mapping) + ". Disponível: " + stock + ", solicitado: " + quantity + ".");
         }
     }
 

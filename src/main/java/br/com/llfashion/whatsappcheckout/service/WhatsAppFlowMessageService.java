@@ -37,21 +37,21 @@ public class WhatsAppFlowMessageService {
             String webhookPhoneNumberId
     ) {
         if (!canSendFlow()) {
-            log.warn("WhatsApp Flow nao enviado: WHATSAPP_FLOW_ID ou WHATSAPP_ACCESS_TOKEN nao configurado.");
+            log.warn("WhatsApp Flow não enviado: WHATSAPP_FLOW_ID ou WHATSAPP_ACCESS_TOKEN não configurado.");
             return false;
         }
 
         String phoneNumberId = resolvePhoneNumberId(webhookPhoneNumberId);
         if (!StringUtils.hasText(phoneNumberId)) {
-            log.warn("WhatsApp Flow nao enviado: WHATSAPP_PHONE_NUMBER_ID nao configurado e payload sem phone_number_id.");
+            log.warn("WhatsApp Flow não enviado: WHATSAPP_PHONE_NUMBER_ID não configurado e payload sem phone_number_id.");
             return false;
         }
 
         WhatsAppProperties.Flows flows = properties.flows();
         String name = StringUtils.hasText(customerName) ? customerName.trim() : "Cliente";
-        String body = "Ola, " + name + "! Vamos continuar sua compra"
+        String body = "Olá, " + name + "! Vamos continuar sua compra"
                 + (StringUtils.hasText(productName) ? " de " + productName : "")
-                + ". Toque no botao para revisar os itens, ajustar quantidades e informar os dados de entrega.";
+                + ". Toque no botão para revisar os itens, ajustar quantidades e informar os dados de entrega.";
 
         try {
             whatsAppCloudApiClient.sendFlowMessage(
@@ -83,21 +83,21 @@ public class WhatsAppFlowMessageService {
             String webhookPhoneNumberId
     ) {
         if (!canSendFlow()) {
-            log.warn("WhatsApp Flow nao enviado: WHATSAPP_FLOW_ID ou WHATSAPP_ACCESS_TOKEN nao configurado.");
+            log.warn("WhatsApp Flow não enviado: WHATSAPP_FLOW_ID ou WHATSAPP_ACCESS_TOKEN não configurado.");
             return false;
         }
 
         String phoneNumberId = resolvePhoneNumberId(webhookPhoneNumberId);
         if (!StringUtils.hasText(phoneNumberId)) {
-            log.warn("WhatsApp Flow nao enviado: WHATSAPP_PHONE_NUMBER_ID nao configurado e payload sem phone_number_id.");
+            log.warn("WhatsApp Flow não enviado: WHATSAPP_PHONE_NUMBER_ID não configurado e payload sem phone_number_id.");
             return false;
         }
 
         String name = StringUtils.hasText(customerName) ? customerName.trim() : "Cliente";
-        String body = "Bem-vinda a LLFashion Moda, " + name + "!\n\n"
+        String body = "Bem-vinda a L&LFashion, " + name + "!\n\n"
                 + "Trabalhamos com moda feminina no atacado.\n"
-                + "Pedido minimo no atacado: R$ 200,00.\n\n"
-                + "Toque no botao para comprar, ver novidades, promocoes ou revisar seu carrinho.";
+                + "Pedido mínimo no atacado: R$ 200,00.\n\n"
+                + "Toque no botão para comprar, ver novidades, promoções ou revisar seu carrinho.";
 
         try {
             WhatsAppProperties.Flows flows = properties.flows();

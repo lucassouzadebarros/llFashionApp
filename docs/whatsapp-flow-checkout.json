@@ -93,7 +93,7 @@
         },
         "intro_text": {
           "type": "string",
-          "__example__": "Trabalhamos com moda feminina no atacado. Pedido minimo: R$ 200,00."
+          "__example__": "Trabalhamos com moda feminina no atacado. Pedido mínimo: R$ 200,00."
         },
         "main_actions": {
           "type": "array",
@@ -120,11 +120,11 @@
             {
               "id": "VIEW_NEW",
               "title": "Ver novidades",
-              "description": "Pecas disponiveis em estoque"
+              "description": "Peças disponíveis em estoque"
             },
             {
               "id": "VIEW_PROMOS",
-              "title": "Ver promocoes",
+              "title": "Ver promoções",
               "description": "Ofertas e oportunidades"
             },
             {
@@ -145,7 +145,7 @@
         "children": [
           {
             "type": "TextHeading",
-            "text": "Bem-vinda a LLFashion Moda"
+            "text": "Bem-vinda a L&LFashion"
           },
           {
             "type": "TextBody",
@@ -153,7 +153,7 @@
           },
           {
             "type": "TextBody",
-            "text": "Escolha como quer continuar. Voce pode montar o carrinho por categoria, ver novidades, promocoes ou revisar o carrinho."
+            "text": "Escolha como quer continuar. Você pode montar o carrinho por categoria, ver novidades, promoções ou revisar o carrinho."
           },
           {
             "type": "Form",
@@ -161,7 +161,7 @@
             "children": [
               {
                 "type": "RadioButtonsGroup",
-                "label": "O que voce deseja fazer?",
+                "label": "O que você deseja fazer?",
                 "name": "main_action",
                 "data-source": "${data.main_actions}",
                 "required": true
@@ -214,7 +214,7 @@
             {
               "id": "ALL",
               "title": "Todos os produtos",
-              "description": "Ver pecas disponiveis"
+              "description": "Ver peças disponiveis"
             },
             {
               "id": "SAIAS",
@@ -233,7 +233,7 @@
           },
           {
             "type": "TextBody",
-            "text": "Escolha uma categoria. Vamos mostrar apenas produtos ativos com estoque disponivel."
+            "text": "Escolha uma categoria. Vamos mostrar apenas produtos ativos com estoque disponível."
           },
           {
             "type": "Form",
@@ -308,7 +308,7 @@
           },
           {
             "type": "TextBody",
-            "text": "Selecione uma peca para ver detalhes, variacoes, preco e estoque disponivel."
+            "text": "Selecione uma peça para ver detalhes, variações, preço e estoque disponível."
           },
           {
             "type": "Form",
@@ -369,13 +369,13 @@
             {
               "id": "1529914260",
               "title": "Preto / M",
-              "description": "Disponivel: 3 | R$ 89,90"
+              "description": "Disponível: 3 | R$ 89,90"
             }
           ]
         },
         "product_image_url": {
           "type": "string",
-          "__example__": "https://placehold.co/1200x800/f3faf6/047857.png?text=LLFashion+Moda"
+          "__example__": "https://placehold.co/1200x800/f3faf6/047857.png?text=L%26LFashion"
         },
         "product_price_summary": {
           "type": "string",
@@ -383,11 +383,11 @@
         },
         "product_stock_summary": {
           "type": "string",
-          "__example__": "Estoque total disponivel: 22 unidade(s)"
+          "__example__": "Estoque total disponível: 22 unidade(s)"
         },
         "product_detail_hint": {
           "type": "string",
-          "__example__": "Escolha a variacao disponivel. O estoque mostrado e atualizado antes de criar o pedido."
+          "__example__": "Escolha a variação disponível. O estoque mostrado e atualizado antes de criar o pedido."
         }
       },
       "layout": {
@@ -421,7 +421,7 @@
             "children": [
               {
                 "type": "RadioButtonsGroup",
-                "label": "Variacao",
+                "label": "Variação",
                 "name": "variant_id",
                 "data-source": "${data.variants}",
                 "required": true
@@ -460,11 +460,11 @@
         },
         "variant_summary": {
           "type": "string",
-          "__example__": "Variacao: Preto / M"
+          "__example__": "Variação: Preto / M"
         },
         "unit_price_summary": {
           "type": "string",
-          "__example__": "Valor unitario: R$ 89,90"
+          "__example__": "Valor unitário: R$ 89,90"
         },
         "available_stock": {
           "type": "number",
@@ -472,7 +472,7 @@
         },
         "stock_summary": {
           "type": "string",
-          "__example__": "Estoque disponivel: 3"
+          "__example__": "Estoque disponível: 3"
         },
         "quantities": {
           "type": "array",
@@ -500,7 +500,7 @@
         },
         "product_image_url": {
           "type": "string",
-          "__example__": "https://placehold.co/1200x800/f3faf6/047857.png?text=LLFashion+Moda"
+          "__example__": "https://placehold.co/1200x800/f3faf6/047857.png?text=L%26LFashion"
         },
         "unit_price": {
           "type": "string",
@@ -508,7 +508,7 @@
         },
         "quantity_hint": {
           "type": "string",
-          "__example__": "Escolha a quantidade. O Flow mostra no maximo o estoque disponivel."
+          "__example__": "Escolha a quantidade. O Flow mostra no máximo o estoque disponível."
         }
       },
       "layout": {
@@ -581,7 +581,7 @@
         },
         "cart_summary": {
           "type": "string",
-          "__example__": "2x Saia Bomber Suplex - Preto / M\n\nSubtotal: R$ 179,80\nPedido minimo: R$ 200,00\nFalta: R$ 20,20"
+          "__example__": "2x Saia Bomber Suplex - Preto / M\n\nSubtotal: R$ 179,80\nPedido mínimo: R$ 200,00\nFalta: R$ 20,20"
         },
         "next_actions": {
           "type": "array",
@@ -599,7 +599,7 @@
           "__example__": [
             {
               "id": "ADD_MORE",
-              "title": "Adicionar mais pecas"
+              "title": "Adicionar mais peças"
             },
             {
               "id": "CANCEL",
@@ -672,7 +672,7 @@
         },
         "minimum_order_summary": {
           "type": "string",
-          "__example__": "Pedido minimo: R$ 200,00"
+          "__example__": "Pedido mínimo: R$ 200,00"
         },
         "item_count": {
           "type": "number",
@@ -728,7 +728,7 @@
           },
           {
             "type": "TextBody",
-            "text": "Quando atingir o pedido minimo, voce pode finalizar e gerar o link de pagamento."
+            "text": "Quando atingir o pedido mínimo, você pode finalizar e gerar o link de pagamento."
           },
           {
             "type": "Form",
@@ -756,7 +756,7 @@
           },
           {
             "type": "TextCaption",
-            "text": "Ambiente seguro. O estoque sera validado novamente antes de criar o pedido."
+            "text": "Ambiente seguro. O estoque será validado novamente antes de criar o pedido."
           }
         ]
       }
@@ -803,7 +803,7 @@
           },
           {
             "type": "TextBody",
-            "text": "Escolha o item do carrinho que voce quer ajustar ou remover."
+            "text": "Escolha o item do carrinho que você quer ajustar ou remover."
           },
           {
             "type": "Form",
@@ -850,7 +850,7 @@
         },
         "selected_item_summary": {
           "type": "string",
-          "__example__": "Quantidade atual: 2 | Estoque: 3 | Valor unitario: R$ 89,90"
+          "__example__": "Quantidade atual: 2 | Estoque: 3 | Valor unitário: R$ 89,90"
         },
         "quantities": {
           "type": "array",
@@ -942,7 +942,7 @@
         },
         "minimum_order_summary": {
           "type": "string",
-          "__example__": "Pedido minimo: R$ 200,00"
+          "__example__": "Pedido mínimo: R$ 200,00"
         },
         "item_count": {
           "type": "number",
@@ -1017,7 +1017,7 @@
     },
     {
       "id": "MINIMUM_NOT_REACHED",
-      "title": "Pedido minimo",
+      "title": "Pedido mínimo",
       "data": {
         "flow_token": {
           "type": "string",
@@ -1025,11 +1025,11 @@
         },
         "message": {
           "type": "string",
-          "__example__": "Seu carrinho ainda nao atingiu o pedido minimo."
+          "__example__": "Seu carrinho ainda não atingiu o pedido mínimo."
         },
         "cart_summary": {
           "type": "string",
-          "__example__": "Subtotal: R$ 120,00\nPedido minimo: R$ 200,00\nFalta: R$ 80,00"
+          "__example__": "Subtotal: R$ 120,00\nPedido mínimo: R$ 200,00\nFalta: R$ 80,00"
         },
         "next_actions": {
           "type": "array",
@@ -1047,7 +1047,7 @@
           "__example__": [
             {
               "id": "ADD_MORE",
-              "title": "Adicionar mais pecas"
+              "title": "Adicionar mais peças"
             },
             {
               "id": "VIEW_CART",
@@ -1061,7 +1061,7 @@
         "children": [
           {
             "type": "TextHeading",
-            "text": "Pedido minimo ainda nao atingido"
+            "text": "Pedido mínimo ainda não atingido"
           },
           {
             "type": "TextBody",
@@ -1180,14 +1180,14 @@
           },
           {
             "type": "TextCaption",
-            "text": "Usaremos seu numero de WhatsApp para enviar o checkout."
+            "text": "Usaremos seu número de WhatsApp para enviar o checkout."
           }
         ]
       }
     },
     {
       "id": "ADDRESS_DATA",
-      "title": "Endereco",
+      "title": "Endereço",
       "data": {
         "flow_token": {
           "type": "string",
@@ -1215,11 +1215,11 @@
         "children": [
           {
             "type": "TextHeading",
-            "text": "Endereco de entrega"
+            "text": "Endereço de entrega"
           },
           {
             "type": "TextBody",
-            "text": "Informe o endereco completo para seguir para o checkout seguro."
+            "text": "Informe o endereço completo para seguir para o checkout seguro."
           },
           {
             "type": "Form",
@@ -1241,7 +1241,7 @@
               },
               {
                 "type": "TextInput",
-                "label": "Numero",
+                "label": "Número",
                 "name": "number",
                 "input-type": "text",
                 "required": true
@@ -1313,7 +1313,7 @@
         },
         "shipping_message": {
           "type": "string",
-          "__example__": "O frete e o Pix serao finalizados no checkout seguro da Nuvemshop."
+          "__example__": "O frete e o Pix seráo finalizados no checkout seguro da Nuvemshop."
         },
         "shipping_options": {
           "type": "array",
@@ -1406,7 +1406,7 @@
             "children": [
               {
                 "type": "RadioButtonsGroup",
-                "label": "Opcao",
+                "label": "Opção",
                 "name": "shipping_action",
                 "data-source": "${data.shipping_options}",
                 "required": true
@@ -1436,7 +1436,7 @@
           },
           {
             "type": "TextCaption",
-            "text": "O prazo de entrega comeca a contar apos a confirmacao do pagamento."
+            "text": "O prazo de entrega comeca a contar após a confirmação do pagamento."
           }
         ]
       }
@@ -1455,7 +1455,7 @@
         },
         "shipping_summary": {
           "type": "string",
-          "__example__": "Frete e Pix serao finalizados no checkout da Nuvemshop."
+          "__example__": "Frete e Pix seráo finalizados no checkout da Nuvemshop."
         },
         "full_name": {
           "type": "string",
@@ -1720,7 +1720,7 @@
     },
     {
       "id": "OUT_OF_STOCK",
-      "title": "Indisponivel",
+      "title": "Indisponível",
       "terminal": true,
       "success": false,
       "data": {
@@ -1730,7 +1730,7 @@
         },
         "message": {
           "type": "string",
-          "__example__": "Essa peca ficou indisponivel. Escolha outra opcao para continuar."
+          "__example__": "Essa peça ficou indisponível. Escolha outra opção para continuar."
         }
       },
       "layout": {
@@ -1738,7 +1738,7 @@
         "children": [
           {
             "type": "TextHeading",
-            "text": "Produto indisponivel"
+            "text": "Produto indisponível"
           },
           {
             "type": "TextBody",

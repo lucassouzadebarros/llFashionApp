@@ -24,7 +24,7 @@ import {
 import { api } from './api.js';
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-const FALLBACK_IMAGE = 'https://placehold.co/900x1200/f3faf6/047857.png?text=LLFashion+Moda';
+const FALLBACK_IMAGE = 'https://placehold.co/900x1200/f3faf6/047857.png?text=L%26LFashion';
 
 const viewTitle = {
   home: 'Boas-vindas',
@@ -34,7 +34,7 @@ const viewTitle = {
   added: 'Adicionado',
   cart: 'Carrinho',
   customer: 'Dados da cliente',
-  address: 'Endereco de entrega',
+  address: 'Endereço de entrega',
   shipping: 'Formas de envio',
   summary: 'Resumo e pagamento',
   payment: 'Pagamento'
@@ -105,7 +105,7 @@ export default function App() {
           return;
         }
         if (!statusAccess && !statusToken && !statusPhone) {
-          throw new Error('Token de acompanhamento nao informado.');
+          throw new Error('Token de acompanhamento não informado.');
         }
         return;
       }
@@ -213,7 +213,7 @@ export default function App() {
 
   async function addSelectedItem() {
     if (!selectedVariant) {
-      setError('Selecione uma variacao disponivel.');
+      setError('Selecione uma variação disponível.');
       return;
     }
     await withBusy(async () => {
@@ -236,7 +236,7 @@ export default function App() {
         try {
           setCart(await api.getCart(cartToken));
         } catch (_) {
-          // Mantem o erro original visivel.
+          // Mantém o erro original visível.
         }
         throw err;
       }
@@ -314,7 +314,7 @@ export default function App() {
         try {
           setCart(await api.getCart(cartToken));
         } catch (_) {
-          // Mantem o erro original do checkout visivel para a cliente.
+          // Mantém o erro original do checkout visível para a cliente.
         }
         throw err;
       }
@@ -438,20 +438,20 @@ function HomeScreen({ cart, onCategories, onProducts, onPromos, onCart }) {
       <div className="brandMark">
         <div className="logoCircle">LL</div>
         <div>
-          <h1>LLFashion Moda</h1>
+          <h1>L&LFashion</h1>
           <p>Moda feminina no atacado</p>
         </div>
       </div>
       <div className="heroPanel">
         <h2>Monte seu pedido com fotos, estoque claro e checkout seguro.</h2>
-        <p>Pedido minimo no atacado: <strong>R$ 200,00</strong></p>
-        {cart?.items?.length > 0 && <small>Voce ja tem {cart.items.length} item(ns) no carrinho.</small>}
+        <p>Pedido mínimo no atacado: <strong>R$ 200,00</strong></p>
+        {cart?.items?.length > 0 && <small>Você já tem {cart.items.length} item(ns) no carrinho.</small>}
       </div>
       <div className="actionList">
-        <ActionCard icon={<ShoppingBag />} title="Comprar por categoria" text="Explore nossas pecas disponiveis" onClick={onCategories} />
+        <ActionCard icon={<ShoppingBag />} title="Comprar por categoria" text="Explore nossas peças disponíveis" onClick={onCategories} />
         <ActionCard icon={<Sparkles />} title="Ver novidades" text="Produtos com estoque atualizado" onClick={onProducts} />
-        <ActionCard icon={<Heart />} title="Ver promocoes" text="Oportunidades para montar seu pedido" onClick={onPromos} />
-        <ActionCard icon={<ShoppingCart />} title="Ver carrinho" text="Revise itens e pedido minimo" onClick={onCart} active={cart?.items?.length > 0} />
+        <ActionCard icon={<Heart />} title="Ver promoções" text="Oportunidades para montar seu pedido" onClick={onPromos} />
+        <ActionCard icon={<ShoppingCart />} title="Ver carrinho" text="Revise itens e pedido mínimo" onClick={onCart} active={cart?.items?.length > 0} />
         <ActionCard icon={<Headphones />} title="Falar com atendente" text="Atendimento humano pelo WhatsApp" onClick={() => window.open('https://wa.me/5521997547418', '_blank')} />
       </div>
       <button className="primaryButton" onClick={onCategories}>Continuar</button>
@@ -500,7 +500,7 @@ function ProductsScreen({ category, products, onProduct }) {
     <section className="screen">
       <div className="sectionTitle">
         <h2>{category?.name || 'Produtos'}</h2>
-        <p>Mostrando apenas itens com estoque disponivel.</p>
+        <p>Mostrando apenas itens com estoque disponível.</p>
       </div>
       <div className="productList">
         {products.map((product) => (
@@ -515,7 +515,7 @@ function ProductsScreen({ category, products, onProduct }) {
           </button>
         ))}
       </div>
-      {products.length === 0 && <EmptyState text="Nenhum produto disponivel nesta categoria." />}
+      {products.length === 0 && <EmptyState text="Nenhum produto disponível nesta categoria." />}
     </section>
   );
 }
@@ -533,7 +533,7 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, qua
         <p>A partir de {money(product.startingPrice)}</p>
         <span>Estoque total: {product.totalStock}</span>
       </div>
-      <FieldGroup label="Variacao">
+      <FieldGroup label="Variação">
         <div className="variantGrid">
           {product.variants.map((variant) => (
             <button
@@ -545,7 +545,7 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, qua
                 setQuantity(1);
               }}
             >
-              <b>{variant.variantName || 'Unico'}</b>
+              <b>{variant.variantName || 'Único'}</b>
               <small>{money(variant.price)} | Estoque {variant.stock}</small>
             </button>
           ))}
@@ -581,7 +581,7 @@ function AddedScreen({ cart, onMore, onCart, onCheckout }) {
       <MinimumProgress cart={cart} />
       <button className="primaryButton" onClick={onMore}>Adicionar mais produtos</button>
       <button className="secondaryButton" onClick={onCart}>Ver carrinho</button>
-      <button className="ghostButton" onClick={onCheckout}>{cart?.canCheckout ? 'Finalizar pedido' : 'Ver pedido minimo'}</button>
+      <button className="ghostButton" onClick={onCheckout}>{cart?.canCheckout ? 'Finalizar pedido' : 'Ver pedido mínimo'}</button>
     </section>
   );
 }
@@ -597,7 +597,7 @@ function CartScreen({ cart, onUpdate, onRemove, onMore, onCheckout }) {
             <SafeImage src={item.imageUrl} alt="" loading="lazy" />
             <div>
               <b>{item.productName}</b>
-              <small>{item.variantName || 'Unico'}</small>
+              <small>{item.variantName || 'Único'}</small>
               <div className="miniStepper">
                 <button onClick={() => onUpdate(item, item.quantity - 1)}><Minus size={14} /></button>
                 <span>{item.quantity}</span>
@@ -611,7 +611,7 @@ function CartScreen({ cart, onUpdate, onRemove, onMore, onCheckout }) {
           </article>
         ))}
       </div>
-      {cart?.items?.length === 0 && <EmptyState text="Seu carrinho esta vazio." />}
+      {cart?.items?.length === 0 && <EmptyState text="Seu carrinho está vazio." />}
       {hasStockProblem && (
         <div className="safeNote">
           <PackageSearch size={18} /> Ajuste a quantidade dos itens sem estoque suficiente antes de finalizar.
@@ -631,7 +631,7 @@ function CustomerScreen({ cart, onSubmit }) {
       <TextInput name="cpfCnpj" label="CPF ou CNPJ" placeholder="123.456.789-09" />
       <TextInput name="email" label="E-mail" placeholder="maria@loja.com.br" type="email" defaultValue={cart?.customerEmail || ''} />
       <TextInput name="phone" label="Telefone / WhatsApp" placeholder="(21) 99999-9999" defaultValue={cart?.customerPhone || ''} />
-      <div className="safeNote"><BadgeCheck size={18} /> Seus dados serao usados apenas para processar o pedido.</div>
+      <div className="safeNote"><BadgeCheck size={18} /> Seus dados serão usados apenas para processar o pedido.</div>
     </FormScreen>
   );
 }
@@ -657,25 +657,25 @@ function AddressScreen({ cart, onLookupCep, onSubmit }) {
     }
     if (digits.length < 8) {
       setCepTone('info');
-      setCepMessage('Digite os 8 numeros do CEP para preencher o endereco.');
+      setCepMessage('Digite os 8 números do CEP para preencher o endereço.');
       return undefined;
     }
     if (digits.length > 8) {
       setCepTone('danger');
-      setCepMessage('CEP deve ter 8 numeros.');
+      setCepMessage('CEP deve ter 8 números.');
       return undefined;
     }
 
     setCepTone('info');
-    setCepMessage('Buscando endereco pelo CEP...');
+    setCepMessage('Buscando endereço pelo CEP...');
     const timer = window.setTimeout(async () => {
       try {
         await onLookupCep(setAddressForm, digits);
         setCepTone('success');
-        setCepMessage('Endereco preenchido pelo CEP. Informe numero e complemento, se houver.');
+        setCepMessage('Endereço preenchido pelo CEP. Informe número e complemento, se houver.');
       } catch (err) {
         setCepTone('danger');
-        setCepMessage(err.message || 'CEP nao encontrado. Confira os numeros e tente novamente.');
+        setCepMessage(err.message || 'CEP não encontrado. Confira os números e tente novamente.');
       }
     }, 450);
 
@@ -700,7 +700,7 @@ function AddressScreen({ cart, onLookupCep, onSubmit }) {
         </label>
         <label><span>Rua</span><input value={addressForm.street} onChange={(event) => update('street', event.target.value)} required /></label>
         <div className="twoCols">
-          <label><span>Numero</span><input value={addressForm.number} onChange={(event) => update('number', event.target.value)} required /></label>
+          <label><span>Número</span><input value={addressForm.number} onChange={(event) => update('number', event.target.value)} required /></label>
           <label><span>Complemento</span><input value={addressForm.complement} onChange={(event) => update('complement', event.target.value)} /></label>
         </div>
         <label><span>Bairro</span><input value={addressForm.neighborhood} onChange={(event) => update('neighborhood', event.target.value)} required /></label>
@@ -708,7 +708,7 @@ function AddressScreen({ cart, onLookupCep, onSubmit }) {
           <label><span>Cidade</span><input value={addressForm.city} onChange={(event) => update('city', event.target.value)} required /></label>
           <label><span>Estado</span><input value={addressForm.state} onChange={(event) => update('state', event.target.value)} required /></label>
         </div>
-        <div className="safeNote"><Truck size={18} /> Depois do endereco, mostramos as opcoes de frete.</div>
+        <div className="safeNote"><Truck size={18} /> Depois do endereço, mostramos as opções de frete.</div>
         <button className="primaryButton" type="submit">Continuar</button>
       </form>
     </section>
@@ -720,7 +720,7 @@ function ShippingScreen({ options, onChoose }) {
     <section className="screen">
       <div className="sectionTitle">
         <h2>Escolha a forma de envio</h2>
-        <p>Opcoes disponiveis para o endereco informado.</p>
+        <p>Opções disponíveis para o endereço informado.</p>
       </div>
       <div className="shippingList">
         {options.map((option) => (
@@ -778,16 +778,16 @@ function PaymentScreen({ checkout, cart }) {
           <span>Pix copia e cola</span>
           <code>{pixCode}</code>
           <button className="primaryButton" onClick={copyPixCode} type="button">
-            <Clipboard size={17} /> Copiar codigo Pix
+            <Clipboard size={17} /> Copiar código Pix
           </button>
-          {copied && <small className="copyFeedback">Codigo Pix copiado com sucesso.</small>}
+          {copied && <small className="copyFeedback">Código Pix copiado com sucesso.</small>}
         </div>
       ) : (
         url && <a className="primaryButton linkButton" href={url} target="_blank" rel="noreferrer">Abrir checkout Pix</a>
       )}
       {statusUrl && <a className="secondaryButton linkButton" href={statusUrl}>Acompanhar pedido</a>}
       <a className="ghostButton linkButton" href="https://wa.me/5521997547418" target="_blank" rel="noreferrer">Voltar para o WhatsApp</a>
-      <small className="muted">O pagamento sera concluido no ambiente seguro da Nuvemshop.</small>
+      <small className="muted">O pagamento será concluído no ambiente seguro da Nuvemshop.</small>
     </section>
   );
 }
@@ -843,7 +843,7 @@ function OrderStatusScreen({ order }) {
     ['ORDER_RECEIVED', 'Pedido criado'],
     ['WAITING_PAYMENT', 'Pagamento'],
     ['PAYMENT_CONFIRMED', 'Confirmado'],
-    ['SEPARATING_ORDER', 'Separacao'],
+    ['SEPARATING_ORDER', 'Separação'],
     ['SHIPPED', 'Envio'],
     ['DELIVERED', 'Entrega']
   ];
@@ -871,7 +871,7 @@ function OrderStatusScreen({ order }) {
     <section className="screen statusScreen">
       <div className="statusHero">
         <div>
-          <small>LLFashion Moda</small>
+          <small>L&LFashion</small>
           <h1>{order.statusTitle}</h1>
           <p>{order.statusMessage}</p>
         </div>
@@ -905,7 +905,7 @@ function OrderStatusScreen({ order }) {
         {order.items?.map((item, index) => (
           <div className="summaryItem" key={`${item.productName}-${index}`}>
             <SafeImage src={item.imageUrl} alt="" />
-            <span>{item.productName}<small>{item.variantName || 'Unico'} | {item.quantity} un</small></span>
+            <span>{item.productName}<small>{item.variantName || 'Único'} | {item.quantity} un</small></span>
             <b>{money(item.totalPrice)}</b>
           </div>
         ))}
@@ -924,9 +924,9 @@ function OrderStatusScreen({ order }) {
         <small>{order.shippingEta}</small>
         {order.shippingTrackingNumber ? (
           <div className="trackingBox">
-            <span>Codigo de rastreio</span>
+            <span>Código de rastreio</span>
             <strong>{order.shippingTrackingNumber}</strong>
-            <button className="secondaryButton" onClick={copyTracking}><Clipboard size={17} /> Copiar codigo</button>
+            <button className="secondaryButton" onClick={copyTracking}><Clipboard size={17} /> Copiar código</button>
             {order.shippingTrackingUrl && (
               <a className="primaryButton linkButton" href={order.shippingTrackingUrl} target="_blank" rel="noreferrer">
                 Acompanhar entrega <ExternalLink size={16} />
@@ -936,7 +936,7 @@ function OrderStatusScreen({ order }) {
         ) : (
           <div className="safeNote">
             <Truck size={18} />
-            {orderStopped ? 'Pedido cancelado. Nao ha rastreio para este pedido.' : 'Aguardando atualizacao da loja sobre o rastreio.'}
+            {orderStopped ? 'Pedido cancelado. Não há rastreio para este pedido.' : 'Aguardando atualização da loja sobre o rastreio.'}
           </div>
         )}
       </section>
@@ -953,16 +953,16 @@ function OrderStatusScreen({ order }) {
             <span>Pix copia e cola</span>
             <code>{order.pixCopyPaste}</code>
             <button className="primaryButton" onClick={copyPixCode} type="button">
-              <Clipboard size={17} /> Copiar codigo Pix
+              <Clipboard size={17} /> Copiar código Pix
             </button>
-            {pixCopied && <small className="copyFeedback">Codigo Pix copiado com sucesso.</small>}
+            {pixCopied && <small className="copyFeedback">Código Pix copiado com sucesso.</small>}
           </div>
         ) : canOpenCheckout ? (
           <a className="primaryButton linkButton" href={order.checkoutUrl} target="_blank" rel="noreferrer">
             Abrir link de pagamento
           </a>
         ) : (
-          <div className="safeNote"><ShieldCheck size={18} /> Pagamento indisponivel para o status atual deste pedido.</div>
+          <div className="safeNote"><ShieldCheck size={18} /> Pagamento indisponível para o status atual deste pedido.</div>
         )}
       </section>
 
@@ -1018,7 +1018,7 @@ function MinimumProgress({ cart }) {
   return (
     <div className="minimumCard">
       <div>
-        <b>{cart.canCheckout ? 'Pedido minimo atingido' : 'Progresso do pedido minimo'}</b>
+        <b>{cart.canCheckout ? 'Pedido mínimo atingido' : 'Progresso do pedido mínimo'}</b>
         <small>{money(cart.subtotal)} de {money(cart.minimumOrderValue)}</small>
       </div>
       <div className="progressTrack"><span style={{ width: `${cart.progressPercent || 0}%` }} /></div>
@@ -1100,7 +1100,7 @@ function LoadingScreen() {
     <main className="appShell">
       <div className="phoneFrame loading">
         <Loader2 className="spin" size={34} />
-        <p>Carregando LLFashion Moda</p>
+        <p>Carregando L&LFashion</p>
       </div>
     </main>
   );
@@ -1112,9 +1112,9 @@ function money(value) {
 }
 
 function formatDate(value) {
-  if (!value) return 'Nao informada';
+  if (!value) return 'Não informada';
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Nao informada';
+  if (Number.isNaN(date.getTime())) return 'Não informada';
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: '2-digit',
@@ -1157,7 +1157,7 @@ function cartToCheckout(cart) {
     statusPublicToken: cart.statusPublicToken,
     statusUrl: cart.statusUrl,
     total: cart.total,
-    message: 'Este carrinho ja gerou um pedido.'
+    message: 'Este carrinho já gerou um pedido.'
   };
 }
 

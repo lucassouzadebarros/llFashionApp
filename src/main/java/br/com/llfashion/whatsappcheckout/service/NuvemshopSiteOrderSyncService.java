@@ -152,7 +152,7 @@ public class NuvemshopSiteOrderSyncService {
             );
             return detailedOrder == null ? order : detailedOrder;
         } catch (RuntimeException exception) {
-            log.warn("Nao foi possivel buscar detalhe do pedido Nuvemshop. orderId={}, erro={}",
+            log.warn("Não foi possível buscar detalhe do pedido Nuvemshop. orderId={}, erro={}",
                     order.id(),
                     exception.getMessage());
             return order;
@@ -172,7 +172,7 @@ public class NuvemshopSiteOrderSyncService {
         ));
 
         if (newOrder && !StringUtils.hasText(normalizedPhone)) {
-            log.info("Pedido da Nuvemshop ignorado porque nao possui telefone. orderId={}, number={}",
+            log.info("Pedido da Nuvemshop ignorado porque não possui telefone. orderId={}, number={}",
                     nuvemshopOrder.id(),
                     nuvemshopOrder.number());
             return false;

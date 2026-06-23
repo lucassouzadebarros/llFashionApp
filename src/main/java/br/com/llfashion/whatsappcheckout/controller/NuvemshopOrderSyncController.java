@@ -30,7 +30,7 @@ public class NuvemshopOrderSyncController {
         return Map.of(
                 "orderId", orderId,
                 "synced", synced,
-                "message", synced ? "Pedido sincronizado com sucesso" : "Pedido nao sincronizado"
+                "message", synced ? "Pedido sincronizado com sucesso" : "Pedido não sincronizado"
         );
     }
 }

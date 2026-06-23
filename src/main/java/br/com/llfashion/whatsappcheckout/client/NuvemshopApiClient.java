@@ -57,7 +57,7 @@ public class NuvemshopApiClient {
         } catch (WebClientRequestException exception) {
             throw new NuvemshopApiException(
                     503,
-                    "Falha de conexao ao buscar produtos na Nuvemshop.",
+                    "Falha de conexão ao buscar produtos na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -80,7 +80,7 @@ public class NuvemshopApiClient {
         } catch (WebClientRequestException exception) {
             throw new NuvemshopApiException(
                     503,
-                    "Falha de conexao ao buscar produto na Nuvemshop.",
+                    "Falha de conexão ao buscar produto na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -104,7 +104,7 @@ public class NuvemshopApiClient {
         } catch (WebClientRequestException exception) {
             throw new NuvemshopApiException(
                     503,
-                    "Falha de conexao ao criar Draft Order na Nuvemshop.",
+                    "Falha de conexão ao criar Draft Order na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -127,7 +127,7 @@ public class NuvemshopApiClient {
         } catch (WebClientRequestException exception) {
             throw new NuvemshopApiException(
                     503,
-                    "Falha de conexao ao buscar Draft Order na Nuvemshop.",
+                    "Falha de conexão ao buscar Draft Order na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -150,7 +150,7 @@ public class NuvemshopApiClient {
         } catch (WebClientRequestException exception) {
             throw new NuvemshopApiException(
                     503,
-                    "Falha de conexao ao buscar venda na Nuvemshop.",
+                    "Falha de conexão ao buscar venda na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -173,7 +173,7 @@ public class NuvemshopApiClient {
         } catch (WebClientRequestException exception) {
             throw new NuvemshopApiException(
                     503,
-                    "Falha de conexao ao buscar venda detalhada na Nuvemshop.",
+                    "Falha de conexão ao buscar venda detalhada na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -204,7 +204,7 @@ public class NuvemshopApiClient {
         } catch (WebClientRequestException exception) {
             throw new NuvemshopApiException(
                     503,
-                    "Falha de conexao ao listar vendas na Nuvemshop.",
+                    "Falha de conexão ao listar vendas na Nuvemshop.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -269,7 +269,7 @@ public class NuvemshopApiClient {
         if (contentType == null || !contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
             throw new NuvemshopApiException(
                     statusCode.value(),
-                    "A Nuvemshop retornou uma resposta nao JSON ao buscar produtos. Content-Type: " + contentTypeValue,
+                    "A Nuvemshop retornou uma resposta não JSON ao buscar produtos. Content-Type: " + contentTypeValue,
                     contentTypeValue,
                     bodyPreview
             );
@@ -329,7 +329,7 @@ public class NuvemshopApiClient {
         if (!isJsonResponse(contentType, body)) {
             throw new NuvemshopApiException(
                     statusCode.value(),
-                    "A Nuvemshop retornou uma resposta nao JSON ao buscar produto. Content-Type: " + contentTypeValue,
+                    "A Nuvemshop retornou uma resposta não JSON ao buscar produto. Content-Type: " + contentTypeValue,
                     contentTypeValue,
                     bodyPreview
             );
@@ -394,7 +394,7 @@ public class NuvemshopApiClient {
         if (!isJsonResponse(contentType, body)) {
             throw new NuvemshopApiException(
                     statusCode.value(),
-                    "A Nuvemshop retornou uma resposta nao JSON ao " + operation + ". Content-Type: " + contentTypeValue,
+                    "A Nuvemshop retornou uma resposta não JSON ao " + operation + ". Content-Type: " + contentTypeValue,
                     contentTypeValue,
                     bodyPreview
             );
@@ -449,7 +449,7 @@ public class NuvemshopApiClient {
         if (!isJsonResponse(contentType, body)) {
             throw new NuvemshopApiException(
                     statusCode.value(),
-                    "A Nuvemshop retornou uma resposta nao JSON ao listar vendas. Content-Type: " + contentTypeValue,
+                    "A Nuvemshop retornou uma resposta não JSON ao listar vendas. Content-Type: " + contentTypeValue,
                     contentTypeValue,
                     bodyPreview
             );
@@ -504,7 +504,7 @@ public class NuvemshopApiClient {
         if (!isJsonResponse(contentType, body)) {
             throw new NuvemshopApiException(
                     statusCode.value(),
-                    "A Nuvemshop retornou uma resposta nao JSON ao " + operation + ". Content-Type: " + contentTypeValue,
+                    "A Nuvemshop retornou uma resposta não JSON ao " + operation + ". Content-Type: " + contentTypeValue,
                     contentTypeValue,
                     bodyPreview
             );
@@ -613,7 +613,7 @@ public class NuvemshopApiClient {
         String trimmedBody = body == null ? "" : body.trim();
         boolean jsonBody = trimmedBody.startsWith("{") || trimmedBody.startsWith("[");
         if (jsonBody) {
-            log.warn("Nuvemshop retornou Content-Type {} com body JSON. A resposta sera convertida mesmo assim.", contentType);
+            log.warn("Nuvemshop retornou Content-Type {} com body JSON. A resposta será convertida mesmo assim.", contentType);
         }
         return jsonBody;
     }

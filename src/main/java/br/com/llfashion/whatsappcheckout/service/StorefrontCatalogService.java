@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 @Service
 public class StorefrontCatalogService {
 
-    private static final String FALLBACK_IMAGE_URL = "https://placehold.co/900x1200/f3faf6/047857.png?text=LLFashion+Moda";
+    private static final String FALLBACK_IMAGE_URL = "https://placehold.co/900x1200/f3faf6/047857.png?text=L%26LFashion";
 
     private final ProductMappingRepository productMappingRepository;
 
@@ -70,7 +70,7 @@ public class StorefrontCatalogService {
                 .toList();
 
         if (variants.isEmpty()) {
-            throw new EntityNotFoundException("Produto nao encontrado ou sem estoque: " + productId);
+            throw new EntityNotFoundException("Produto não encontrado ou sem estoque: " + productId);
         }
 
         ProductGroup group = new ProductGroup(productId, variants);
@@ -134,14 +134,14 @@ public class StorefrontCatalogService {
 
     private List<Category> categories() {
         return List.of(
-                new Category("todos", "Todos os produtos", "Veja todas as pecas disponiveis", List.of()),
+                new Category("todos", "Todos os produtos", "Veja todas as peças disponíveis", List.of()),
                 new Category("croppeds", "Croppeds", "Tops e croppeds", List.of("cropped", "top")),
                 new Category("saias", "Saias", "Saias femininas", List.of("saia")),
                 new Category("shorts", "Shorts", "Shorts femininos", List.of("short")),
                 new Category("vestidos", "Vestidos", "Vestidos femininos", List.of("vestido")),
                 new Category("blusas", "Blusas", "Blusas femininas", List.of("blusa", "camisa", "body")),
                 new Category("conjuntos", "Conjuntos", "Conjuntos e looks", List.of("conjunto", "kit")),
-                new Category("promocoes", "Promocoes", "Pecas com oportunidade", List.of("promo", "off", "liquida"))
+                new Category("promocoes", "Promoções", "Peças com oportunidade", List.of("promo", "off", "liquida"))
         );
     }
 
@@ -194,14 +194,14 @@ public class StorefrontCatalogService {
 
     private VariantParts parseVariant(String variantName) {
         if (!StringUtils.hasText(variantName)) {
-            return new VariantParts(null, "Unico", null);
+            return new VariantParts(null, "Único", null);
         }
         List<String> parts = java.util.Arrays.stream(variantName.split("/"))
                 .map(String::trim)
                 .filter(StringUtils::hasText)
                 .toList();
         String color = parts.isEmpty() ? null : parts.get(0);
-        String size = parts.size() >= 2 ? parts.get(1) : "Unico";
+        String size = parts.size() >= 2 ? parts.get(1) : "Único";
         String model = parts.size() >= 3 ? parts.get(2) : null;
         return new VariantParts(color, size, model);
     }
@@ -252,7 +252,7 @@ public class StorefrontCatalogService {
                     .map(ProductMapping::getProductName)
                     .filter(StringUtils::hasText)
                     .findFirst()
-                    .orElse("Produto LLFashion");
+                    .orElse("Produto L&LFashion");
         }
 
         String searchableName() {

@@ -6,7 +6,7 @@
   "interactive": {
     "type": "button",
     "body": {
-      "text": "Bem-vinda a LLFashion Moda!\n\nTrabalhamos com moda feminina no atacado.\n\nPedido minimo: R$ 200,00.\n\nComo deseja continuar?"
+      "text": "Bem-vinda a L&LFashion!\n\nTrabalhamos com moda feminina no atacado.\n\nPedido mínimo: R$ 200,00.\n\nComo deseja continuar?"
     },
     "action": {
       "buttons": [

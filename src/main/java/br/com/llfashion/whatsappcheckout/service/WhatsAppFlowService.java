@@ -28,7 +28,7 @@ public class WhatsAppFlowService {
     private static final String CART_FLOW_MARKER = "CART";
     private static final String SHOP_FLOW_MARKER = "SHOP";
     private static final String PRODUCT_PLACEHOLDER_IMAGE_URL =
-            "https://placehold.co/1200x800/f3faf6/047857.png?text=LLFashion+Moda";
+            "https://placehold.co/1200x800/f3faf6/047857.png?text=L%26LFashion";
     private static final Logger log = LoggerFactory.getLogger(WhatsAppFlowService.class);
 
     private final WhatsAppFlowSessionRepository flowSessionRepository;
@@ -146,11 +146,11 @@ public class WhatsAppFlowService {
         JsonNode data = request.path("data");
         String flowToken = firstText(request, data, "flow_token", "flowToken");
         if (!StringUtils.hasText(flowToken)) {
-            throw new BusinessException("flow_token e obrigatorio para o WhatsApp Flow.");
+            throw new BusinessException("flow_token é obrigatório para o WhatsApp Flow.");
         }
 
         WhatsAppFlowSession session = flowSessionRepository.findByFlowToken(flowToken.trim())
-                .orElseThrow(() -> new BusinessException("Sessao do WhatsApp Flow nao encontrada: " + flowToken));
+                .orElseThrow(() -> new BusinessException("Sessão do WhatsApp Flow não encontrada: " + flowToken));
 
         String action = text(request, "action");
         String screen = text(request, "screen");
@@ -258,11 +258,11 @@ public class WhatsAppFlowService {
     public CreateDraftOrderResponse createOrderFromFlowReply(JsonNode flowReplyData) {
         String flowToken = text(flowReplyData, "flow_token", "flowToken");
         if (!StringUtils.hasText(flowToken)) {
-            throw new BusinessException("flow_token nao encontrado no retorno do Flow.");
+            throw new BusinessException("flow_token não encontrado no retorno do Flow.");
         }
 
         WhatsAppFlowSession session = flowSessionRepository.findByFlowToken(flowToken.trim())
-                .orElseThrow(() -> new BusinessException("Sessao do WhatsApp Flow nao encontrada: " + flowToken));
+                .orElseThrow(() -> new BusinessException("Sessão do WhatsApp Flow não encontrada: " + flowToken));
 
         if (session.getLocalOrderId() != null) {
             return null;
@@ -319,7 +319,7 @@ public class WhatsAppFlowService {
                 "data", Map.of(
                         "flow_token", session.getFlowToken(),
                         "minimum_order_total", money(flowCartService.minimumOrderTotal()),
-                        "intro_text", "Trabalhamos com moda feminina no atacado. Pedido minimo: "
+                        "intro_text", "Trabalhamos com moda feminina no atacado. Pedido mínimo: "
                                 + money(flowCartService.minimumOrderTotal()) + ".",
                         "main_actions", productSearchService.mainMenuOptions()
                 )
@@ -334,7 +334,7 @@ public class WhatsAppFlowService {
             case "VIEW_PROMOS" -> productsResponse(session, WhatsAppProductSearchService.CATEGORY_PROMOTIONS);
             case "VIEW_CART" -> cartReviewResponse(session);
             case "HUMAN" -> humanAttendantResponse(session);
-            default -> throw new BusinessException("Opcao inicial invalida no Flow: " + action);
+            default -> throw new BusinessException("Opção inicial inválida no Flow: " + action);
         };
     }
 
@@ -359,7 +359,7 @@ public class WhatsAppFlowService {
                     "screen", "OUT_OF_STOCK",
                     "data", Map.of(
                             "flow_token", session.getFlowToken(),
-                            "message", "Nao encontrei produtos disponiveis nessa selecao agora."
+                            "message", "Não encontrei produtos disponíveis nessa seleção agora."
                     )
             );
         }
@@ -404,7 +404,7 @@ public class WhatsAppFlowService {
         Long variantId = longValue(data, "variant_id", "variantId", "nuvemshop_variant_id");
         ProductMapping mapping = productMappingService.findActiveByNuvemshopVariantId(variantId);
         if (!mapping.getNuvemshopProductId().equals(session.getNuvemshopProductId())) {
-            throw new BusinessException("Variacao selecionada nao pertence ao produto da sessao do Flow.");
+            throw new BusinessException("Variação selecionada não pertence ao produto da sessão do Flow.");
         }
 
         session.setNuvemshopVariantId(mapping.getNuvemshopVariantId());
@@ -542,17 +542,17 @@ public class WhatsAppFlowService {
                         "flow_token", session.getFlowToken(),
                         "cart_summary", summaryTextWithNotice(summary),
                         "message", summary.canCheckout()
-                                ? "Produto adicionado ao carrinho. Pedido minimo atingido."
-                                : "Produto adicionado ao carrinho. Adicione mais pecas para finalizar.",
+                                ? "Produto adicionado ao carrinho. Pedido mínimo atingido."
+                                : "Produto adicionado ao carrinho. Adicione mais peças para finalizar.",
                         "next_actions", summary.canCheckout()
                                 ? List.of(
                                 Map.of("id", "CHECKOUT", "title", "Finalizar pedido"),
-                                Map.of("id", "ADD_MORE", "title", "Adicionar mais pecas"),
+                                Map.of("id", "ADD_MORE", "title", "Adicionar mais peças"),
                                 Map.of("id", "VIEW_CART", "title", "Ver carrinho"),
                                 Map.of("id", "CANCEL", "title", "Cancelar pedido")
                         )
                                 : List.of(
-                                Map.of("id", "ADD_MORE", "title", "Adicionar mais pecas"),
+                                Map.of("id", "ADD_MORE", "title", "Adicionar mais peças"),
                                 Map.of("id", "VIEW_CART", "title", "Ver carrinho"),
                                 Map.of("id", "CANCEL", "title", "Cancelar pedido")
                         )
@@ -585,9 +585,9 @@ public class WhatsAppFlowService {
                 "data", Map.of(
                         "flow_token", session.getFlowToken(),
                         "cart_summary", summary.summaryText(),
-                        "message", "Seu carrinho ainda nao atingiu o pedido minimo. Adicione mais produtos para finalizar.",
+                        "message", "Seu carrinho ainda não atingiu o pedido mínimo. Adicione mais produtos para finalizar.",
                         "next_actions", List.of(
-                                Map.of("id", "ADD_MORE", "title", "Adicionar mais pecas"),
+                                Map.of("id", "ADD_MORE", "title", "Adicionar mais peças"),
                                 Map.of("id", "CANCEL", "title", "Cancelar pedido")
                         )
                 )
@@ -614,13 +614,13 @@ public class WhatsAppFlowService {
         String email = firstText(data, "email", "customer_email");
 
         if (!StringUtils.hasText(fullName) || !fullName.trim().contains(" ")) {
-            throw new BusinessException("Nome completo e obrigatorio para continuar.");
+            throw new BusinessException("Nome completo é obrigatório para continuar.");
         }
         if (document.length() != 11 && document.length() != 14) {
-            throw new BusinessException("CPF/CNPJ invalido para continuar.");
+            throw new BusinessException("CPF/CNPJ inválido para continuar.");
         }
         if (!StringUtils.hasText(email)) {
-            throw new BusinessException("E-mail e obrigatorio para continuar.");
+            throw new BusinessException("E-mail é obrigatório para continuar.");
         }
 
         return Map.of(
@@ -669,7 +669,7 @@ public class WhatsAppFlowService {
             return humanAttendantResponse(session);
         }
         if (!"CHECKOUT_NUVEMSHOP".equals(action)) {
-            throw new BusinessException("Opcao de frete invalida no Flow: " + action);
+            throw new BusinessException("Opção de frete inválida no Flow: " + action);
         }
         return confirmationResponse(session, data);
     }
@@ -730,7 +730,7 @@ public class WhatsAppFlowService {
                         "cart_summary", summaryTextWithNotice(summary),
                         "cart_total", money(summary.subtotal()),
                         "minimum_order_total", money(summary.minimumOrderTotal()),
-                        "minimum_order_summary", "Pedido minimo: " + money(summary.minimumOrderTotal()),
+                        "minimum_order_summary", "Pedido mínimo: " + money(summary.minimumOrderTotal()),
                         "item_count", summary.itemCount(),
                         "next_actions", cartReviewActions()
                 )
@@ -753,7 +753,7 @@ public class WhatsAppFlowService {
                     "screen", "OUT_OF_STOCK",
                     "data", Map.of(
                             "flow_token", session.getFlowToken(),
-                            "message", "Nao encontrei itens disponiveis no carrinho."
+                            "message", "Não encontrei itens disponíveis no carrinho."
                     )
             );
         }
@@ -775,7 +775,7 @@ public class WhatsAppFlowService {
                     "screen", "OUT_OF_STOCK",
                     "data", Map.of(
                             "flow_token", session.getFlowToken(),
-                            "message", "Esse item ficou indisponivel."
+                            "message", "Esse item ficou indisponível."
                     )
             );
         }
@@ -789,7 +789,7 @@ public class WhatsAppFlowService {
                         "selected_item_name", option.title(),
                         "selected_item_summary", "Quantidade atual: " + option.quantity()
                                 + " | Estoque: " + option.stock()
-                                + " | Valor unitario: " + money(option.unitPrice()),
+                                + " | Valor unitário: " + money(option.unitPrice()),
                         "quantities", cartQuantityOptions(option.stock())
                 )
         );
@@ -815,7 +815,7 @@ public class WhatsAppFlowService {
                 ? flowCartService.currentSummary(session.getCustomerPhone())
                 : addCurrentItemToCartIfNeeded(session);
         if (!summary.canCheckout()) {
-            throw new BusinessException("Pedido minimo nao atingido. Adicione mais produtos antes de finalizar.");
+            throw new BusinessException("Pedido mínimo não atingido. Adicione mais produtos antes de finalizar.");
         }
         CustomerData customer = customerData(session, data);
         CreateDraftOrderResponse order = flowCartService.createOrderFromOpenCart(
@@ -857,7 +857,7 @@ public class WhatsAppFlowService {
                     "screen", "OUT_OF_STOCK",
                     "data", Map.of(
                             "flow_token", session.getFlowToken(),
-                            "message", "Produto indisponivel no momento."
+                            "message", "Produto indisponível no momento."
                     )
             );
         }
@@ -875,7 +875,7 @@ public class WhatsAppFlowService {
                         Map.entry("product_image_url", productImageUrl(first)),
                         Map.entry("product_price_summary", productPriceSummary(variants)),
                         Map.entry("product_stock_summary", productStockSummary(session, variants)),
-                        Map.entry("product_detail_hint", "Escolha a variacao disponivel. O estoque mostrado e atualizado antes de criar o pedido."),
+                        Map.entry("product_detail_hint", "Escolha a variação disponível. O estoque mostrado é atualizado antes de criar o pedido."),
                         Map.entry("variants", availableVariants)
                 )
         );
@@ -891,7 +891,7 @@ public class WhatsAppFlowService {
                     "screen", "OUT_OF_STOCK",
                     "data", Map.of(
                             "flow_token", session.getFlowToken(),
-                            "message", "Essa variacao ficou indisponivel."
+                            "message", "Essa variação ficou indisponível."
                     )
             );
         }
@@ -905,11 +905,11 @@ public class WhatsAppFlowService {
                         Map.entry("variant_name", displayVariant(mapping)),
                         Map.entry("product_image_url", productImageUrl(mapping)),
                         Map.entry("unit_price", money(mapping.getPrice())),
-                        Map.entry("variant_summary", "Variacao: " + displayVariant(mapping)),
-                        Map.entry("unit_price_summary", "Valor unitario: " + money(mapping.getPrice())),
+                        Map.entry("variant_summary", "Variação: " + displayVariant(mapping)),
+                        Map.entry("unit_price_summary", "Valor unitário: " + money(mapping.getPrice())),
                         Map.entry("available_stock", availableStock),
-                        Map.entry("stock_summary", "Estoque disponivel: " + availableStock + " unidade(s)"),
-                        Map.entry("quantity_hint", "Escolha a quantidade. O Flow mostra no maximo o estoque disponivel."),
+                        Map.entry("stock_summary", "Estoque disponível: " + availableStock + " unidade(s)"),
+                        Map.entry("quantity_hint", "Escolha a quantidade. O Flow mostra no máximo o estoque disponível."),
                         Map.entry("quantities", quantityOptions(availableStock))
                 )
         );
@@ -939,13 +939,13 @@ public class WhatsAppFlowService {
         return Map.of(
                 "id", String.valueOf(mapping.getNuvemshopVariantId()),
                 "title", displayVariant(mapping),
-                "description", "Disponivel: " + availableStock + " | " + money(mapping.getPrice())
+                "description", "Disponível: " + availableStock + " | " + money(mapping.getPrice())
         );
     }
 
     private ProductMapping resolveProductMapping(String productRetailerId) {
         if (!StringUtils.hasText(productRetailerId)) {
-            throw new BusinessException("product_retailer_id nao informado para iniciar o Flow.");
+            throw new BusinessException("product_retailer_id não informado para iniciar o Flow.");
         }
         String value = productRetailerId.trim();
         if (isNumeric(value)) {
@@ -959,13 +959,13 @@ public class WhatsAppFlowService {
             throw new BusinessException("Quantidade selecionada no Flow deve ser maior que zero.");
         }
         if (mapping.getStock() == null || quantity > mapping.getStock()) {
-            throw new BusinessException("Estoque mudou. Disponivel agora para "
+            throw new BusinessException("Estoque mudou. Disponível agora para "
                     + mapping.getProductName() + variantSuffix(mapping) + ": "
                     + (mapping.getStock() == null ? 0 : mapping.getStock()) + " unidade(s).");
         }
         int availableStock = availableStock(session, mapping);
         if (quantity > availableStock) {
-            throw new BusinessException("Essa quantidade ja esta reservada no carrinho. Disponivel agora: "
+            throw new BusinessException("Essa quantidade já está reservada no carrinho. Disponível agora: "
                     + availableStock + " unidade(s).");
         }
     }
@@ -997,19 +997,19 @@ public class WhatsAppFlowService {
         String state = firstText(data, "state", "province", "uf");
 
         if (!StringUtils.hasText(firstName) || !StringUtils.hasText(lastName)) {
-            throw new BusinessException("Nome completo e obrigatorio para confirmar o pedido no Flow.");
+            throw new BusinessException("Nome completo é obrigatório para confirmar o pedido no Flow.");
         }
         if (document.length() != 11 && document.length() != 14) {
-            throw new BusinessException("CPF/CNPJ invalido no Flow.");
+            throw new BusinessException("CPF/CNPJ inválido no Flow.");
         }
         if (!StringUtils.hasText(email)) {
-            throw new BusinessException("E-mail e obrigatorio para confirmar o pedido no Flow.");
+            throw new BusinessException("E-mail é obrigatório para confirmar o pedido no Flow.");
         }
         if (postalCode.length() != 8) {
-            throw new BusinessException("CEP invalido no Flow.");
+            throw new BusinessException("CEP inválido no Flow.");
         }
         if (!StringUtils.hasText(number)) {
-            throw new BusinessException("Numero do endereco e obrigatorio para confirmar o pedido no Flow.");
+            throw new BusinessException("Número do endereço é obrigatório para confirmar o pedido no Flow.");
         }
 
         return new CustomerData(firstName, lastName, document, email, postalCode, street, number, complement, neighborhood, city, state);
@@ -1096,7 +1096,7 @@ public class WhatsAppFlowService {
         int stock = variants.stream()
                 .mapToInt(mapping -> availableStock(session, mapping))
                 .sum();
-        return "Estoque total disponivel: " + stock + " unidade(s)";
+        return "Estoque total disponível: " + stock + " unidade(s)";
     }
 
     private String variantSuffix(ProductMapping mapping) {
@@ -1144,7 +1144,7 @@ public class WhatsAppFlowService {
     private Long longValue(JsonNode node, String... names) {
         String value = text(node, names);
         if (!StringUtils.hasText(value)) {
-            throw new BusinessException("Valor numerico nao encontrado no Flow.");
+            throw new BusinessException("Valor numérico não encontrado no Flow.");
         }
         return Long.valueOf(value);
     }
@@ -1152,7 +1152,7 @@ public class WhatsAppFlowService {
     private Integer intValue(JsonNode node, String... names) {
         String value = text(node, names);
         if (!StringUtils.hasText(value)) {
-            throw new BusinessException("Quantidade nao encontrada no Flow.");
+            throw new BusinessException("Quantidade não encontrada no Flow.");
         }
         return Integer.valueOf(value);
     }

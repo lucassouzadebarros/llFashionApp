@@ -119,7 +119,7 @@ public class StorefrontController {
     @GetMapping("/address/cep/{cep}")
     public ViaCepAddressResponse findAddress(@PathVariable String cep) {
         return viaCepClient.buscarEndereco(cep)
-                .orElseThrow(() -> new EntityNotFoundException("CEP nao encontrado: " + cep));
+                .orElseThrow(() -> new EntityNotFoundException("CEP não encontrado: " + cep));
     }
 
     @PostMapping("/checkout/{cartToken}/shipping-options")

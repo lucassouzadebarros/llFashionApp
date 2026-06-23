@@ -94,7 +94,7 @@ public class WhatsAppCloudApiClient {
         } catch (WebClientRequestException exception) {
             throw new WhatsAppApiException(
                     503,
-                    "Falha de conexao ao enviar mensagem pelo WhatsApp.",
+                    "Falha de conexão ao enviar mensagem pelo WhatsApp.",
                     null,
                     preview(exception.getMessage()),
                     exception
@@ -105,7 +105,7 @@ public class WhatsAppCloudApiClient {
                         504,
                         "Timeout ao enviar mensagem pelo WhatsApp.",
                         null,
-                        "A Meta nao respondeu em ate " + REQUEST_TIMEOUT.toSeconds() + " segundos.",
+                        "A Meta não respondeu em até " + REQUEST_TIMEOUT.toSeconds() + " segundos.",
                         exception
                 );
             }
@@ -145,7 +145,7 @@ public class WhatsAppCloudApiClient {
         if (contentType == null || !contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
             throw new WhatsAppApiException(
                     statusCode.value(),
-                    "WhatsApp retornou resposta nao JSON ao enviar mensagem. Content-Type: " + contentTypeValue,
+                    "WhatsApp retornou resposta não JSON ao enviar mensagem. Content-Type: " + contentTypeValue,
                     contentTypeValue,
                     bodyPreview
             );

@@ -35,7 +35,7 @@ public class OrderStatusSyncScheduler {
             int total = orderTrackingService.syncRecentOrderStatuses(lookbackDays);
             log.info("Sincronizacao de status de pedidos concluida. pedidosVerificados={}", total);
         } catch (Exception exception) {
-            log.warn("Nao foi possivel sincronizar status dos pedidos automaticamente: {}", exception.getMessage());
+            log.warn("Não foi possível sincronizar status dos pedidos automaticamente: {}", exception.getMessage());
         }
     }
 }

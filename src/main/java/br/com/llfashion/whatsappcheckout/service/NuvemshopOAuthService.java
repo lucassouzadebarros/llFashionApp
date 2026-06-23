@@ -40,7 +40,7 @@ public class NuvemshopOAuthService {
 
     public String processCallback(String code) {
         if (!StringUtils.hasText(code)) {
-            throw new BusinessException("Parametro code e obrigatorio", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("Parâmetro code é obrigatório", HttpStatus.BAD_REQUEST);
         }
         validateOAuthConfiguration();
 
@@ -64,13 +64,13 @@ public class NuvemshopOAuthService {
 
     private void validateOAuthConfiguration() {
         if (!StringUtils.hasText(properties.clientSecret())) {
-            throw new BusinessException("NUVEMSHOP_CLIENT_SECRET nao configurado nas variaveis de ambiente.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BusinessException("NUVEMSHOP_CLIENT_SECRET não configurado nas variáveis de ambiente.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (!StringUtils.hasText(properties.appId())) {
-            throw new BusinessException("NUVEMSHOP_APP_ID nao configurado nas variaveis de ambiente.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BusinessException("NUVEMSHOP_APP_ID não configurado nas variáveis de ambiente.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (!StringUtils.hasText(properties.tokenUrl())) {
-            throw new BusinessException("nuvemshop.token-url nao configurado.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BusinessException("nuvemshop.token-url não configurado.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

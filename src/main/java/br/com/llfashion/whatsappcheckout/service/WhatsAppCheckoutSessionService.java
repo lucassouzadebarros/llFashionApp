@@ -13,6 +13,7 @@ import br.com.llfashion.whatsappcheckout.enums.WhatsAppCheckoutSessionStatus;
 import br.com.llfashion.whatsappcheckout.exception.BusinessException;
 import br.com.llfashion.whatsappcheckout.repository.WhatsAppCheckoutSessionRepository;
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -209,7 +210,7 @@ public class WhatsAppCheckoutSessionService {
 
         return TextSessionResult.reply(
                 session,
-                "Obrigado. Agora me envie o CPF do cliente, somente numeros."
+                "Obrigado. Agora me envie o CPF do cliente, somente números."
         );
     }
 
@@ -218,7 +219,7 @@ public class WhatsAppCheckoutSessionService {
         if (digits.length() != 11 && digits.length() != 14) {
             return TextSessionResult.reply(
                     session,
-                    "Esse documento nao parece valido. Envie o CPF com 11 numeros ou CNPJ com 14 numeros."
+                    "Esse documento não parece válido. Envie o CPF com 11 números ou CNPJ com 14 números."
             );
         }
 
@@ -236,7 +237,7 @@ public class WhatsAppCheckoutSessionService {
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             return TextSessionResult.reply(
                     session,
-                    "Esse e-mail nao parece valido. Me envie apenas o e-mail para eu continuar com seu pedido."
+                    "Esse e-mail não parece válido. Me envie apenas o e-mail para eu continuar com seu pedido."
             );
         }
 
@@ -246,7 +247,7 @@ public class WhatsAppCheckoutSessionService {
 
         return TextSessionResult.reply(
                 session,
-                "Agora me envie o CEP de entrega com 8 digitos."
+                "Agora me envie o CEP de entrega com 8 dígitos."
         );
     }
 
@@ -255,7 +256,7 @@ public class WhatsAppCheckoutSessionService {
         if (digits.length() != 8) {
             return TextSessionResult.reply(
                     session,
-                    "Esse CEP nao parece valido. Me envie o CEP com 8 digitos, por exemplo: 22041001."
+                    "Esse CEP não parece válido. Me envie o CEP com 8 dígitos, por exemplo: 22041001."
             );
         }
 
@@ -263,7 +264,7 @@ public class WhatsAppCheckoutSessionService {
         if (address.isEmpty()) {
             return TextSessionResult.reply(
                     session,
-                    "Nao encontrei esse CEP. Confira os 8 digitos e me envie novamente."
+                    "Não encontrei esse CEP. Confira os 8 dígitos e me envie novamente."
             );
         }
 
@@ -278,8 +279,8 @@ public class WhatsAppCheckoutSessionService {
 
         return TextSessionResult.reply(
                 session,
-                "Encontrei o endereco: " + formatAddress(session) + ".\n\n"
-                        + "Agora me envie o numero da casa ou apartamento."
+                "Encontrei o endereço: " + formatAddress(session) + ".\n\n"
+                        + "Agora me envie o número da casa ou apartamento."
         );
     }
 
@@ -288,7 +289,7 @@ public class WhatsAppCheckoutSessionService {
         if (!StringUtils.hasText(normalizedNumber)) {
             return TextSessionResult.reply(
                     session,
-                    "Me envie o numero da casa ou apartamento para eu cadastrar no pedido."
+                    "Me envie o número da casa ou apartamento para eu cadastrar no pedido."
             );
         }
 
@@ -298,8 +299,8 @@ public class WhatsAppCheckoutSessionService {
 
         return TextSessionResult.reply(
                 session,
-                "Tem complemento? Exemplo: bloco, casa, apto ou referencia.\n\n"
-                        + "Se nao tiver, responda: sem complemento"
+                "Tem complemento? Exemplo: bloco, casa, apto ou referência.\n\n"
+                        + "Se não tiver, responda: sem complemento"
         );
     }
 
@@ -382,7 +383,7 @@ public class WhatsAppCheckoutSessionService {
                 .map(item -> item.mapping().getProductName()
                         + variantSuffix(item.mapping())
                         + ": solicitado " + item.quantity()
-                        + ", disponivel " + item.mapping().getStock())
+                        + ", disponível " + item.mapping().getStock())
                 .findFirst()
                 .orElse(null);
     }
@@ -434,7 +435,9 @@ public class WhatsAppCheckoutSessionService {
         if (!StringUtils.hasText(normalized)) {
             return null;
         }
-        String lower = normalized.toLowerCase();
+        String lower = Normalizer.normalize(normalized, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase();
         if ("sem".equals(lower)
                 || "nao".equals(lower)
                 || "não".equals(lower)
@@ -494,7 +497,7 @@ public class WhatsAppCheckoutSessionService {
                     .map(item -> item.getProductName()
                             + (StringUtils.hasText(item.getVariantName()) ? " - " + item.getVariantName() : "")
                             + ": solicitado " + item.getQuantity()
-                            + ", disponivel " + item.getProductMapping().getStock())
+                            + ", disponível " + item.getProductMapping().getStock())
                     .findFirst()
                     .orElse(null);
 

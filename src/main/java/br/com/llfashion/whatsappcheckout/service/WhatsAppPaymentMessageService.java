@@ -33,7 +33,7 @@ public class WhatsAppPaymentMessageService {
 
     public boolean sendPaymentLink(String to, String customerName, CreateDraftOrderResponse order, String webhookPhoneNumberId) {
         if (order == null || !StringUtils.hasText(order.checkoutUrl())) {
-            log.warn("Mensagem de pagamento WhatsApp nao enviada: checkoutUrl vazio.");
+            log.warn("Mensagem de pagamento WhatsApp não enviada: checkoutUrl vazio.");
             return false;
         }
 
@@ -42,22 +42,22 @@ public class WhatsAppPaymentMessageService {
 
     public boolean sendInitialMenu(String to, String customerName, String webhookPhoneNumberId) {
         if (!StringUtils.hasText(properties.accessToken())) {
-            log.warn("Menu WhatsApp nao enviado: WHATSAPP_ACCESS_TOKEN nao configurado.");
+            log.warn("Menu WhatsApp não enviado: WHATSAPP_ACCESS_TOKEN não configurado.");
             return false;
         }
 
         String phoneNumberId = resolvePhoneNumberId(webhookPhoneNumberId);
         if (!StringUtils.hasText(phoneNumberId)) {
-            log.warn("Menu WhatsApp nao enviado: WHATSAPP_PHONE_NUMBER_ID nao configurado e payload sem phone_number_id.");
+            log.warn("Menu WhatsApp não enviado: WHATSAPP_PHONE_NUMBER_ID não configurado e payload sem phone_number_id.");
             return false;
         }
 
         String name = StringUtils.hasText(customerName) && !"Cliente WhatsApp".equalsIgnoreCase(customerName.trim())
                 ? ", " + customerName.trim()
                 : "";
-        String body = "Bem-vinda a LLFashion Moda" + name + "!\n\n"
+        String body = "Bem-vinda a L&LFashion" + name + "!\n\n"
                 + "Trabalhamos com moda feminina no atacado.\n\n"
-                + "Pedido minimo: R$ 200,00.\n\n"
+                + "Pedido mínimo: R$ 200,00.\n\n"
                 + "Como deseja continuar?";
 
         try {
@@ -65,7 +65,7 @@ public class WhatsAppPaymentMessageService {
             return true;
         } catch (WhatsAppApiException exception) {
             if (isTransientFailure(exception)) {
-                log.warn("Falha temporaria ao enviar menu interativo. Tentando novamente. status={}, bodyPreview={}",
+            log.warn("Falha temporária ao enviar menu interativo. Tentando novamente. status={}, bodyPreview={}",
                         exception.getStatusCode(),
                         exception.getResponseBody());
                 sleepBeforeRetry();
@@ -100,17 +100,17 @@ public class WhatsAppPaymentMessageService {
 
     public boolean sendText(String to, String message, String webhookPhoneNumberId) {
         if (!StringUtils.hasText(message)) {
-            log.warn("Mensagem WhatsApp nao enviada: texto vazio.");
+            log.warn("Mensagem WhatsApp não enviada: texto vazio.");
             return false;
         }
         if (!StringUtils.hasText(properties.accessToken())) {
-            log.warn("Mensagem WhatsApp nao enviada: WHATSAPP_ACCESS_TOKEN nao configurado.");
+            log.warn("Mensagem WhatsApp não enviada: WHATSAPP_ACCESS_TOKEN não configurado.");
             return false;
         }
 
         String phoneNumberId = resolvePhoneNumberId(webhookPhoneNumberId);
         if (!StringUtils.hasText(phoneNumberId)) {
-            log.warn("Mensagem WhatsApp nao enviada: WHATSAPP_PHONE_NUMBER_ID nao configurado e payload sem phone_number_id.");
+            log.warn("Mensagem WhatsApp não enviada: WHATSAPP_PHONE_NUMBER_ID não configurado e payload sem phone_number_id.");
             return false;
         }
 
@@ -155,7 +155,7 @@ public class WhatsAppPaymentMessageService {
         String name = StringUtils.hasText(customerName) ? customerName.trim() : "Cliente";
         String total = orderTotal(order);
 
-        return "Ola, " + name + "! Seu pedido foi criado com sucesso.\n\n"
+        return "Olá, " + name + "! Seu pedido foi criado com sucesso.\n\n"
                 + "Total: " + total + "\n"
                 + "Link para pagamento:\n"
                 + order.checkoutUrl() + "\n\n"

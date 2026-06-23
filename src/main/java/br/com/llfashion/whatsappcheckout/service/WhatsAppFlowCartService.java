@@ -67,7 +67,7 @@ public class WhatsAppFlowCartService {
             List<CartItemInput> items
     ) {
         if (items == null || items.isEmpty()) {
-            throw new BusinessException("Carrinho do WhatsApp nao possui itens para abrir o Flow.");
+            throw new BusinessException("Carrinho do WhatsApp não possui itens para abrir o Flow.");
         }
 
         if (StringUtils.hasText(whatsappMessageId)) {
@@ -102,7 +102,7 @@ public class WhatsAppFlowCartService {
         }
 
         if (cart.getItems().isEmpty()) {
-            throw new BusinessException("Nenhum item do carrinho possui estoque disponivel para continuar.");
+            throw new BusinessException("Nenhum item do carrinho possui estoque disponível para continuar.");
         }
 
         cart.setSubtotal(subtotal(cart));
@@ -137,7 +137,7 @@ public class WhatsAppFlowCartService {
         int requestedTotal = currentQuantity + quantity;
         int stock = mapping.getStock() == null ? 0 : mapping.getStock();
         if (requestedTotal > stock) {
-            throw new BusinessException("Estoque insuficiente para adicionar ao carrinho. Disponivel agora: "
+            throw new BusinessException("Estoque insuficiente para adicionar ao carrinho. Disponível agora: "
                     + Math.max(0, stock - currentQuantity) + " unidade(s).");
         }
 
@@ -205,30 +205,30 @@ public class WhatsAppFlowCartService {
                         .filter(item -> nuvemshopVariantId.equals(item.getNuvemshopVariantId()))
                         .findFirst()
                         .map(this::toCartItemOption))
-                .orElseThrow(() -> new BusinessException("Item do carrinho nao encontrado para ajustar quantidade."));
+                .orElseThrow(() -> new BusinessException("Item do carrinho não encontrado para ajustar quantidade."));
     }
 
     @Transactional
     public CartSummary updateItemQuantity(String customerPhone, Long nuvemshopVariantId, Integer quantity) {
         if (quantity == null || quantity < 0) {
-            throw new BusinessException("Quantidade do item no carrinho nao pode ser negativa.");
+            throw new BusinessException("Quantidade do item no carrinho não pode ser negativa.");
         }
 
         WhatsAppCheckoutSession cart = openCart(customerPhone)
-                .orElseThrow(() -> new BusinessException("Carrinho do WhatsApp nao encontrado para ajustar quantidade."));
+                .orElseThrow(() -> new BusinessException("Carrinho do WhatsApp não encontrado para ajustar quantidade."));
 
         WhatsAppCheckoutSessionItem item = cart.getItems()
                 .stream()
                 .filter(cartItem -> nuvemshopVariantId.equals(cartItem.getNuvemshopVariantId()))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException("Item do carrinho nao encontrado para ajustar quantidade."));
+                .orElseThrow(() -> new BusinessException("Item do carrinho não encontrado para ajustar quantidade."));
 
         if (quantity == 0) {
             cart.getItems().remove(item);
         } else {
             int stock = itemStock(item);
             if (quantity > stock) {
-                throw new BusinessException("Quantidade maior que o estoque disponivel. Disponivel: " + stock + " unidade(s).");
+                throw new BusinessException("Quantidade maior que o estoque disponível. Disponível: " + stock + " unidade(s).");
             }
             item.setQuantity(quantity);
         }
@@ -242,10 +242,10 @@ public class WhatsAppFlowCartService {
     @Transactional
     public CreateDraftOrderResponse createOrderFromOpenCart(String customerPhone, CartCustomerData customerData) {
         WhatsAppCheckoutSession cart = openCart(customerPhone)
-                .orElseThrow(() -> new BusinessException("Carrinho do WhatsApp nao encontrado para finalizar."));
+                .orElseThrow(() -> new BusinessException("Carrinho do WhatsApp não encontrado para finalizar."));
 
         if (cart.getItems().isEmpty()) {
-            throw new BusinessException("Carrinho do WhatsApp esta vazio.");
+            throw new BusinessException("Carrinho do WhatsApp está vazio.");
         }
 
         validateMinimum(cart);
@@ -364,8 +364,8 @@ public class WhatsAppFlowCartService {
         BigDecimal minimum = checkoutProperties.resolvedMinimumOrderTotal();
         BigDecimal subtotal = subtotal(cart);
         if (subtotal.compareTo(minimum) < 0) {
-            throw new BusinessException("Pedido minimo nao atingido. Subtotal: "
-                    + money(subtotal) + ". Minimo: " + money(minimum) + ".");
+            throw new BusinessException("Pedido mínimo não atingido. Subtotal: "
+                    + money(subtotal) + ". Mínimo: " + money(minimum) + ".");
         }
     }
 
@@ -374,7 +374,7 @@ public class WhatsAppFlowCartService {
             ProductMapping mapping = item.getProductMapping();
             int stock = mapping == null || mapping.getStock() == null ? 0 : mapping.getStock();
             if (item.getQuantity() > stock) {
-                throw new BusinessException("Estoque mudou. Disponivel agora para "
+                throw new BusinessException("Estoque mudou. Disponível agora para "
                         + item.getProductName()
                         + (StringUtils.hasText(item.getVariantName()) ? " - " + item.getVariantName() : "")
                         + ": " + stock + " unidade(s).");
@@ -400,7 +400,7 @@ public class WhatsAppFlowCartService {
         if (subtotal.compareTo(minimum) >= 0) {
             return base + total;
         }
-        return base + total + "\nPedido minimo: " + money(minimum) + "\nFalta: " + money(minimum.subtract(subtotal));
+        return base + total + "\nPedido mínimo: " + money(minimum) + "\nFalta: " + money(minimum.subtract(subtotal));
     }
 
     private BigDecimal subtotal(WhatsAppCheckoutSession cart) {

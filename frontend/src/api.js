@@ -22,13 +22,13 @@ async function request(path, options = {}) {
     const preview = text.replace(/\s+/g, ' ').slice(0, 180);
     throw new Error(
       response.ok
-        ? 'O servidor retornou uma resposta HTML em vez de JSON. Recarregue a pagina e tente novamente.'
-        : `O servidor retornou uma resposta nao JSON (${response.status}). ${preview}`
+        ? 'O servidor retornou uma resposta HTML em vez de JSON. Recarregue a página e tente novamente.'
+        : `O servidor retornou uma resposta não JSON (${response.status}). ${preview}`
     );
   }
 
   if (!response.ok) {
-    throw new Error(data?.message || 'Nao foi possivel concluir a operacao.');
+    throw new Error(data?.message || 'Não foi possível concluir a operação.');
   }
   return data;
 }

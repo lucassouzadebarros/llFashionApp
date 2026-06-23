@@ -3,6 +3,7 @@ package br.com.llfashion.whatsappcheckout.service;
 import br.com.llfashion.whatsappcheckout.entity.ProductMapping;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,24 +31,24 @@ public class WhatsAppProductSearchService {
     public List<Map<String, Object>> mainMenuOptions() {
         return List.of(
                 option("BUY_CATEGORY", "Comprar por categoria", "Montar carrinho no atacado"),
-                option("VIEW_NEW", "Ver novidades", "Pecas disponiveis em estoque"),
-                option("VIEW_PROMOS", "Ver promocoes", "Ofertas e oportunidades"),
-                option("VIEW_CART", "Ver carrinho", "Revisar itens e pedido minimo"),
+                option("VIEW_NEW", "Ver novidades", "Peças disponíveis em estoque"),
+                option("VIEW_PROMOS", "Ver promoções", "Ofertas e oportunidades"),
+                option("VIEW_CART", "Ver carrinho", "Revisar itens e pedido mínimo"),
                 option("HUMAN", "Falar com atendente", "Chamar atendimento humano")
         );
     }
 
     public List<Map<String, Object>> categoryOptions() {
         return List.of(
-                option(CATEGORY_ALL, "Todos os produtos", "Ver pecas disponiveis"),
+                option(CATEGORY_ALL, "Todos os produtos", "Ver peças disponíveis"),
                 option("CROPPEDS", "Croppeds", "Tops e croppeds"),
                 option("SAIAS", "Saias", "Saias femininas"),
                 option("SHORTS", "Shorts", "Shorts femininos"),
                 option("VESTIDOS", "Vestidos", "Vestidos"),
                 option("BLUSAS", "Blusas", "Blusas femininas"),
                 option("CONJUNTOS", "Conjuntos", "Conjuntos"),
-                option("FITNESS", "Moda fitness", "Pecas fitness"),
-                option(CATEGORY_PROMOTIONS, "Promocoes", "Produtos promocionais"),
+                option("FITNESS", "Moda fitness", "Peças fitness"),
+                option(CATEGORY_PROMOTIONS, "Promoções", "Produtos promocionais"),
                 option(CATEGORY_NOVELTIES, "Novidades", "Produtos recentes")
         );
     }
@@ -77,7 +78,7 @@ public class WhatsAppProductSearchService {
     public String titleForCategory(String categoryId) {
         return switch (normalize(categoryId)) {
             case CATEGORY_NOVELTIES -> "Novidades";
-            case CATEGORY_PROMOTIONS -> "Promocoes";
+            case CATEGORY_PROMOTIONS -> "Promoções";
             case "CROPPEDS" -> "Croppeds";
             case "SAIAS" -> "Saias";
             case "SHORTS" -> "Shorts";
@@ -85,7 +86,7 @@ public class WhatsAppProductSearchService {
             case "BLUSAS" -> "Blusas";
             case "CONJUNTOS" -> "Conjuntos";
             case "FITNESS" -> "Moda fitness";
-            default -> "Produtos disponiveis";
+            default -> "Produtos disponíveis";
         };
     }
 
@@ -128,7 +129,12 @@ public class WhatsAppProductSearchService {
     }
 
     private String normalize(String value) {
-        return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
+        if (value == null) {
+            return "";
+        }
+        String normalized = Normalizer.normalize(value.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return normalized.toUpperCase(Locale.ROOT);
     }
 
     private static String money(BigDecimal value) {

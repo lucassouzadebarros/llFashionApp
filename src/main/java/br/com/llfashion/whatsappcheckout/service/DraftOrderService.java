@@ -87,7 +87,7 @@ public class DraftOrderService {
             if (existingOrder != null) {
                 return toCreateDraftOrderResponse(
                         existingOrder,
-                        "Pedido ja processado anteriormente para este carrinho do WhatsApp."
+                        "Pedido já processado anteriormente para este carrinho do WhatsApp."
                 );
             }
         }
@@ -182,7 +182,7 @@ public class DraftOrderService {
             throw new BusinessException("Estoque insuficiente para "
                     + mapping.getProductName()
                     + (StringUtils.hasText(mapping.getVariantName()) ? " - " + mapping.getVariantName() : "")
-                    + ". Disponivel: " + mapping.getStock()
+                    + ". Disponível: " + mapping.getStock()
                     + ", solicitado: " + item.quantity() + ".");
         }
 

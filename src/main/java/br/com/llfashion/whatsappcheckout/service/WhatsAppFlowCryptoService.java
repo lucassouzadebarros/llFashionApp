@@ -59,7 +59,7 @@ public class WhatsAppFlowCryptoService {
             throw exception;
         } catch (Exception exception) {
             log.warn("Falha ao descriptografar chamada do WhatsApp Flow: {}", exception.getMessage(), exception);
-            throw new BusinessException("Nao foi possivel descriptografar a chamada do WhatsApp Flow.", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("Não foi possível descriptografar a chamada do WhatsApp Flow.", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -76,7 +76,7 @@ public class WhatsAppFlowCryptoService {
             );
             return Base64.getEncoder().encodeToString(cipher.doFinal(responseJson));
         } catch (Exception exception) {
-            throw new BusinessException("Nao foi possivel criptografar a resposta do WhatsApp Flow.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BusinessException("Não foi possível criptografar a resposta do WhatsApp Flow.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -117,7 +117,7 @@ public class WhatsAppFlowCryptoService {
         }
 
         if (!StringUtils.hasText(pem)) {
-            throw new BusinessException("WHATSAPP_FLOW_PRIVATE_KEY ou WHATSAPP_FLOW_PRIVATE_KEY_PATH nao configurado.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BusinessException("WHATSAPP_FLOW_PRIVATE_KEY ou WHATSAPP_FLOW_PRIVATE_KEY_PATH não configurado.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         String normalized = pem.replace("\\n", "\n")

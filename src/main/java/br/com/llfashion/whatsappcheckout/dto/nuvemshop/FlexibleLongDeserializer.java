@@ -24,7 +24,7 @@ public class FlexibleLongDeserializer extends JsonDeserializer<Long> {
             try {
                 return Long.valueOf(value.trim());
             } catch (NumberFormatException exception) {
-                throw JsonMappingException.from(parser, "user_id nao e um numero valido: " + value, exception);
+                throw JsonMappingException.from(parser, "user_id não é um número válido: " + value, exception);
             }
         }
         if (token == JsonToken.VALUE_NULL) {

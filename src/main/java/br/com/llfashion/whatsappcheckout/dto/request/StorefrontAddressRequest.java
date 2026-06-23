@@ -3,18 +3,18 @@ package br.com.llfashion.whatsappcheckout.dto.request;
 import jakarta.validation.constraints.NotBlank;
 
 public record StorefrontAddressRequest(
-        @NotBlank(message = "postalCode e obrigatorio")
+        @NotBlank(message = "postalCode é obrigatório")
         String postalCode,
-        @NotBlank(message = "street e obrigatorio")
+        @NotBlank(message = "street é obrigatório")
         String street,
-        @NotBlank(message = "number e obrigatorio")
+        @NotBlank(message = "number é obrigatório")
         String number,
         String complement,
-        @NotBlank(message = "neighborhood e obrigatorio")
+        @NotBlank(message = "neighborhood é obrigatório")
         String neighborhood,
-        @NotBlank(message = "city e obrigatorio")
+        @NotBlank(message = "city é obrigatório")
         String city,
-        @NotBlank(message = "state e obrigatorio")
+        @NotBlank(message = "state é obrigatório")
         String state
 ) {
 }
