@@ -145,8 +145,8 @@ public class WhatsAppPaymentMessageService {
                 onlyDigits(to),
                 "Outras opções",
                 List.of(
-                        new WhatsAppButtonMessageRequest.ButtonOption(MENU_TRACK_ORDER, "Acompanhar Pedido"),
-                        new WhatsAppButtonMessageRequest.ButtonOption(MENU_HUMAN_ATTENDANT, "Falar com Atendente")
+                        new WhatsAppButtonMessageRequest.ButtonOption(MENU_TRACK_ORDER, "📦 Acompanhar Pedido"),
+                        new WhatsAppButtonMessageRequest.ButtonOption(MENU_HUMAN_ATTENDANT, "💬 Falar Atendente")
                 )
         );
     }
