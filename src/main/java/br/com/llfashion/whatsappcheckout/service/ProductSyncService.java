@@ -106,6 +106,7 @@ public class ProductSyncService {
                     productName,
                     productMapper.resolveVariantName(variant),
                     productMapper.resolveVariantImageUrl(product, variant),
+                    productMapper.resolveProductImageUrl(product),
                     effectivePrice(variant),
                     variant.stock(),
                     hasPromotionalPrice(variant)

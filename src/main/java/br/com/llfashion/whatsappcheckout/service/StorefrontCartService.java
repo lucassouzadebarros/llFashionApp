@@ -395,7 +395,8 @@ public class StorefrontCartService {
                 variant == null ? 0 : variant.stock(),
                 effectivePrice(variant, mapping.getPrice()),
                 hasPromotionalPrice(variant),
-                productMapper.resolveVariantImageUrl(product, variant)
+                productMapper.resolveVariantImageUrl(product, variant),
+                productMapper.resolveProductImageUrl(product)
         );
     }
 
@@ -425,7 +426,8 @@ public class StorefrontCartService {
                     variant == null ? 0 : variant.stock(),
                     effectivePrice(variant, item.getUnitPrice()),
                     hasPromotionalPrice(variant),
-                    productMapper.resolveVariantImageUrl(product, variant)
+                    productMapper.resolveVariantImageUrl(product, variant),
+                    productMapper.resolveProductImageUrl(product)
             );
             item.setProductMapping(updatedMapping);
             item.setImageUrl(updatedMapping.getImageUrl());

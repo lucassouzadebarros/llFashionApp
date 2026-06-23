@@ -12,6 +12,7 @@ public record ProductMappingResponse(
         String productName,
         String variantName,
         String imageUrl,
+        String productImageUrl,
         BigDecimal price,
         Integer stock,
         Boolean promotional,

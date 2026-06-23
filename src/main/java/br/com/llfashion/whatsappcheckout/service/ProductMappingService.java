@@ -35,6 +35,7 @@ public class ProductMappingService {
             String productName,
             String variantName,
             String imageUrl,
+            String productImageUrl,
             BigDecimal price,
             Integer stock,
             Boolean promotional
@@ -48,6 +49,7 @@ public class ProductMappingService {
         mapping.setProductName(productName);
         mapping.setVariantName(trimToNull(variantName));
         mapping.setImageUrl(trimToNull(imageUrl));
+        mapping.setProductImageUrl(trimToNull(productImageUrl));
         mapping.setPrice(price);
         mapping.setStock(stock);
         mapping.setPromotional(Boolean.TRUE.equals(promotional));
@@ -110,10 +112,20 @@ public class ProductMappingService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public ProductMapping updateStockPriceAndImage(Long nuvemshopVariantId, Integer stock, BigDecimal price, Boolean promotional, String imageUrl) {
+    public ProductMapping updateStockPriceAndImage(
+            Long nuvemshopVariantId,
+            Integer stock,
+            BigDecimal price,
+            Boolean promotional,
+            String imageUrl,
+            String productImageUrl
+    ) {
         ProductMapping mapping = updateStockAndPrice(nuvemshopVariantId, stock, price, promotional);
         if (StringUtils.hasText(imageUrl)) {
             mapping.setImageUrl(imageUrl.trim());
+        }
+        if (StringUtils.hasText(productImageUrl)) {
+            mapping.setProductImageUrl(productImageUrl.trim());
         }
         return repository.save(mapping);
     }

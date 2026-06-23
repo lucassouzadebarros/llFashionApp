@@ -183,6 +183,10 @@ public class StorefrontCatalogService {
         return StringUtils.hasText(mapping.getImageUrl()) ? mapping.getImageUrl().trim() : FALLBACK_IMAGE_URL;
     }
 
+    private String productImageUrl(ProductMapping mapping) {
+        return StringUtils.hasText(mapping.getProductImageUrl()) ? mapping.getProductImageUrl().trim() : imageUrl(mapping);
+    }
+
     private String normalize(String value) {
         if (!StringUtils.hasText(value)) {
             return "";
@@ -269,7 +273,7 @@ public class StorefrontCatalogService {
 
         String imageUrl() {
             return variants.stream()
-                    .map(StorefrontCatalogService.this::imageUrl)
+                    .map(StorefrontCatalogService.this::productImageUrl)
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElse(FALLBACK_IMAGE_URL);

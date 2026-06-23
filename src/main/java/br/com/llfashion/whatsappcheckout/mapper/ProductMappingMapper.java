@@ -17,6 +17,7 @@ public class ProductMappingMapper {
                 productMapping.getProductName(),
                 productMapping.getVariantName(),
                 productMapping.getImageUrl(),
+                productMapping.getProductImageUrl(),
                 productMapping.getPrice(),
                 productMapping.getStock(),
                 productMapping.getPromotional(),

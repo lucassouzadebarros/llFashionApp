@@ -51,6 +51,9 @@ public class ProductMapping {
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
 
+    @Column(name = "product_image_url", length = 1000)
+    private String productImageUrl;
+
     @Column(name = "price", precision = 10, scale = 2)
     private BigDecimal price;
 

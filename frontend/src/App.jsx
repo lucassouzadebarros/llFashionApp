@@ -527,7 +527,7 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, qua
 
   return (
     <section className="screen">
-      <SafeImage className="detailImage" src={selectedVariant?.imageUrl || product.imageUrl} alt={product.productName} />
+      <SafeImage className="detailImage" src={product.imageUrl} alt={product.productName} />
       <div className="productHeader">
         <h2>{product.productName}</h2>
         <p>A partir de {money(product.startingPrice)}</p>
