@@ -19,6 +19,7 @@ public class ProductMappingMapper {
                 productMapping.getImageUrl(),
                 productMapping.getPrice(),
                 productMapping.getStock(),
+                productMapping.getPromotional(),
                 productMapping.getActive()
         );
     }

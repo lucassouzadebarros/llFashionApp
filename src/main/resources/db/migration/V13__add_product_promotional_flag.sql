@@ -1,0 +1,2 @@
+ALTER TABLE product_mapping
+    ADD COLUMN promotional BOOLEAN NOT NULL DEFAULT FALSE;

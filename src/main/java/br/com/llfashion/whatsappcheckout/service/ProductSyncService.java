@@ -6,6 +6,7 @@ import br.com.llfashion.whatsappcheckout.dto.nuvemshop.NuvemshopVariantResponse;
 import br.com.llfashion.whatsappcheckout.dto.response.ProductSyncResponse;
 import br.com.llfashion.whatsappcheckout.entity.NuvemshopInstallation;
 import br.com.llfashion.whatsappcheckout.mapper.NuvemshopProductMapper;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,12 +106,31 @@ public class ProductSyncService {
                     productName,
                     productMapper.resolveVariantName(variant),
                     productMapper.resolveVariantImageUrl(product, variant),
-                    variant.price(),
-                    variant.stock()
+                    effectivePrice(variant),
+                    variant.stock(),
+                    hasPromotionalPrice(variant)
             );
             total++;
         }
 
         return total;
+    }
+
+    private BigDecimal effectivePrice(NuvemshopVariantResponse variant) {
+        if (hasPromotionalPrice(variant)) {
+            return variant.promotionalPrice();
+        }
+        return variant.price();
+    }
+
+    private boolean hasPromotionalPrice(NuvemshopVariantResponse variant) {
+        if (variant == null || variant.promotionalPrice() == null) {
+            return false;
+        }
+        BigDecimal promotionalPrice = variant.promotionalPrice();
+        if (promotionalPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            return false;
+        }
+        return variant.price() == null || promotionalPrice.compareTo(variant.price()) < 0;
     }
 }

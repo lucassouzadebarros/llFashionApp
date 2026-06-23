@@ -99,7 +99,8 @@ public class WhatsAppProductSearchService {
         String text = normalize(mapping.getProductName() + " " + mapping.getVariantName() + " " + mapping.getSku());
         return switch (category) {
             case CATEGORY_NOVELTIES -> containsAny(text, "NOVIDADE", "NEW", "LANCAMENTO", "LANCAMENTOS");
-            case CATEGORY_PROMOTIONS -> containsAny(text, "PROMO", "PROMOCAO", "SALE", "OFF", "LIQUIDA");
+            case CATEGORY_PROMOTIONS -> Boolean.TRUE.equals(mapping.getPromotional())
+                    || containsAny(text, "PROMO", "PROMOCAO", "SALE", "OFF", "LIQUIDA");
             case "CROPPEDS" -> containsAny(text, "CROPPED", "TOP");
             case "SAIAS" -> containsAny(text, "SAIA");
             case "SHORTS" -> containsAny(text, "SHORT", "SHORTS");

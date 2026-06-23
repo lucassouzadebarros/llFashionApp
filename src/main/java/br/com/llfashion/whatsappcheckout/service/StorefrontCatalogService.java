@@ -216,6 +216,9 @@ public class StorefrontCatalogService {
                 return true;
             }
             String searchable = group.searchableName();
+            if ("promocoes".equals(id) && group.promotional()) {
+                return true;
+            }
             return keywords.stream().anyMatch(searchable::contains);
         }
 
@@ -257,6 +260,11 @@ public class StorefrontCatalogService {
 
         String searchableName() {
             return normalize(name());
+        }
+
+        boolean promotional() {
+            return variants.stream()
+                    .anyMatch(mapping -> Boolean.TRUE.equals(mapping.getPromotional()));
         }
 
         String imageUrl() {

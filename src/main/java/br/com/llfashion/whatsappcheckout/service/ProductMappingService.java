@@ -36,7 +36,8 @@ public class ProductMappingService {
             String variantName,
             String imageUrl,
             BigDecimal price,
-            Integer stock
+            Integer stock,
+            Boolean promotional
     ) {
         ProductMapping mapping = repository.findByNuvemshopVariantId(variantId)
                 .orElseGet(ProductMapping::new);
@@ -49,6 +50,7 @@ public class ProductMappingService {
         mapping.setImageUrl(trimToNull(imageUrl));
         mapping.setPrice(price);
         mapping.setStock(stock);
+        mapping.setPromotional(Boolean.TRUE.equals(promotional));
         mapping.setActive(true);
 
         return repository.save(mapping);
@@ -96,19 +98,20 @@ public class ProductMappingService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public ProductMapping updateStockAndPrice(Long nuvemshopVariantId, Integer stock, BigDecimal price) {
+    public ProductMapping updateStockAndPrice(Long nuvemshopVariantId, Integer stock, BigDecimal price, Boolean promotional) {
         ProductMapping mapping = repository.findByNuvemshopVariantIdAndActiveTrue(nuvemshopVariantId)
                 .orElseThrow(() -> new BusinessException("Produto não encontrado para o nuvemshopVariantId: " + nuvemshopVariantId));
         mapping.setStock(stock == null ? 0 : stock);
         if (price != null) {
             mapping.setPrice(price);
         }
+        mapping.setPromotional(Boolean.TRUE.equals(promotional));
         return repository.save(mapping);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public ProductMapping updateStockPriceAndImage(Long nuvemshopVariantId, Integer stock, BigDecimal price, String imageUrl) {
-        ProductMapping mapping = updateStockAndPrice(nuvemshopVariantId, stock, price);
+    public ProductMapping updateStockPriceAndImage(Long nuvemshopVariantId, Integer stock, BigDecimal price, Boolean promotional, String imageUrl) {
+        ProductMapping mapping = updateStockAndPrice(nuvemshopVariantId, stock, price, promotional);
         if (StringUtils.hasText(imageUrl)) {
             mapping.setImageUrl(imageUrl.trim());
         }

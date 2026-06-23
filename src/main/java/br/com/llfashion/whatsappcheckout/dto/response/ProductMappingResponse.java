@@ -14,6 +14,7 @@ public record ProductMappingResponse(
         String imageUrl,
         BigDecimal price,
         Integer stock,
+        Boolean promotional,
         Boolean active
 ) {
 }

@@ -393,7 +393,8 @@ public class StorefrontCartService {
         return productMappingService.updateStockPriceAndImage(
                 mapping.getNuvemshopVariantId(),
                 variant == null ? 0 : variant.stock(),
-                variant == null ? mapping.getPrice() : variant.price(),
+                effectivePrice(variant, mapping.getPrice()),
+                hasPromotionalPrice(variant),
                 productMapper.resolveVariantImageUrl(product, variant)
         );
     }
@@ -422,7 +423,8 @@ public class StorefrontCartService {
             ProductMapping updatedMapping = productMappingService.updateStockPriceAndImage(
                     item.getNuvemshopVariantId(),
                     variant == null ? 0 : variant.stock(),
-                    variant == null ? item.getUnitPrice() : variant.price(),
+                    effectivePrice(variant, item.getUnitPrice()),
+                    hasPromotionalPrice(variant),
                     productMapper.resolveVariantImageUrl(product, variant)
             );
             item.setProductMapping(updatedMapping);
@@ -574,6 +576,27 @@ public class StorefrontCartService {
 
     private BigDecimal price(ProductMapping mapping) {
         return mapping.getPrice() == null ? BigDecimal.ZERO : mapping.getPrice();
+    }
+
+    private BigDecimal effectivePrice(NuvemshopVariantResponse variant, BigDecimal fallbackPrice) {
+        if (hasPromotionalPrice(variant)) {
+            return variant.promotionalPrice();
+        }
+        if (variant != null && variant.price() != null) {
+            return variant.price();
+        }
+        return fallbackPrice;
+    }
+
+    private boolean hasPromotionalPrice(NuvemshopVariantResponse variant) {
+        if (variant == null || variant.promotionalPrice() == null) {
+            return false;
+        }
+        BigDecimal promotionalPrice = variant.promotionalPrice();
+        if (promotionalPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            return false;
+        }
+        return variant.price() == null || promotionalPrice.compareTo(variant.price()) < 0;
     }
 
     private String variantSuffix(ProductMapping mapping) {

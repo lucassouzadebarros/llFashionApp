@@ -57,6 +57,9 @@ public class ProductMapping {
     @Column(name = "stock")
     private Integer stock;
 
+    @Column(name = "promotional", nullable = false)
+    private Boolean promotional;
+
     @Column(name = "active", nullable = false)
     private Boolean active;
 
@@ -74,10 +77,16 @@ public class ProductMapping {
         if (active == null) {
             active = true;
         }
+        if (promotional == null) {
+            promotional = false;
+        }
     }
 
     @PreUpdate
     void onUpdate() {
         updatedAt = LocalDateTime.now();
+        if (promotional == null) {
+            promotional = false;
+        }
     }
 }

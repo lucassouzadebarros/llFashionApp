@@ -14,6 +14,8 @@ public record NuvemshopVariantResponse(
         Long imageId,
         String sku,
         BigDecimal price,
+        @JsonProperty("promotional_price")
+        BigDecimal promotionalPrice,
         Integer stock,
         JsonNode values
 ) {
