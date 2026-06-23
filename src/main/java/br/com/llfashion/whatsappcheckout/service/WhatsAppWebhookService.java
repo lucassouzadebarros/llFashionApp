@@ -136,19 +136,11 @@ public class WhatsAppWebhookService {
                 }
 
                 if (isBuyNowRequest(textBody)) {
-                    boolean sent = whatsAppPaymentMessageService.sendShoppingCta(
+                    if (whatsAppPaymentMessageService.sendShoppingCta(
                             message.path("from").asText(),
                             resolveCustomerName(payload),
                             phoneNumberId
-                    );
-                    if (!sent) {
-                        sent = whatsAppPaymentMessageService.sendText(
-                                message.path("from").asText(),
-                                buildInitialMenuMessage(message.path("from").asText(), resolveCustomerName(payload)),
-                                phoneNumberId
-                        );
-                    }
-                    if (sent) {
+                    )) {
                         textRepliesSent++;
                     }
                     continue;
@@ -176,13 +168,6 @@ public class WhatsAppWebhookService {
                             resolveCustomerName(payload),
                             phoneNumberId
                     );
-                    if (!sent) {
-                        sent = whatsAppPaymentMessageService.sendText(
-                                message.path("from").asText(),
-                                buildInitialMenuMessage(message.path("from").asText(), resolveCustomerName(payload)),
-                                phoneNumberId
-                        );
-                    }
                     if (sent) {
                         textRepliesSent++;
                     }
@@ -465,21 +450,11 @@ public class WhatsAppWebhookService {
         }
 
         boolean sent = switch (buttonId) {
-            case WhatsAppPaymentMessageService.MENU_BUY_NOW -> {
-                boolean shoppingSent = whatsAppPaymentMessageService.sendShoppingCta(
-                        customerPhone,
-                        resolveCustomerName(payload),
-                        phoneNumberId
-                );
-                if (!shoppingSent) {
-                    shoppingSent = whatsAppPaymentMessageService.sendText(
-                            customerPhone,
-                            buildInitialMenuMessage(customerPhone, resolveCustomerName(payload)),
-                            phoneNumberId
-                    );
-                }
-                yield shoppingSent;
-            }
+            case WhatsAppPaymentMessageService.MENU_BUY_NOW -> whatsAppPaymentMessageService.sendShoppingCta(
+                    customerPhone,
+                    resolveCustomerName(payload),
+                    phoneNumberId
+            );
             case WhatsAppPaymentMessageService.MENU_TRACK_ORDER -> {
                 var result = orderTrackingService.findOrdersByPhone(customerPhone);
                 yield whatsAppPaymentMessageService.sendOrderTrackingCta(customerPhone, result, phoneNumberId);
