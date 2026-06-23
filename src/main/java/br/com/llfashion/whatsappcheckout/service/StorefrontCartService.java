@@ -120,6 +120,25 @@ public class StorefrontCartService {
     }
 
     @Transactional
+    public StorefrontSessionResponse recoverSessionFromToken(String cartToken) {
+        if (!StringUtils.hasText(cartToken)) {
+            return startSession(null);
+        }
+
+        StorefrontCart expiredOrExistingCart = cartRepository.findByCartToken(cartToken.trim()).orElse(null);
+        if (expiredOrExistingCart == null) {
+            return startSession(null);
+        }
+
+        if (expiredOrExistingCart.getExpiresAt().isBefore(LocalDateTime.now())) {
+            expiredOrExistingCart.setStatus(StorefrontCartStatus.EXPIRED);
+            cartRepository.save(expiredOrExistingCart);
+        }
+
+        return startSession(firstText(expiredOrExistingCart.getPhoneNumber(), expiredOrExistingCart.getCustomerPhone()));
+    }
+
+    @Transactional
     public StorefrontCartResponse addItem(String cartToken, Long nuvemshopVariantId, Integer quantity) {
         StorefrontCart cart = findActiveCart(cartToken);
         ProductMapping mapping = productMappingService.findActiveByNuvemshopVariantId(nuvemshopVariantId);
@@ -640,6 +659,10 @@ public class StorefrontCartService {
 
     private String trimToNull(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private String firstText(String first, String second) {
+        return StringUtils.hasText(first) ? first.trim() : trimToNull(second);
     }
 
     private record NameParts(String firstName, String lastName) {

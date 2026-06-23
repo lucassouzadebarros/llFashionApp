@@ -49,6 +49,11 @@ public class StorefrontController {
         return cartService.startSession(phone);
     }
 
+    @GetMapping("/session/recover/{cartToken}")
+    public StorefrontSessionResponse recoverSession(@PathVariable String cartToken) {
+        return cartService.recoverSessionFromToken(cartToken);
+    }
+
     @GetMapping("/categories")
     public List<StorefrontCategoryResponse> listCategories() {
         return catalogService.listCategories();

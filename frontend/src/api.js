@@ -20,15 +20,20 @@ async function request(path, options = {}) {
     data = JSON.parse(text);
   } else if (text && !isJson) {
     const preview = text.replace(/\s+/g, ' ').slice(0, 180);
-    throw new Error(
+    const error = new Error(
       response.ok
         ? 'O servidor retornou uma resposta HTML em vez de JSON. Recarregue a página e tente novamente.'
         : `O servidor retornou uma resposta não JSON (${response.status}). ${preview}`
     );
+    error.status = response.status;
+    throw error;
   }
 
   if (!response.ok) {
-    throw new Error(data?.message || 'Não foi possível concluir a operação.');
+    const error = new Error(data?.message || 'Não foi possível concluir a operação.');
+    error.status = response.status;
+    error.data = data;
+    throw error;
   }
   return data;
 }
@@ -37,6 +42,9 @@ export const api = {
   startSession(phone) {
     const query = phone ? `?phone=${encodeURIComponent(phone)}` : '';
     return request(`/api/storefront/session/start${query}`);
+  },
+  recoverSession(cartToken) {
+    return request(`/api/storefront/session/recover/${encodeURIComponent(cartToken)}`);
   },
   getCategories() {
     return request('/api/storefront/categories');

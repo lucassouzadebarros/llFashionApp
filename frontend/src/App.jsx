@@ -147,6 +147,7 @@ export default function App() {
       const categoryList = await api.getCategories();
       setCartToken(session.cartToken);
       localStorage.setItem('llfashion_cart_token', session.cartToken);
+      replaceUrlCartToken(session.cartToken);
       setCart(session.cart);
       setCategories(categoryList);
       await loadProducts('todos');
@@ -159,8 +160,15 @@ export default function App() {
 
   async function loadSession() {
     if (urlCartToken) {
-      const linkedCart = await api.getCart(urlCartToken);
-      return { cartToken: urlCartToken, cart: linkedCart };
+      try {
+        const linkedCart = await api.getCart(urlCartToken);
+        return { cartToken: urlCartToken, cart: linkedCart };
+      } catch (err) {
+        if (err.status === 404 || err.status === 410) {
+          return api.recoverSession(urlCartToken);
+        }
+        throw err;
+      }
     }
 
     if (phone) {
@@ -178,6 +186,13 @@ export default function App() {
       localStorage.removeItem('llfashion_cart_token');
       return api.startSession(phone);
     }
+  }
+
+  function replaceUrlCartToken(nextCartToken) {
+    if (!urlCartToken || !nextCartToken || nextCartToken === urlCartToken) return;
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('token', nextCartToken);
+    window.history.replaceState({}, '', nextUrl.toString());
   }
 
   async function loadProducts(categoryId) {
