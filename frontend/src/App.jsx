@@ -205,8 +205,7 @@ export default function App() {
     await withBusy(async () => {
       const product = await api.getProduct(productId);
       setSelectedProduct(product);
-      const firstVariant = product.variants.find((variant) => variant.available);
-      setSelectedVariant(firstVariant || null);
+      setSelectedVariant(null);
       setVariantImageSelected(false);
       setQuantity(1);
       navigate('detail');
@@ -557,23 +556,29 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, var
           ))}
         </div>
       </FieldGroup>
-      <FieldGroup label="Quantidade">
-        <div className="quantityStepper">
-          <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus size={18} /></button>
-          <strong>{quantity}</strong>
-          <button onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))} disabled={quantity >= maxQuantity}><Plus size={18} /></button>
-        </div>
-        <div className="quantityChips">
-          {quantities.map((item) => (
-            <button key={item} className={quantity === item ? 'selected' : ''} onClick={() => setQuantity(item)}>{item}</button>
-          ))}
-        </div>
-      </FieldGroup>
-      <div className="partialTotal">
-        <span>Total parcial</span>
-        <strong>{money((selectedVariant?.price || 0) * quantity)}</strong>
-      </div>
-      <button className="primaryButton" onClick={onAdd} disabled={!selectedVariant || maxQuantity <= 0}>Adicionar ao carrinho</button>
+      {selectedVariant && (
+        <>
+          <FieldGroup label="Quantidade">
+            <div className="quantityStepper">
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus size={18} /></button>
+              <strong>{quantity}</strong>
+              <button onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))} disabled={quantity >= maxQuantity}><Plus size={18} /></button>
+            </div>
+            <div className="quantityChips">
+              {quantities.map((item) => (
+                <button key={item} className={quantity === item ? 'selected' : ''} onClick={() => setQuantity(item)}>{item}</button>
+              ))}
+            </div>
+          </FieldGroup>
+          <div className="partialTotal">
+            <span>Total parcial</span>
+            <strong>{money(selectedVariant.price * quantity)}</strong>
+          </div>
+        </>
+      )}
+      <button className="primaryButton" onClick={onAdd} disabled={!selectedVariant || maxQuantity <= 0}>
+        {selectedVariant ? 'Adicionar ao carrinho' : 'Escolha uma variação'}
+      </button>
     </section>
   );
 }
