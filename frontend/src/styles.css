@@ -416,6 +416,10 @@ button {
   font-size: 15px;
 }
 
+.fieldGroup h3 strong {
+  font-weight: 800;
+}
+
 .variantGrid {
   display: grid;
   gap: 8px;
@@ -437,6 +441,73 @@ button {
 
 .variantGrid button:disabled {
   opacity: 0.45;
+}
+
+.colorSwatches,
+.sizeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.colorSwatch {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 3px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.colorSwatch span {
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--swatch-color);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  position: relative;
+}
+
+.colorSwatch.light span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 46%, #94a3b8 48%, #94a3b8 52%, transparent 54%);
+}
+
+.colorSwatch.selected {
+  border-color: #111827;
+  box-shadow: 0 0 0 2px #111827;
+}
+
+.colorSwatch:disabled,
+.sizeChips button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.sizeChips button {
+  min-height: 36px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #111827;
+}
+
+.sizeChips button.selected {
+  border-color: #111827;
+  box-shadow: 0 0 0 1px #111827;
+}
+
+.variantStockNote {
+  display: block;
+  margin-top: 9px;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .quantityStepper,

@@ -25,6 +25,27 @@ import { api } from './api.js';
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 const FALLBACK_IMAGE = 'https://placehold.co/900x1200/f3faf6/047857.png?text=L%26LFashion';
+const COLOR_SWATCHES = {
+  AMARELO: '#fde047',
+  AZUL: '#1d4ed8',
+  BEGE: '#d6b98c',
+  BRANCO: '#ffffff',
+  CINZA: '#9ca3af',
+  DOURADO: '#c8a13b',
+  LARANJA: '#f59e0b',
+  LILAS: '#d8b4fe',
+  MARFIM: '#f8f1df',
+  MARROM: '#9a6a2f',
+  NUDE: '#e6c7ad',
+  'OFF WHITE': '#faf7ed',
+  PINK: '#f472b6',
+  PRATA: '#cbd5e1',
+  PRETO: '#111827',
+  ROSA: '#f9a8d4',
+  ROXO: '#7c3aed',
+  VERDE: '#22c55e',
+  VERMELHO: '#ef4444'
+};
 
 const viewTitle = {
   home: 'Boas-vindas',
@@ -528,6 +549,29 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, var
   const maxQuantity = selectedVariant?.stock || 0;
   const quantities = Array.from({ length: Math.min(maxQuantity, 12) }, (_, index) => index + 1);
   const detailImage = variantImageSelected && selectedVariant?.imageUrl ? selectedVariant.imageUrl : product.imageUrl;
+  const colorOptions = colorChoices(product.variants);
+  const selectedColor = selectedVariant ? variantColorLabel(selectedVariant) : '';
+  const sizeOptions = selectedColor ? sizeChoices(product.variants, selectedColor) : [];
+
+  function chooseVariant(variant) {
+    if (!variant?.available) return;
+    setSelectedVariant(variant);
+    setVariantImageSelected(true);
+    setQuantity(1);
+  }
+
+  function chooseColor(option) {
+    chooseVariant(option.variants.find((variant) => variant.available));
+  }
+
+  function chooseSize(size) {
+    const variant = product.variants.find((item) => (
+      item.available
+      && variantColorLabel(item) === selectedColor
+      && variantSizeLabel(item) === size
+    ));
+    chooseVariant(variant);
+  }
 
   return (
     <section className="screen">
@@ -537,25 +581,42 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, var
         <p>A partir de {money(product.startingPrice)}</p>
         <span>Estoque total: {product.totalStock}</span>
       </div>
-      <FieldGroup label="Variação">
-        <div className="variantGrid">
-          {product.variants.map((variant) => (
+      <FieldGroup label={selectedColor ? <>Cor: <strong>{selectedColor}</strong></> : 'Cor'}>
+        <div className="colorSwatches">
+          {colorOptions.map((option) => (
             <button
-              key={variant.nuvemshopVariantId}
-              className={selectedVariant?.nuvemshopVariantId === variant.nuvemshopVariantId ? 'selected' : ''}
-              disabled={!variant.available}
-              onClick={() => {
-                setSelectedVariant(variant);
-                setVariantImageSelected(true);
-                setQuantity(1);
-              }}
+              type="button"
+              key={option.color}
+              className={`colorSwatch ${selectedColor === option.color ? 'selected' : ''} ${isLightSwatch(option.color) ? 'light' : ''}`}
+              style={{ '--swatch-color': swatchColor(option.color) }}
+              disabled={!option.available}
+              onClick={() => chooseColor(option)}
+              aria-label={`Cor ${option.color}`}
+              title={option.color}
             >
-              <b>{variant.variantName || 'Único'}</b>
-              <small>{money(variant.price)} | Estoque {variant.stock}</small>
+              <span />
             </button>
           ))}
         </div>
       </FieldGroup>
+      {selectedColor && (
+        <FieldGroup label={selectedVariant ? <>Tamanho: <strong>{variantSizeLabel(selectedVariant)}</strong></> : 'Tamanho'}>
+          <div className="sizeChips">
+            {sizeOptions.map((option) => (
+              <button
+                type="button"
+                key={option.size}
+                className={selectedVariant && variantSizeLabel(selectedVariant) === option.size ? 'selected' : ''}
+                disabled={!option.available}
+                onClick={() => chooseSize(option.size)}
+              >
+                {option.size}
+              </button>
+            ))}
+          </div>
+          {selectedVariant && <small className="variantStockNote">Estoque: {selectedVariant.stock}</small>}
+        </FieldGroup>
+      )}
       {selectedVariant && (
         <>
           <FieldGroup label="Quantidade">
@@ -1022,6 +1083,67 @@ function FieldGroup({ label, children }) {
       {children}
     </div>
   );
+}
+
+function variantColorLabel(variant) {
+  return variant?.color || variant?.variantName || 'Único';
+}
+
+function variantSizeLabel(variant) {
+  return variant?.size || 'Único';
+}
+
+function colorChoices(variants = []) {
+  const groups = new Map();
+  for (const variant of variants) {
+    const color = variantColorLabel(variant);
+    if (!groups.has(color)) {
+      groups.set(color, []);
+    }
+    groups.get(color).push(variant);
+  }
+  return Array.from(groups.entries()).map(([color, items]) => ({
+    color,
+    variants: items,
+    available: items.some((variant) => variant.available)
+  }));
+}
+
+function sizeChoices(variants = [], color) {
+  const groups = new Map();
+  for (const variant of variants.filter((item) => variantColorLabel(item) === color)) {
+    const size = variantSizeLabel(variant);
+    if (!groups.has(size)) {
+      groups.set(size, []);
+    }
+    groups.get(size).push(variant);
+  }
+  return Array.from(groups.entries()).map(([size, items]) => ({
+    size,
+    available: items.some((variant) => variant.available)
+  }));
+}
+
+function swatchColor(color) {
+  const normalized = normalizeColor(color);
+  if (COLOR_SWATCHES[normalized]) {
+    return COLOR_SWATCHES[normalized];
+  }
+  const partial = Object.keys(COLOR_SWATCHES).find((knownColor) => normalized.includes(knownColor));
+  return partial ? COLOR_SWATCHES[partial] : '#e5e7eb';
+}
+
+function isLightSwatch(color) {
+  const normalized = normalizeColor(color);
+  return ['BRANCO', 'OFF WHITE', 'MARFIM', 'BEGE', 'NUDE'].some((knownColor) => normalized.includes(knownColor));
+}
+
+function normalizeColor(color) {
+  return String(color || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toUpperCase();
 }
 
 function MinimumProgress({ cart }) {
