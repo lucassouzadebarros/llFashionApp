@@ -57,7 +57,11 @@ public class WhatsAppPaymentMessageService {
             return false;
         }
 
-        String storefrontUrl = storefrontCartService.storefrontUrlForPhone(to);
+        String storefrontUrl = storefrontUrlForPhone(to);
+        if (!StringUtils.hasText(storefrontUrl)) {
+            return false;
+        }
+
         String body = buildShoppingCtaBody(customerName);
         try {
             sendShoppingCtaRequest(phoneNumberId, to, body, storefrontUrl);
@@ -92,7 +96,7 @@ public class WhatsAppPaymentMessageService {
     }
 
     public boolean sendShoppingCta(String to, String customerName, String webhookPhoneNumberId) {
-        String storefrontUrl = storefrontCartService.storefrontUrlForPhone(to);
+        String storefrontUrl = storefrontUrlForPhone(to);
         return sendShoppingCta(to, customerName, storefrontUrl, webhookPhoneNumberId);
     }
 
@@ -215,6 +219,17 @@ public class WhatsAppPaymentMessageService {
                         new WhatsAppButtonMessageRequest.ButtonOption(MENU_HUMAN_ATTENDANT, "💬 Falar Atendente")
                 )
         );
+    }
+
+    private String storefrontUrlForPhone(String to) {
+        try {
+            return storefrontCartService.storefrontUrlForPhone(to);
+        } catch (RuntimeException exception) {
+            log.warn("Nao foi possivel gerar link do storefront para menu WhatsApp. phone={}, erro={}",
+                    maskPhone(to),
+                    exception.getMessage());
+            return null;
+        }
     }
 
     private String trackingUrl(OrderStatusListResponse result, String to) {
@@ -343,5 +358,13 @@ public class WhatsAppPaymentMessageService {
 
     private String onlyDigits(String value) {
         return value == null ? "" : value.replaceAll("\\D", "");
+    }
+
+    private String maskPhone(String phone) {
+        String digits = onlyDigits(phone);
+        if (digits.length() <= 4) {
+            return "****";
+        }
+        return "***" + digits.substring(digits.length() - 4);
     }
 }

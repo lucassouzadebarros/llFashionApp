@@ -90,7 +90,7 @@ public class StorefrontCartService {
         if (StringUtils.hasText(normalizedPhone)) {
             StorefrontCart reusableCart = cartRepository
                     .findFirstByPhoneNumberAndStatusInOrderByUpdatedAtDesc(normalizedPhone, REUSABLE_STATUSES)
-                    .filter(cart -> cart.getExpiresAt().isAfter(LocalDateTime.now()))
+                    .filter(this::isActiveCart)
                     .orElse(null);
             if (reusableCart != null) {
                 recalculateAndSave(reusableCart);
@@ -130,7 +130,7 @@ public class StorefrontCartService {
             return startSession(null);
         }
 
-        if (expiredOrExistingCart.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (isExpiredCart(expiredOrExistingCart)) {
             expiredOrExistingCart.setStatus(StorefrontCartStatus.EXPIRED);
             cartRepository.save(expiredOrExistingCart);
         }
@@ -341,7 +341,7 @@ public class StorefrontCartService {
         }
         StorefrontCart cart = cartRepository.findByCartToken(cartToken.trim())
                 .orElseThrow(() -> new EntityNotFoundException("Carrinho não encontrado: " + cartToken));
-        if (cart.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (isExpiredCart(cart)) {
             cart.setStatus(StorefrontCartStatus.EXPIRED);
             cartRepository.save(cart);
             throw new BusinessException("Carrinho expirado. Inicie um novo pedido.", HttpStatus.GONE);
@@ -355,12 +355,20 @@ public class StorefrontCartService {
         }
         StorefrontCart cart = cartRepository.findByCartTokenForUpdate(cartToken.trim())
                 .orElseThrow(() -> new EntityNotFoundException("Carrinho não encontrado: " + cartToken));
-        if (cart.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (isExpiredCart(cart)) {
             cart.setStatus(StorefrontCartStatus.EXPIRED);
             cartRepository.save(cart);
             throw new BusinessException("Carrinho expirado. Inicie um novo pedido.", HttpStatus.GONE);
         }
         return cart;
+    }
+
+    private boolean isActiveCart(StorefrontCart cart) {
+        return cart != null && !isExpiredCart(cart);
+    }
+
+    private boolean isExpiredCart(StorefrontCart cart) {
+        return cart == null || cart.getExpiresAt() == null || cart.getExpiresAt().isBefore(LocalDateTime.now());
     }
 
     private StorefrontCartItem findItem(StorefrontCart cart, UUID itemId) {
