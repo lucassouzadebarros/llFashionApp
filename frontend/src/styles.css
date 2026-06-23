@@ -395,12 +395,67 @@ button {
   border-radius: 999px;
 }
 
+.detailMedia {
+  position: relative;
+}
+
 .detailImage {
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 18px;
   background: #f3f4f6;
+  display: block;
+}
+
+.carouselNav {
+  position: absolute;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(203, 213, 225, 0.84);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #111827;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+}
+
+.carouselNav.previous {
+  left: 10px;
+}
+
+.carouselNav.next {
+  right: 10px;
+}
+
+.carouselDots {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  display: flex;
+  gap: 7px;
+  transform: translateX(-50%);
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.carouselDots button {
+  width: 7px;
+  height: 7px;
+  border: 0;
+  border-radius: 999px;
+  background: #94a3b8;
+  padding: 0;
+}
+
+.carouselDots button.selected {
+  width: 18px;
+  background: #111827;
 }
 
 .productHeader {
@@ -563,6 +618,10 @@ button {
 .totalsCard strong {
   color: #047857;
   font-size: 20px;
+}
+
+.detailActionButton {
+  margin-top: 20px;
 }
 
 .centerScreen {

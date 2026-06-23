@@ -3,6 +3,8 @@ import {
   ArrowLeft,
   BadgeCheck,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clipboard,
   CircleDollarSign,
   ExternalLink,
@@ -545,13 +547,30 @@ function ProductsScreen({ category, products, onProduct }) {
 }
 
 function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, variantImageSelected, setVariantImageSelected, quantity, setQuantity, onAdd }) {
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  useEffect(() => {
+    setCarouselIndex(0);
+  }, [product?.nuvemshopProductId]);
+
   if (!product) return null;
   const maxQuantity = selectedVariant?.stock || 0;
   const quantities = Array.from({ length: Math.min(maxQuantity, 12) }, (_, index) => index + 1);
-  const detailImage = variantImageSelected && selectedVariant?.imageUrl ? selectedVariant.imageUrl : product.imageUrl;
+  const carouselImages = productGalleryImages(product);
+  const carouselImage = carouselImages[carouselIndex] || product.imageUrl;
+  const detailImage = variantImageSelected && selectedVariant?.imageUrl ? selectedVariant.imageUrl : carouselImage;
+  const showCarousel = !selectedVariant && carouselImages.length > 1;
   const colorOptions = colorChoices(product.variants);
   const selectedColor = selectedVariant ? variantColorLabel(selectedVariant) : '';
   const sizeOptions = selectedColor ? sizeChoices(product.variants, selectedColor) : [];
+
+  function showPreviousImage() {
+    setCarouselIndex((current) => (current - 1 + carouselImages.length) % carouselImages.length);
+  }
+
+  function showNextImage() {
+    setCarouselIndex((current) => (current + 1) % carouselImages.length);
+  }
 
   function chooseVariant(variant) {
     if (!variant?.available) return;
@@ -575,7 +594,30 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, var
 
   return (
     <section className="screen">
-      <SafeImage className="detailImage" src={detailImage} alt={product.productName} />
+      <div className="detailMedia">
+        <SafeImage className="detailImage" src={detailImage} alt={product.productName} />
+        {showCarousel && (
+          <>
+            <button className="carouselNav previous" type="button" onClick={showPreviousImage} aria-label="Foto anterior">
+              <ChevronLeft size={20} />
+            </button>
+            <button className="carouselNav next" type="button" onClick={showNextImage} aria-label="Próxima foto">
+              <ChevronRight size={20} />
+            </button>
+            <div className="carouselDots" aria-label="Fotos do produto">
+              {carouselImages.map((imageUrl, index) => (
+                <button
+                  type="button"
+                  key={`${imageUrl}-${index}`}
+                  className={index === carouselIndex ? 'selected' : ''}
+                  onClick={() => setCarouselIndex(index)}
+                  aria-label={`Ver foto ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
       <div className="productHeader">
         <h2>{product.productName}</h2>
         <p>A partir de {money(product.startingPrice)}</p>
@@ -637,7 +679,7 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, var
           </div>
         </>
       )}
-      <button className="primaryButton" onClick={onAdd} disabled={!selectedVariant || maxQuantity <= 0}>
+      <button className="primaryButton detailActionButton" onClick={onAdd} disabled={!selectedVariant || maxQuantity <= 0}>
         {selectedVariant ? 'Adicionar ao carrinho' : 'Escolha uma variação'}
       </button>
     </section>
@@ -1087,6 +1129,14 @@ function FieldGroup({ label, children }) {
 
 function variantColorLabel(variant) {
   return variant?.color || variant?.variantName || 'Único';
+}
+
+function productGalleryImages(product) {
+  const urls = [
+    product?.imageUrl,
+    ...(product?.variants || []).map((variant) => variant.imageUrl)
+  ].filter(Boolean);
+  return Array.from(new Set(urls));
 }
 
 function variantSizeLabel(variant) {
