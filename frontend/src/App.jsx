@@ -50,6 +50,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('todos');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [variantImageSelected, setVariantImageSelected] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [shippingOptions, setShippingOptions] = useState([]);
   const [checkout, setCheckout] = useState(null);
@@ -206,6 +207,7 @@ export default function App() {
       setSelectedProduct(product);
       const firstVariant = product.variants.find((variant) => variant.available);
       setSelectedVariant(firstVariant || null);
+      setVariantImageSelected(false);
       setQuantity(1);
       navigate('detail');
     });
@@ -381,6 +383,8 @@ export default function App() {
             product={selectedProduct}
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
+            variantImageSelected={variantImageSelected}
+            setVariantImageSelected={setVariantImageSelected}
             quantity={quantity}
             setQuantity={setQuantity}
             onAdd={addSelectedItem}
@@ -520,14 +524,15 @@ function ProductsScreen({ category, products, onProduct }) {
   );
 }
 
-function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, quantity, setQuantity, onAdd }) {
+function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, variantImageSelected, setVariantImageSelected, quantity, setQuantity, onAdd }) {
   if (!product) return null;
   const maxQuantity = selectedVariant?.stock || 0;
   const quantities = Array.from({ length: Math.min(maxQuantity, 12) }, (_, index) => index + 1);
+  const detailImage = variantImageSelected && selectedVariant?.imageUrl ? selectedVariant.imageUrl : product.imageUrl;
 
   return (
     <section className="screen">
-      <SafeImage className="detailImage" src={product.imageUrl} alt={product.productName} />
+      <SafeImage className="detailImage" src={detailImage} alt={product.productName} />
       <div className="productHeader">
         <h2>{product.productName}</h2>
         <p>A partir de {money(product.startingPrice)}</p>
@@ -542,6 +547,7 @@ function ProductDetailScreen({ product, selectedVariant, setSelectedVariant, qua
               disabled={!variant.available}
               onClick={() => {
                 setSelectedVariant(variant);
+                setVariantImageSelected(true);
                 setQuantity(1);
               }}
             >
